@@ -39,9 +39,9 @@ class SenhaDBSource {
 
       senha.id = await db.rawInsert('''
           INSERT INTO $SENHA_TABLE_NAME 
-          ($SENHA_TITULO_NAME, $SENHA_CREDENCIAL_NAME, $SENHA_SENHA_BASE_NAME, $SENHA_AVANCADO_NAME, $SENHA_ALGORITMO_NAME) 
+          ($SENHA_TITULO_NAME, $SENHA_CREDENCIAL_NAME, $SENHA_SENHA_BASE_NAME, $SENHA_AVANCADO_NAME, $SENHA_ALGORITMO_NAME, $SENHA_CRIPTOGRAFADO_NAME) 
           VALUES 
-          ('${senha.titulo}', '${senha.credencial}', '${senha.senhaBase}', ${senha.avancado ? 1 : 0}, ${senha.algoritmo})
+          ('${senha.titulo}', '${senha.credencial}', '${senha.senhaBase}', ${senha.avancado ? 1 : 0}, ${senha.algoritmo}, ${senha.criptografado ? 1 : 0})
       ''');
 
       return senha;

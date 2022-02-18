@@ -25,6 +25,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final credencialEC = TextEditingController();
   final senhaEC = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool isCriptografado = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +53,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
               child: AppTextField(
-                label: "Usuário/e-mail",
+                label: "Usuário/e-mail/CPF/credencial",
                 padding: 0,
                 controller: credencialEC,
                 validator: Validatorless.multiple([
@@ -63,86 +64,114 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
               child: AppTextField(
-                label: "Senha base",
+                label: "Senha",
                 padding: 0,
                 controller: senhaEC,
                 validator: Validatorless.multiple([
-                  Validatorless.required("A senha base é obrigatória"),
+                  Validatorless.required("A senha é obrigatória"),
                 ]),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Row(
+            SizedBox(
+              width: MediaQuery.of(context).size.width * .8,
+              child: CheckboxListTile(
+                side: const BorderSide(color: Colors.black),
+                activeColor: AppColors.SECONDARY_LIGHT,
+                checkColor: AppColors.ACCENT_LIGHT_2,
+                title: const Text(
+                  "Senha com criptografia Hash",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                value: isCriptografado,
+                onChanged: (isSelected) {
+                  setState(() {
+                    isCriptografado = isSelected!;
+                  });
+                },
+              ),
+            ),
+            Visibility(
+              visible: isCriptografado,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Função Hash:"),
                   Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: DropdownButton<int>(
-                      items: algoritmos.map<DropdownMenuItem<int>>((HashFunction algoritmo) {
-                        return DropdownMenuItem<int>(
-                          value: algoritmo.index,
-                          child: Text(algoritmo.label),
-                        );
-                      }).toList(),
-                      onChanged: (idSelecionado) {
-                        setState(() {
-                          algoritmoSelecionado = algoritmos.firstWhere((algoritmo) => algoritmo.index == idSelecionado);
-                        });
-                      },
-                      hint: const Text(
-                        "Selecione o algoritmo de hash",
-                        style: TextStyle(color: AppColors.ACCENT_LIGHT),
-                        textAlign: TextAlign.center,
-                      ),
-                      icon: const RotatedBox(quarterTurns: 1, child: Icon(Icons.chevron_right, color: AppColors.ACCENT_LIGHT)),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: const TextStyle(color: AppColors.ACCENT_LIGHT),
-                      underline: Container(
-                        height: 2,
-                        color: AppColors.ACCENT_LIGHT,
-                      ),
-                      value: algoritmoSelecionado?.index,
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Row(
+                      children: [
+                        const Text("Função Hash:"),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: DropdownButton<int>(
+                            items: algoritmos.map<DropdownMenuItem<int>>((HashFunction algoritmo) {
+                              return DropdownMenuItem<int>(
+                                value: algoritmo.index,
+                                child: Text(algoritmo.label),
+                              );
+                            }).toList(),
+                            onChanged: (idSelecionado) {
+                              setState(() {
+                                algoritmoSelecionado = algoritmos.firstWhere((algoritmo) => algoritmo.index == idSelecionado);
+                              });
+                            },
+                            hint: const Text(
+                              "Selecione o algoritmo de hash",
+                              style: TextStyle(color: AppColors.ACCENT_LIGHT),
+                              textAlign: TextAlign.center,
+                            ),
+                            icon: const RotatedBox(quarterTurns: 1, child: Icon(Icons.chevron_right, color: AppColors.ACCENT_LIGHT)),
+                            iconSize: 24,
+                            elevation: 16,
+                            style: const TextStyle(color: AppColors.ACCENT_LIGHT),
+                            underline: Container(
+                              height: 2,
+                              color: AppColors.ACCENT_LIGHT,
+                            ),
+                            value: algoritmoSelecionado?.index,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 15, bottom: 15),
+                    child: Text("Modo de criptografia:"),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * .45,
+                        child: RadioListTile(
+                          title: const Text("Modo normal"),
+                          value: false,
+                          groupValue: isAvancado,
+                          onChanged: (value) {
+                            setState(() {
+                              isAvancado = value as bool;
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * .45,
+                        child: RadioListTile(
+                          title: const Text("Modo Avançado"),
+                          value: true,
+                          groupValue: isAvancado,
+                          onChanged: (value) {
+                            setState(() {
+                              isAvancado = value as bool;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 15),
-              child: Text("Modo de criptografia:"),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .45,
-                  child: RadioListTile(
-                    title: const Text("Modo normal"),
-                    value: false,
-                    groupValue: isAvancado,
-                    onChanged: (value) {
-                      setState(() {
-                        isAvancado = value as bool;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .45,
-                  child: RadioListTile(
-                    title: const Text("Modo Avançado"),
-                    value: true,
-                    groupValue: isAvancado,
-                    onChanged: (value) {
-                      setState(() {
-                        isAvancado = value as bool;
-                      });
-                    },
-                  ),
-                ),
-              ],
             ),
             Padding(
               padding: const EdgeInsets.only(top: 20),
@@ -156,9 +185,10 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                     Senha senha = Senha(
                       titulo: tituloEC.text,
                       credencial: credencialEC.text,
-                      senhaBase: senhaEC.text,
+                      senhaBase: await Criptografia.criptografarSenha(senhaEC.text, ""),
                       avancado: isAvancado,
-                      algoritmo: algoritmoSelecionado!.index,
+                      algoritmo: algoritmoSelecionado == null ? 0 : algoritmoSelecionado!.index,
+                      criptografado: isCriptografado,
                     );
                     senha = await SenhaDBSource().inserirSenha(senha);
                     ScaffoldMessenger.of(context).showSnackBar(

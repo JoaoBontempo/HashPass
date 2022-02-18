@@ -40,8 +40,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
   @override
   void initState() {
     copyIcon = toCopy;
-    //senha = Criptografia.aplicarAlgoritmos(widget.senha.algoritmo, widget.senha.senhaBase, widget.senha.avancado);
-    Criptografia.aplicarAlgoritmos(widget.senha.algoritmo, widget.senha.senhaBase, widget.senha.avancado).then((value) {
+    Criptografia.aplicarAlgoritmos(widget.senha.algoritmo, widget.senha.senhaBase, widget.senha.avancado, "").then((value) {
       setState(() {
         senha = value;
       });

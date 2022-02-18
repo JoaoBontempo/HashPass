@@ -13,7 +13,7 @@ class MenuSenhas extends StatefulWidget {
 }
 
 class _MenuSenhasState extends State<MenuSenhas> {
-  late bool hasSenhas;
+  bool hasSenhas = true;
 
   @override
   void initState() {
@@ -65,6 +65,17 @@ class _MenuSenhasState extends State<MenuSenhas> {
                     ),
                     child: CardSenha(
                       senha: Util.senhas[index],
+                      onCopy: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Senha copiada!",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.greenAccent,
+                          ),
+                        );
+                      },
                       onUpdate: (code) {
                         if (code == 1) {
                           ScaffoldMessenger.of(context).showSnackBar(

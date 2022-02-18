@@ -7,6 +7,7 @@ class Senha {
   String senhaBase;
   bool avancado;
   int algoritmo;
+  bool criptografado;
   Senha({
     this.id,
     required this.titulo,
@@ -14,6 +15,7 @@ class Senha {
     required this.senhaBase,
     required this.avancado,
     required this.algoritmo,
+    required this.criptografado,
   });
 
   @override
@@ -28,6 +30,7 @@ class Senha {
       'credencial': credencial,
       'senhaBase': senhaBase,
       'avancado': avancado ? 1 : 0,
+      'criptografado': criptografado ? 1 : 0,
       'algoritmo': algoritmo,
     };
   }
@@ -40,6 +43,7 @@ class Senha {
       senhaBase: map['senhaBase'] ?? '',
       avancado: map['avancado'] == 1 ? true : false,
       algoritmo: map['algoritmo']?.toInt() ?? 0,
+      criptografado: map['criptografado'] == 1 ? true : false,
     );
   }
 

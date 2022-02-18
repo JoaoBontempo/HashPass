@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart' as hashs;
 import 'package:flutter/material.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 import 'package:hashpass/Model/hash_function.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Criptografia {
   static final List<HashFunction> algoritmos = [
@@ -15,6 +16,8 @@ class Criptografia {
     HashFunction(index: 5, label: "SHA-1"),
     HashFunction(index: 6, label: "HMAC"),
   ];
+
+  static String basePass = "";
 
   static String _aplicarAlgoritmoHash(hashs.Hash algotimo, String base) {
     var bytes = utf8.encode(base);
@@ -47,8 +50,9 @@ class Criptografia {
     }
   }
 
-  static Future<String> aplicarAlgoritmos(int algoritmo, String senha, bool isAvancado) async {
-    String senhaReal = _aplicacarHash(algoritmo, senha);
+  static Future<String> aplicarAlgoritmos(int algoritmo, String senha, bool isAvancado, String? chaveGeral) async {
+    String? senhaDecifrada = await decifrarSenha(senha, chaveGeral);
+    String senhaReal = _aplicacarHash(algoritmo, senhaDecifrada!);
     if (isAvancado) {
       try {
         senhaReal = (await FlutterAesEcbPkcs5.encryptString(senhaReal, senhaReal.substring(0, 32)))!;
@@ -58,8 +62,51 @@ class Criptografia {
         return erro.toString();
       }
     }
-
-    debugPrint(senhaReal);
     return senhaReal;
+  }
+
+  static Future<bool> validarChaveInserida(String? chaveGeral) async {
+    final configs = await SharedPreferences.getInstance();
+    String? mensagemCifrada = configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"));
+    String? mensagemDecifrada = await decifrarSenha(mensagemCifrada!, chaveGeral);
+
+    return mensagemDecifrada == _aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta");
+  }
+
+  static Future<bool> adicionarHashValidacao() async {
+    final configs = await SharedPreferences.getInstance();
+    String message =
+        await criptografarSenha(_aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta"), null);
+    return configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"), message);
+  }
+
+  static Future<String?> decifrarSenha(String cripted, String? chaveGeral) async {
+    String? key = await recuperarChaveGeral(chaveGeral);
+    return await FlutterAesEcbPkcs5.decryptString(cripted, key!);
+  }
+
+  static Future<String> criptografarSenha(String senha, String? chaveGeral) async {
+    String? key = await recuperarChaveGeral(chaveGeral);
+    return (await FlutterAesEcbPkcs5.encryptString(senha, key!))!;
+  }
+
+  static Future<String?> recuperarChaveGeral(String? base) async {
+    if (base == null) {
+      final configs = await SharedPreferences.getInstance();
+      String key = configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
+      return _aplicarAlgoritmoHash(hashs.sha512, key).substring(0, 32);
+    } else {
+      return _aplicarAlgoritmoHash(hashs.sha512, base64Encode(base.codeUnits)).substring(0, 32);
+    }
+  }
+
+  static Future<bool> criarChaveGeral(String baseKey) async {
+    try {
+      final configs = await SharedPreferences.getInstance();
+      return configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "key"), base64Encode(baseKey.codeUnits));
+    } catch (erro) {
+      debugPrint(erro.toString());
+      return false;
+    }
   }
 }

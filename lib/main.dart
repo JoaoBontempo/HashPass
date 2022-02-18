@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Themes/light.dart';
 import 'package:hashpass/View/index.dart';
+import 'package:hashpass/View/splashpage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hash Pass',
       theme: LightAppTheme(context).defaultTheme,
-      home: IndexPage(),
+      home: HashPasshSplashPage(),
     );
   }
 }

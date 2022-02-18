@@ -8,6 +8,7 @@ const String SENHA_CREDENCIAL_NAME = 'credencial';
 const String SENHA_SENHA_BASE_NAME = 'senhaBase';
 const String SENHA_AVANCADO_NAME = 'avancado';
 const String SENHA_ALGORITMO_NAME = 'algoritmo';
+const String SENHA_CRIPTOGRAFADO_NAME = 'criptografado';
 
 const String CREATE_TABLE_SENHA = ''' 
     CREATE TABLE $SENHA_TABLE_NAME (
@@ -16,8 +17,9 @@ const String CREATE_TABLE_SENHA = '''
       $SENHA_CREDENCIAL_NAME TEXT,
       $SENHA_SENHA_BASE_NAME TEXT,
       $SENHA_AVANCADO_NAME INTEGER,
-      $SENHA_ALGORITMO_NAME INTEGER
+      $SENHA_ALGORITMO_NAME INTEGER,
+      $SENHA_CRIPTOGRAFADO_NAME INTEGER
     )
   ''';
 
-const int DB_VERSION = 1;
+const int DB_VERSION = 2;
