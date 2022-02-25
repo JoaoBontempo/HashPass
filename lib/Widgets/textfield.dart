@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hashpass/Util/util.dart';
 
 import '../Themes/colors.dart';
+import '../Util/util.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
@@ -18,6 +18,10 @@ class AppTextField extends StatelessWidget {
     this.formatter,
     this.fontSize = 15,
     this.dark = false,
+    this.fontColor,
+    this.borderColor,
+    this.textAlign = TextAlign.start,
+    this.labelStyle,
   }) : super(key: key);
 
   final String label;
@@ -31,30 +35,32 @@ class AppTextField extends StatelessWidget {
   final List<TextInputFormatter>? formatter;
   final double? fontSize;
   final bool dark;
+  final Color? fontColor;
+  final Color? borderColor;
+  final TextAlign textAlign;
+  final TextStyle? labelStyle;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(padding!),
       child: TextFormField(
-        style: TextStyle(fontSize: fontSize, color: dark ? Colors.white : Colors.black),
+        textAlign: textAlign,
+        style: TextStyle(
+          fontSize: fontSize,
+          color: fontColor ?? Theme.of(context).textTheme.bodyText1?.color,
+        ),
         controller: controller,
         obscureText: obscureText,
         validator: validator,
         onChanged: onChange,
         keyboardType: keyboardType,
         inputFormatters: formatter,
-        cursorColor: dark ? Colors.white : AppColors.SECONDARY_LIGHT,
+        cursorColor: Colors.grey,
         decoration: InputDecoration(
-          border: dark ? Util.bordaPadrao(AppColors.ACCENT_LIGHT_2) : Util.bordaPadrao(AppColors.SECONDARY_LIGHT),
-          errorBorder: Util.bordaPadrao(Colors.redAccent),
-          enabledBorder: dark ? Util.bordaPadrao(AppColors.ACCENT_LIGHT_2) : Util.bordaPadrao(AppColors.SECONDARY_LIGHT),
-          focusedBorder: dark ? Util.bordaPadrao(AppColors.ACCENT_LIGHT_2) : Util.bordaPadrao(AppColors.ACCENT_LIGHT),
-          isDense: true,
           labelText: label,
-          labelStyle: dark ? TextStyle(color: AppColors.ACCENT_LIGHT_2, fontSize: 17) : TextStyle(color: AppColors.SECONDARY_LIGHT, fontSize: 17),
-          errorStyle: const TextStyle(color: Colors.redAccent),
-          filled: false,
+          enabledBorder: borderColor == null ? Theme.of(context).inputDecorationTheme.enabledBorder : Util.bordaPadrao(borderColor!),
+          labelStyle: labelStyle ?? Theme.of(context).inputDecorationTheme.labelStyle,
         ),
       ),
     );

@@ -24,7 +24,7 @@ class SenhaDBSource {
 
   Future<int> atualizarSenha(Senha senha) async {
     final Database db = await _getDatabase();
-
+    debugPrint("Senha atualizada: ${senha.toString()}");
     return await db.update(
       SENHA_TABLE_NAME,
       senha.toMap(),

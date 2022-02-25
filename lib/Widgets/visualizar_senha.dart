@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Util/criptografia.dart';
 
@@ -11,9 +13,12 @@ class VisualizacaoSenhaModal extends StatefulWidget {
   const VisualizacaoSenhaModal({
     Key? key,
     required this.senha,
+    required this.chaveGeral,
+    required this.copyIconColor,
   }) : super(key: key);
-
   final Senha senha;
+  final String chaveGeral;
+  final Color copyIconColor;
 
   @override
   _VisualizacaoSenhaModalState createState() => _VisualizacaoSenhaModalState();
@@ -21,15 +26,12 @@ class VisualizacaoSenhaModal extends StatefulWidget {
 
 class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
   double tempo = 0;
-  double tempoTotal = 30;
+  double tempoTotal = Configuration.showPasswordTime;
   late Timer time;
-  double cont = 30;
+  double cont = Configuration.showPasswordTime;
   String senha = "";
-  final Icon toCopy = const Icon(
-    Icons.copy,
-    color: AppColors.SECONDARY_LIGHT,
-  );
 
+  late Icon toCopy;
   final Icon copied = const Icon(
     Icons.check_circle,
     color: Colors.greenAccent,
@@ -39,12 +41,35 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
 
   @override
   void initState() {
+    debugPrint("Base: ${widget.senha.senhaBase}");
+    toCopy = Icon(
+      Icons.copy,
+      color: widget.copyIconColor,
+    );
     copyIcon = toCopy;
-    Criptografia.aplicarAlgoritmos(widget.senha.algoritmo, widget.senha.senhaBase, widget.senha.avancado, "").then((value) {
-      setState(() {
-        senha = value;
+    if (widget.senha.criptografado) {
+      Criptografia.aplicarAlgoritmos(
+        widget.senha.algoritmo,
+        widget.senha.senhaBase,
+        widget.senha.avancado,
+        widget.chaveGeral,
+      ).then((value) {
+        setState(() {
+          senha = value;
+        });
       });
-    });
+    } else {
+      Criptografia.decifrarSenha(
+        widget.senha.senhaBase,
+        widget.chaveGeral,
+      ).then(
+        (value) {
+          setState(() {
+            senha = value!;
+          });
+        },
+      );
+    }
     time = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (cont > 0) {
@@ -100,7 +125,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                     children: [
                       LinearProgressIndicator(
                         value: tempo,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.SECONDARY_LIGHT),
+                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).toggleableActiveColor),
                         backgroundColor: AppColors.ACCENT_LIGHT.withOpacity(0.3),
                       ),
                       Padding(
@@ -110,17 +135,17 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.timer,
-                                color: AppColors.SECONDARY_LIGHT,
+                                color: Theme.of(context).hintColor,
                                 size: 12,
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 5),
                                 child: Text(
                                   "${cont.toInt()} segundos",
-                                  style: const TextStyle(
-                                    color: AppColors.SECONDARY_LIGHT,
+                                  style: TextStyle(
+                                    color: Theme.of(context).hintColor,
                                     fontSize: 11,
                                   ),
                                 ),

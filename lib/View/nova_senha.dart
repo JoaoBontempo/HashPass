@@ -4,9 +4,9 @@ import 'package:hashpass/Model/hash_function.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Util/criptografia.dart';
-import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/button.dart';
 import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:validatorless/validatorless.dart';
 
 class NovaSenhaPage extends StatefulWidget {
@@ -26,6 +26,12 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final senhaEC = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool isCriptografado = false;
+
+  @override
+  void initState() {
+    algoritmoSelecionado = algoritmos[0];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,14 +81,12 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * .8,
               child: CheckboxListTile(
-                side: const BorderSide(color: Colors.black),
-                activeColor: AppColors.SECONDARY_LIGHT,
-                checkColor: AppColors.ACCENT_LIGHT_2,
-                title: const Text(
+                side: BorderSide(color: Theme.of(context).hintColor),
+                activeColor: Theme.of(context).hintColor,
+                checkColor: Theme.of(context).shadowColor,
+                title: Text(
                   "Senha com criptografia Hash",
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
                 value: isCriptografado,
                 onChanged: (isSelected) {
@@ -101,7 +105,9 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                     padding: const EdgeInsets.only(left: 20),
                     child: Row(
                       children: [
-                        const Text("Função Hash:"),
+                        const Text(
+                          "Função Hash:",
+                        ),
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
                           child: DropdownButton<int>(
@@ -117,17 +123,20 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                               });
                             },
                             hint: const Text(
-                              "Selecione o algoritmo de hash",
+                              "Algoritmo hash",
                               style: TextStyle(color: AppColors.ACCENT_LIGHT),
                               textAlign: TextAlign.center,
                             ),
-                            icon: const RotatedBox(quarterTurns: 1, child: Icon(Icons.chevron_right, color: AppColors.ACCENT_LIGHT)),
+                            icon: RotatedBox(
+                              quarterTurns: 1,
+                              child: Icon(Icons.chevron_right, color: Theme.of(context).toggleableActiveColor),
+                            ),
                             iconSize: 24,
                             elevation: 16,
-                            style: const TextStyle(color: AppColors.ACCENT_LIGHT),
+                            style: Theme.of(context).textTheme.bodyText1,
                             underline: Container(
                               height: 2,
-                              color: AppColors.ACCENT_LIGHT,
+                              color: Theme.of(context).toggleableActiveColor,
                             ),
                             value: algoritmoSelecionado?.index,
                           ),
@@ -145,7 +154,10 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * .45,
                         child: RadioListTile(
-                          title: const Text("Modo normal"),
+                          title: Text(
+                            "Modo normal",
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
                           value: false,
                           groupValue: isAvancado,
                           onChanged: (value) {
@@ -158,7 +170,10 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * .45,
                         child: RadioListTile(
-                          title: const Text("Modo Avançado"),
+                          title: Text(
+                            "Modo Avançado",
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
                           value: true,
                           groupValue: isAvancado,
                           onChanged: (value) {
@@ -182,26 +197,25 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                 onPressed: () async {
                   final formValido = formKey.currentState?.validate() ?? false;
                   if (formValido) {
-                    Senha senha = Senha(
-                      titulo: tituloEC.text,
-                      credencial: credencialEC.text,
-                      senhaBase: await Criptografia.criptografarSenha(senhaEC.text, ""),
-                      avancado: isAvancado,
-                      algoritmo: algoritmoSelecionado == null ? 0 : algoritmoSelecionado!.index,
-                      criptografado: isCriptografado,
-                    );
-                    senha = await SenhaDBSource().inserirSenha(senha);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "Senha cadastrada com sucesso!",
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        backgroundColor: Colors.greenAccent,
+                    showDialog(
+                      context: context,
+                      builder: (_) => ValidarSenhaGeral(
+                        onValidate: (chaveGeral) async {
+                          Navigator.of(context).pop();
+                          Senha senha = Senha(
+                            titulo: tituloEC.text,
+                            credencial: credencialEC.text,
+                            senhaBase: await Criptografia.criptografarSenha(senhaEC.text, chaveGeral),
+                            avancado: isAvancado,
+                            algoritmo: algoritmoSelecionado == null ? 0 : algoritmoSelecionado!.index,
+                            criptografado: isCriptografado,
+                          );
+                          senha = await SenhaDBSource().inserirSenha(senha);
+                          Navigator.of(context).pushNamed("/index");
+                          widget.onCadastro(senha);
+                        },
                       ),
                     );
-                    Navigator.of(context).pop();
-                    widget.onCadastro(senha);
                   }
                 },
               ),

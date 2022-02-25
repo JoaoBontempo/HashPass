@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hashpass/Database/datasource.dart';
 
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
+import 'package:hashpass/Widgets/confirmdialog.dart';
 import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:hashpass/Widgets/visualizar_senha.dart';
 
 import '../Model/hash_function.dart';
 import '../Util/criptografia.dart';
+import '../Util/util.dart';
 
 class CardSenha extends StatefulWidget {
   const CardSenha({
@@ -24,10 +26,12 @@ class CardSenha extends StatefulWidget {
   final Function onCopy;
 
   @override
-  _CardSenhaState createState() => _CardSenhaState();
+  CardSenhaState createState() => CardSenhaState();
+
+  static CardSenhaState? of(BuildContext context) => context.findAncestorStateOfType<CardSenhaState>();
 }
 
-class _CardSenhaState extends State<CardSenha> {
+class CardSenhaState extends State<CardSenha> {
   List<HashFunction> algoritmos = Criptografia.algoritmos;
   late HashFunction algoritmoSelecionado = algoritmos[widget.senha.algoritmo];
   final senhaEC = TextEditingController();
@@ -35,6 +39,9 @@ class _CardSenhaState extends State<CardSenha> {
 
   bool visiblePassword = true;
   late Icon isPasswordVisibleIcon;
+
+  bool toDelete = true;
+  String lastText = "";
 
   final Icon visiblePasswordIcon = const Icon(
     Icons.visibility,
@@ -46,6 +53,12 @@ class _CardSenhaState extends State<CardSenha> {
     color: AppColors.ACCENT_LIGHT_2,
   );
 
+  void atualizarParametrosSenha(String senha, String credencial, int algoritmo) {
+    widget.senha.algoritmo = algoritmo;
+    widget.senha.credencial = credencial;
+    widget.senha.senhaBase = senha;
+  }
+
   @override
   void initState() {
     credencialEC.text = widget.senha.credencial;
@@ -56,10 +69,9 @@ class _CardSenhaState extends State<CardSenha> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
+    return Card(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        color: AppColors.SECONDARY_LIGHT.withOpacity(0.7),
       ),
       child: Form(
         child: Column(
@@ -69,8 +81,8 @@ class _CardSenhaState extends State<CardSenha> {
               padding: const EdgeInsets.all(10),
               child: Text(
                 widget.senha.titulo,
-                style: const TextStyle(
-                  color: AppColors.ACCENT_LIGHT_2,
+                style: TextStyle(
+                  color: Theme.of(context).highlightColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -78,43 +90,67 @@ class _CardSenhaState extends State<CardSenha> {
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
               child: AppTextField(
-                label: "Usuário/e-mail/CPF/credencial",
+                label: "Usuário/e-mail/credencial",
                 padding: 0,
                 controller: credencialEC,
                 dark: true,
+                fontColor: Colors.grey.shade300,
+                borderColor: Theme.of(context).highlightColor,
+                labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * .68,
+                  width: MediaQuery.of(context).size.width * .7,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 20, bottom: 15),
+                    padding: const EdgeInsets.only(left: 20, bottom: 15, right: 2),
                     child: AppTextField(
                       label: widget.senha.criptografado ? "Senha base" : "Senha",
                       padding: 0,
+                      labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
                       controller: senhaEC,
                       dark: true,
-                      obscureText: visiblePassword,
+                      obscureText: true,
+                      borderColor: Theme.of(context).highlightColor,
+                      fontColor: Colors.grey.shade300,
+                      onChange: (text) {
+                        setState(() {
+                          toDelete = true;
+                        });
+                      },
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .2,
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
                   child: IconButton(
-                    onPressed: () async {
-                      String? decifrada = visiblePassword ? await Criptografia.decifrarSenha(widget.senha.senhaBase, "") : "";
-                      setState(() {
-                        visiblePassword = !visiblePassword;
-                        isPasswordVisibleIcon = visiblePassword ? visiblePasswordIcon : notVisiblePasswordIcon;
-                        senhaEC.text = visiblePassword ? widget.senha.senhaBase : decifrada!;
-                      });
+                    onPressed: () {
+                      if (toDelete) {
+                        setState(() {
+                          lastText = senhaEC.text;
+                          toDelete = false;
+                          senhaEC.text = "";
+                        });
+                      } else {
+                        setState(() {
+                          toDelete = true;
+                          senhaEC.text = lastText;
+                        });
+                      }
                     },
-                    icon: isPasswordVisibleIcon,
-                    color: AppColors.ACCENT_LIGHT_2,
+                    icon: toDelete
+                        ? const Icon(
+                            Icons.close,
+                            color: Colors.redAccent,
+                          )
+                        : Icon(
+                            Icons.history,
+                            color: Theme.of(context).highlightColor,
+                          ),
                   ),
-                ),
+                )
               ],
             ),
             Visibility(
@@ -125,7 +161,6 @@ class _CardSenhaState extends State<CardSenha> {
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: DropdownButton<int>(
-                      dropdownColor: AppColors.SECONDARY_LIGHT,
                       items: algoritmos.map<DropdownMenuItem<int>>((HashFunction algoritmo) {
                         return DropdownMenuItem<int>(
                           value: algoritmo.index,
@@ -139,22 +174,25 @@ class _CardSenhaState extends State<CardSenha> {
                       },
                       hint: const Text(
                         "Função Hash",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.grey),
                         textAlign: TextAlign.center,
                       ),
-                      icon: const RotatedBox(
+                      icon: RotatedBox(
                         quarterTurns: 1,
                         child: Icon(
                           Icons.chevron_right,
-                          color: AppColors.ACCENT_LIGHT_2,
+                          color: Theme.of(context).highlightColor,
                         ),
                       ),
                       iconSize: 24,
                       elevation: 16,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Colors.grey.shade300,
+                        fontWeight: FontWeight.bold,
+                      ),
                       underline: Container(
                         height: 2,
-                        color: AppColors.ACCENT_LIGHT_2,
+                        color: Theme.of(context).highlightColor,
                       ),
                       value: algoritmoSelecionado.index,
                     ),
@@ -163,12 +201,12 @@ class _CardSenhaState extends State<CardSenha> {
                     width: MediaQuery.of(context).size.width * .42,
                     child: CheckboxListTile(
                       side: const BorderSide(color: Colors.white),
-                      activeColor: AppColors.ACCENT_LIGHT_2,
-                      checkColor: AppColors.SECONDARY_LIGHT,
-                      title: const Text(
+                      activeColor: Theme.of(context).highlightColor,
+                      checkColor: Colors.black,
+                      title: Text(
                         "Avançado",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.grey.shade300,
                         ),
                       ),
                       value: widget.senha.avancado,
@@ -189,41 +227,95 @@ class _CardSenhaState extends State<CardSenha> {
                 children: [
                   OutlinedButton(
                     onPressed: () async {
-                      if (widget.senha.criptografado) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => VisualizacaoSenhaModal(senha: widget.senha),
-                        );
-                      } else {
-                        String? decifrada = await Criptografia.decifrarSenha(widget.senha.senhaBase, "");
-                        Clipboard.setData(ClipboardData(text: decifrada));
-                        widget.onCopy();
-                      }
+                      showDialog(
+                        context: context,
+                        builder: (_) => ValidarSenhaGeral(
+                          onValidate: (chaveGeral) {
+                            Navigator.of(context).pop();
+                            showDialog(
+                              context: context,
+                              builder: (_) => VisualizacaoSenhaModal(
+                                chaveGeral: chaveGeral,
+                                senha: widget.senha,
+                                copyIconColor: Theme.of(context).hintColor,
+                              ),
+                            );
+                          },
+                        ),
+                      );
                     },
-                    child: widget.senha.criptografado ? const Text("Visualizar senha") : const Text("Copiar senha"),
+                    child: const Text("Visualizar senha"),
                   ),
                   Row(
                     children: [
                       IconButton(
                         onPressed: () async {
-                          int code = await SenhaDBSource().excluirSenha(widget.senha.id!);
-                          widget.onDelete(code);
+                          FocusScope.of(context).unfocus();
+                          showDialog(
+                            context: context,
+                            builder: (_) => AppConfirmDialog(
+                              titulo: "Confirmar exclusão",
+                              descricao: "Você tem certeza que deseja excluir esta senha? Esta ação não poderá ser desfeita.",
+                              onAction: (confirmed) {
+                                if (confirmed) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => ValidarSenhaGeral(
+                                      onValidate: (chaveGeral) async {
+                                        Navigator.of(context).pop();
+                                        int code = await SenhaDBSource().excluirSenha(widget.senha.id!);
+                                        widget.onDelete(code);
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  //Navigator.of(context).pop();
+                                }
+                              },
+                            ),
+                          );
                         },
                         icon: const Icon(Icons.delete),
                         color: Colors.redAccent,
                       ),
                       IconButton(
                         onPressed: () async {
-                          int code = await SenhaDBSource().atualizarSenha(widget.senha);
-                          if (code == 1) {
-                            widget.senha.credencial = credencialEC.text;
-                            widget.senha.senhaBase = senhaEC.text;
-                            widget.senha.algoritmo = algoritmoSelecionado.index;
-                          }
-                          widget.onUpdate(code);
+                          FocusScope.of(context).unfocus();
+                          showDialog(
+                            context: context,
+                            builder: (_) => AppConfirmDialog(
+                              titulo: "Confirmar",
+                              descricao: "Tem certeza que deseja atualizar os dados desta senha?",
+                              onAction: (confirmed) {
+                                if (confirmed) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => ValidarSenhaGeral(
+                                      onValidate: (chaveGeral) async {
+                                        Navigator.of(context).pop();
+                                        String senhaAntiga = widget.senha.senhaBase;
+                                        String senhaCripto = await Criptografia.criptografarSenha(senhaEC.text, chaveGeral);
+                                        atualizarParametrosSenha(senhaCripto, credencialEC.text, algoritmoSelecionado.index);
+                                        widget.senha.senhaBase = senhaCripto;
+                                        int code = await SenhaDBSource().atualizarSenha(widget.senha);
+                                        if (code == 1) {
+                                          senhaEC.text = senhaCripto;
+                                        } else {
+                                          widget.senha.senhaBase = senhaAntiga;
+                                        }
+                                        widget.onUpdate(code);
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  //Navigator.of(context).pop();
+                                }
+                              },
+                            ),
+                          );
                         },
                         icon: const Icon(Icons.save),
-                        color: AppColors.ACCENT_LIGHT_2,
+                        color: Theme.of(context).highlightColor,
                       ),
                     ],
                   ),

@@ -1,10 +1,18 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'dart:math';
 import 'package:crypto/crypto.dart' as hashs;
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
+import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/hash_function.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hashpass/Model/senha.dart';
+import 'package:hashpass/Util/util.dart';
+import 'package:jaguar_jwt/jaguar_jwt.dart';
+
+import '../Model/configuration.dart';
+import 'http.dart';
 
 class Criptografia {
   static final List<HashFunction> algoritmos = [
@@ -17,7 +25,82 @@ class Criptografia {
     HashFunction(index: 6, label: "HMAC"),
   ];
 
-  static String basePass = "";
+  static Future<String> gerarWebToken(String subject, Map<String, dynamic> payload, String key) async {
+    try {
+      final claimSet = JwtClaim(
+          subject: subject,
+          issuer: 'HashPass',
+          //audience: <String>['audience1.example.com', 'audience2.example.com'],
+          otherClaims: <String, dynamic>{
+            'type': 'Dart JWT',
+            "alg": "HS256",
+          },
+          payload: payload,
+          maxAge: const Duration(minutes: 1));
+      debugPrint('Gerou a base do token');
+      String token = issueJwtHS256(claimSet, key);
+      debugPrint('Token: $token');
+
+      return token;
+    } on Exception catch (erro) {
+      debugPrint("$erro");
+      return erro.toString();
+    }
+  }
+
+  static Future<String> exportarDados() async {
+    try {
+      String? emailUsuario = Configuration.getEmail();
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      //IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      //debugPrint('Running on ${iosInfo.utsname.machine}');
+
+      String baseFileKey = "";
+      String dispositivo = "";
+      String sistema = "";
+
+      if (Platform.isAndroid) {
+        dispositivo = androidInfo.manufacturer! + " " + androidInfo.model!;
+        sistema = androidInfo.version.release!;
+        baseFileKey = _aplicarAlgoritmoHash(hashs.sha256, emailUsuario! + dispositivo + androidInfo.id! + androidInfo.androidId!);
+      } else if (Platform.isIOS) {}
+
+      Random random = Random();
+      debugPrint('Instanciou o random');
+      final key = _aplicarAlgoritmoHash(
+        hashs.sha256,
+        emailUsuario! + DateTime.now().microsecondsSinceEpoch.toString() + random.nextInt(1000000).toString(),
+      );
+
+      String token = await gerarWebToken(
+        'data export',
+        <String, dynamic>{
+          "chave": baseFileKey,
+          "SO": sistema,
+          "dispositivo": dispositivo,
+          "email": emailUsuario,
+        },
+        key,
+      );
+
+      List<Senha> senhas = await SenhaDBSource().getTodasSenhas();
+
+      for (Senha senha in senhas) {
+        senha.titulo = await criptografarSenha(senha.titulo, baseFileKey);
+        senha.credencial = await criptografarSenha(senha.credencial, baseFileKey);
+        senha.senhaBase = await criptografarSenha(senha.senhaBase, baseFileKey);
+      }
+
+      String response = await HTTPRequest.postRequest("/export?token=$token&key=$key", jsonEncode(senhas));
+      debugPrint(response);
+      return response;
+    } on Exception catch (erro) {
+      debugPrint("$erro");
+      return erro.toString();
+    }
+  }
 
   static String _aplicarAlgoritmoHash(hashs.Hash algotimo, String base) {
     var bytes = utf8.encode(base);
@@ -50,6 +133,10 @@ class Criptografia {
     }
   }
 
+  static String gerarToken(String base) {
+    return _aplicarAlgoritmoHash(hashs.sha256, base + DateTime.now().millisecondsSinceEpoch.toString());
+  }
+
   static Future<String> aplicarAlgoritmos(int algoritmo, String senha, bool isAvancado, String? chaveGeral) async {
     String? senhaDecifrada = await decifrarSenha(senha, chaveGeral);
     String senhaReal = _aplicacarHash(algoritmo, senhaDecifrada!);
@@ -66,23 +153,35 @@ class Criptografia {
   }
 
   static Future<bool> validarChaveInserida(String? chaveGeral) async {
-    final configs = await SharedPreferences.getInstance();
-    String? mensagemCifrada = configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"));
-    String? mensagemDecifrada = await decifrarSenha(mensagemCifrada!, chaveGeral);
-
-    return mensagemDecifrada == _aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta");
+    try {
+      String? mensagemCifrada = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"));
+      //debugPrint("Mensagem cifrada: $mensagemCifrada");
+      String? mensagemDecifrada = await decifrarSenha(mensagemCifrada!, chaveGeral);
+      //debugPrint("Mensagem decifrada: $mensagemDecifrada");
+      return mensagemDecifrada == _aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta");
+    } catch (erro) {
+      debugPrint(erro.toString());
+      return false;
+    }
   }
 
-  static Future<bool> adicionarHashValidacao() async {
-    final configs = await SharedPreferences.getInstance();
-    String message =
-        await criptografarSenha(_aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta"), null);
-    return configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"), message);
+  static Future<bool> adicionarHashValidacao(String chaveGeral) async {
+    String message = await criptografarSenha(
+      _aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta"),
+      chaveGeral,
+    );
+    return Configuration.configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"), message);
   }
 
   static Future<String?> decifrarSenha(String cripted, String? chaveGeral) async {
-    String? key = await recuperarChaveGeral(chaveGeral);
-    return await FlutterAesEcbPkcs5.decryptString(cripted, key!);
+    try {
+      String? key = await recuperarChaveGeral(chaveGeral);
+      //debugPrint("Chave decifrar: $key");
+      return await FlutterAesEcbPkcs5.decryptString(cripted, key!);
+    } catch (erro) {
+      debugPrint(erro.toString());
+      return erro.toString();
+    }
   }
 
   static Future<String> criptografarSenha(String senha, String? chaveGeral) async {
@@ -90,20 +189,51 @@ class Criptografia {
     return (await FlutterAesEcbPkcs5.encryptString(senha, key!))!;
   }
 
+  static String recuperarBaseChaveGeral() {
+    String key = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
+    return utf8.decode(base64.decode(key));
+  }
+
   static Future<String?> recuperarChaveGeral(String? base) async {
     if (base == null) {
-      final configs = await SharedPreferences.getInstance();
-      String key = configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
-      return _aplicarAlgoritmoHash(hashs.sha512, key).substring(0, 32);
+      String key = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
+      String chave = _aplicarAlgoritmoHash(hashs.sha512, utf8.decode(base64.decode(key))).substring(0, 32);
+      //debugPrint("Chave geral: " + chave);
+      return chave;
     } else {
-      return _aplicarAlgoritmoHash(hashs.sha512, base64Encode(base.codeUnits)).substring(0, 32);
+      String chave = _aplicarAlgoritmoHash(hashs.sha512, base).substring(0, 32);
+      //debugPrint("Chave geral: " + chave);
+      return chave;
+    }
+  }
+
+  static Future<bool> alterarSenhaGeral(String chaveAntiga, String base) async {
+    try {
+      List<Senha> senhas = <Senha>[];
+      if (Configuration.isBiometria) {
+        await criarChaveGeral(base);
+      }
+
+      senhas = await SenhaDBSource().getTodasSenhas();
+
+      for (Senha senha in senhas) {
+        String? senhaDecifrada = await decifrarSenha(senha.senhaBase, chaveAntiga);
+        senha.senhaBase = await criptografarSenha(senhaDecifrada!, base);
+        SenhaDBSource().atualizarSenha(senha);
+      }
+
+      await adicionarHashValidacao(base);
+      Util.senhas = await SenhaDBSource().getTodasSenhas();
+      return true;
+    } on Exception catch (erro) {
+      debugPrint("$erro");
+      return false;
     }
   }
 
   static Future<bool> criarChaveGeral(String baseKey) async {
     try {
-      final configs = await SharedPreferences.getInstance();
-      return configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "key"), base64Encode(baseKey.codeUnits));
+      return Configuration.configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "key"), base64.encode(utf8.encode(baseKey)));
     } catch (erro) {
       debugPrint(erro.toString());
       return false;

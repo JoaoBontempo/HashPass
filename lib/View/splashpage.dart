@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/Model/configuration.dart';
-import 'package:hashpass/Themes/colors.dart';
-import 'package:hashpass/View/index.dart';
-import 'package:hashpass/View/welcomepage.dart';
-import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/validarChave.dart';
+
+import '../Database/datasource.dart';
+import '../Themes/colors.dart';
+import '../Util/util.dart';
 
 class HashPasshSplashPage extends StatefulWidget {
   const HashPasshSplashPage({Key? key}) : super(key: key);
@@ -17,35 +18,28 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
   void initState() {
     Configuration.checarPrimeiraEntrada().then((value) {
       if (value) {
-        Navigator.push(
+        Configuration.setDefaultConfig();
+        Navigator.pushNamedAndRemoveUntil(
           context,
-          MaterialPageRoute(
-            builder: (context) => AppWelcomePage(),
-          ),
+          "/welcome",
+          (_) => false,
         );
       } else {
+        Configuration.getConfigs();
+        Configuration.printConfigs();
         showDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            title: const Text("Autenticação necessária"),
-            content: Form(
-                child: AppTextField(
-              label: "Senha do aplicativo:",
-              padding: 10,
-            )),
-            actions: [
-              TextButton(
-                child: const Text("Validar"),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => IndexPage(),
-                    ),
-                  );
-                },
-              ),
-            ],
+          builder: (_) => ValidarSenhaGeral(
+            onValidate: (senha) {
+              Navigator.of(context).pop();
+              SenhaDBSource().getTodasSenhas().then((value) {
+                Util.senhas.addAll(value);
+                Navigator.pushReplacementNamed(
+                  context,
+                  "/index",
+                );
+              });
+            },
           ),
         );
       }
@@ -56,12 +50,13 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.PRIMARY_LIGHT,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset("assets/images/logo-light.png"),
-          CircularProgressIndicator(),
+          Image.asset(
+            Theme.of(context).primaryColor == AppColors.SECONDARY_DARK ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
+          ),
+          const CircularProgressIndicator(),
         ],
       ),
     );

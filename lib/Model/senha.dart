@@ -23,6 +23,19 @@ class Senha {
     return 'Senha(id: $id, titulo: $titulo, credencial: $credencial, senhaBase: $senhaBase, avancado: $avancado, algoritmo: $algoritmo)';
   }
 
+  static List<Senha> serializeList(String data) {
+    try {
+      List<Senha> senhas = <Senha>[];
+      var jsonArray = json.decode(data);
+      for (var json in jsonArray) {
+        senhas.add(Senha.fromMap(json));
+      }
+      return senhas;
+    } on Exception catch (error) {
+      return <Senha>[];
+    }
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hashpass/View/configuracoes.dart';
-import 'package:hashpass/View/dados.dart';
 import 'package:hashpass/View/senhas.dart';
-import 'package:hashpass/Widgets/bottom_navigation.dart';
+import 'package:hashpass/Widgets/drawer.dart';
 
 import '../Model/configuration.dart';
 
@@ -15,6 +13,7 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   int paginaAtual = 0;
+  bool isDrawerOen = false;
 
   @override
   void initState() {
@@ -24,10 +23,10 @@ class _IndexPageState extends State<IndexPage> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text("Chave cadastrada!"),
-            content: const Text("Sua chave foi cadastrada com sucesso! Não esqueça-a, "
+            title: const Text("Tudo certo!"),
+            content: const Text("Sua senha e seu e-mail foram cadastrados com sucesso. \n\nNão esqueça sua senha, "
                 "pois não é possível recuperá-la! "
-                "\n\nPara cadastrar uma nova senha, clique no botão '+' no canto inferior direito no menu 'Minhas senhas'"),
+                "\n\nPara cadastrar uma nova senha, clique no botão ( + )  no canto inferior direito do menu principal."),
             actions: [
               TextButton(
                 child: const Text("OK"),
@@ -45,26 +44,24 @@ class _IndexPageState extends State<IndexPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("HashPass - Suas senhas com criptografia!"),
-      ),
-      resizeToAvoidBottomInset: false,
-      bottomNavigationBar: AppBottomNavgation(
-        onItemSelected: (index) {
-          setState(() {
-            paginaAtual = index;
-          });
-        },
-      ),
-      body: IndexedStack(
-        index: paginaAtual,
-        children: const [
-          MenuSenhas(),
-          MenuConfiguracoes(),
-          MenuDados(),
-        ],
-      ),
+    return WillPopScope(
+      onWillPop: () async {
+        if (isDrawerOen) {
+          return true;
+        }
+        FocusManager.instance.primaryFocus?.unfocus();
+        return false;
+      },
+      child: Scaffold(
+          onDrawerChanged: (isOn) {
+            FocusManager.instance.primaryFocus?.unfocus();
+            isDrawerOen = isOn;
+          },
+          drawer: const AppDrawer(),
+          appBar: AppBar(
+            title: const Text("HashPass - Suas senhas com criptografia!"),
+          ),
+          body: const MenuSenhas()),
     );
   }
 }
