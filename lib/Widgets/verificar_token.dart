@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hashpass/DTO/sendtoken_dto.dart';
+import 'package:hashpass/Util/criptografia.dart';
 import 'package:validatorless/validatorless.dart';
 
 import 'package:hashpass/Widgets/button.dart';
@@ -27,6 +29,7 @@ class _VerificarTokenWidgetState extends State<VerificarTokenWidget> {
 
   final formEmailKey = GlobalKey<FormState>();
   final formTokenKey = GlobalKey<FormState>();
+  final userEmailEC = TextEditingController();
 
   String token = "";
 
@@ -38,6 +41,14 @@ class _VerificarTokenWidgetState extends State<VerificarTokenWidget> {
   bool showProgress = false;
 
   String? emailCadastrado = Configuration.getEmail();
+
+  @override
+  void initState() {
+    if (!widget.isFirstTime) {
+      userEmailEC.text = emailCadastrado!;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +77,7 @@ class _VerificarTokenWidgetState extends State<VerificarTokenWidget> {
                             [
                               Validatorless.required("Nenhum e-mail foi informado."),
                               Validatorless.email("O e-mail informado não é válido."),
-                              Validatorless.compare(emailEC, emailCadastrado!),
+                              Validatorless.compare(userEmailEC, "O e-mail informado não é o mesmo que o cadastrado!"),
                             ],
                           ),
                   ),
@@ -76,22 +87,29 @@ class _VerificarTokenWidgetState extends State<VerificarTokenWidget> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 20, top: 30),
                     child: AppButton(
-                      label: "Enviar e-mail de confirmação",
+                      label: "Enviar token de confirmação",
                       width: MediaQuery.of(context).size.width * .7,
                       height: 35,
                       onPressed: () async {
+                        emailEC.text = emailEC.text.trim();
                         final formValido = formEmailKey.currentState?.validate() ?? false;
                         if (formValido) {
                           dto = VerificarUsuarioDTO(destinatario: emailEC.text);
                           token = dto.construirToken();
                           token = dto.token!;
+                          String jwtKey = Criptografia.generateJWTKey(emailEC.text);
+                          String jwt = await Criptografia.gerarWebToken(
+                            'token validation',
+                            dto.toMap(),
+                            jwtKey,
+                          );
+                          final requestBody = SendTokenDTO(token: jwt, key: jwtKey);
                           setState(() {
                             showProgress = true;
                           });
-                          String response = await HTTPRequest.postRequest("/token", dto.toJson());
+                          String response = await HTTPRequest.postRequest("/sendToken", requestBody.toJson());
                           setState(() {
                             showProgress = true;
-                            debugPrint("Enviou o e-mail!");
                           });
                           if (response == "Email enviado com sucesso!") {
                             showDialog(
@@ -99,7 +117,7 @@ class _VerificarTokenWidgetState extends State<VerificarTokenWidget> {
                               builder: (_) => AlertDialog(
                                 title: const Text("Token enviado!"),
                                 content: Text("Um e-mail foi enviado para ${emailEC.text} contendo um token de validação."
-                                    "\n\n* Verifique sua caixa de span"),
+                                    "\n\n* Verifique sua caixa de spam."),
                                 actions: [
                                   TextButton(
                                     onPressed: () {

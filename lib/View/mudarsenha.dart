@@ -3,7 +3,6 @@ import 'package:hashpass/Util/criptografia.dart';
 import 'package:hashpass/Widgets/button.dart';
 import 'package:hashpass/Widgets/textfield.dart';
 import 'package:validatorless/validatorless.dart';
-
 import '../Widgets/validarChave.dart';
 import '../Widgets/verificar_token.dart';
 
@@ -18,9 +17,37 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
   bool mostrarTrocaSenha = false;
   bool mostrarWidgetConfirmacao = true;
 
-  final novaSenhaEC = TextEditingController();
+  final newPasswordEC = TextEditingController();
+  final newPasswordTrim = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
+
+  late Icon visibilityIcon;
+
+  bool hidePassword = true;
+
+  final visibleIcon = const Icon(
+    Icons.visibility,
+    color: Colors.grey,
+  );
+
+  final noVisibleIcon = const Icon(
+    Icons.visibility_off,
+    color: Colors.grey,
+  );
+
+  @override
+  void initState() {
+    visibilityIcon = noVisibleIcon;
+    super.initState();
+  }
+
+  void changeVisibilityState() {
+    setState(() {
+      hidePassword = !hidePassword;
+      visibilityIcon = hidePassword ? visibleIcon : noVisibleIcon;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,24 +92,52 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                   key: formKey,
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: AppTextField(
-                          label: "Nova senha",
-                          padding: 0,
-                          controller: novaSenhaEC,
-                          validator: Validatorless.required("Nenhuma senha foi informada"),
-                        ),
+                      const Text(
+                        "Alterar senha",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * .85,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20, bottom: 20, right: 5, left: 20),
+                              child: AppTextField(
+                                label: "Nova senha",
+                                padding: 0,
+                                obscureText: hidePassword,
+                                controller: newPasswordEC,
+                                validator: Validatorless.multiple(
+                                  [
+                                    Validatorless.required("Nenhuma senha foi informada"),
+                                    Validatorless.compare(newPasswordTrim, "A senha não pode conter espaços!")
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: GestureDetector(
+                              onTap: () {
+                                changeVisibilityState();
+                              },
+                              child: visibilityIcon,
+                            ),
+                          )
+                        ],
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
                         child: AppTextField(
                           label: "Confirmar nova senha",
                           padding: 0,
+                          obscureText: true,
                           validator: Validatorless.multiple(
                             [
                               Validatorless.required("Confirme sua senha"),
-                              Validatorless.compare(novaSenhaEC, "As senhas informadas não são iguais"),
+                              Validatorless.compare(newPasswordEC, "As senhas informadas não são iguais"),
                             ],
                           ),
                         ),
@@ -92,13 +147,16 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                         width: MediaQuery.of(context).size.width * .4,
                         height: 35,
                         onPressed: () {
+                          newPasswordTrim.text = newPasswordEC.text.replaceAll(" ", "");
                           final formValido = formKey.currentState?.validate() ?? false;
                           if (formValido) {
                             showDialog(
                               context: context,
                               builder: (_) => ValidarSenhaGeral(
+                                onlyText: true,
+                                lastKeyLabel: true,
                                 onValidate: (chaveAntiga) async {
-                                  bool alterou = await Criptografia.alterarSenhaGeral(chaveAntiga, novaSenhaEC.text);
+                                  bool alterou = await Criptografia.alterarSenhaGeral(chaveAntiga, newPasswordEC.text);
 
                                   if (alterou) {
                                     Navigator.pushReplacementNamed(

@@ -17,6 +17,10 @@ class LightAppTheme {
   }
 
   ThemeData get defaultTheme => ThemeData(
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: Colors.grey,
+          circularTrackColor: AppColors.ACCENT_LIGHT,
+        ),
         cardTheme: CardTheme(
           color: AppColors.SECONDARY_LIGHT.withOpacity(0.9),
         ),
@@ -25,7 +29,7 @@ class LightAppTheme {
         ),
         shadowColor: AppColors.ACCENT_LIGHT_2,
         scaffoldBackgroundColor: Colors.grey.shade100,
-        canvasColor: AppColors.SECONDARY_LIGHT,
+        canvasColor: AppColors.PRIMARY_LIGHT,
         highlightColor: AppColors.ACCENT_LIGHT_2,
         hintColor: AppColors.SECONDARY_LIGHT,
         primaryColor: AppColors.SECONDARY_LIGHT,
@@ -104,10 +108,15 @@ class LightAppTheme {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            textStyle: TextStyle(fontWeight: FontWeight.normal),
+            textStyle: const TextStyle(fontWeight: FontWeight.normal),
             primary: AppColors.ACCENT_LIGHT_2,
-            shape: StadiumBorder(),
-            side: BorderSide(width: 1.0, color: AppColors.ACCENT_LIGHT_2),
+            shape: const StadiumBorder(),
+            side: const BorderSide(width: 1.0, color: AppColors.ACCENT_LIGHT_2),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            primary: AppColors.ACCENT_LIGHT,
           ),
         ),
         cardColor: Colors.white,

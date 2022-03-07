@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hashpass/View/senhas.dart';
+import 'package:hashpass/Widgets/confirmdialog.dart';
 import 'package:hashpass/Widgets/drawer.dart';
 
 import '../Model/configuration.dart';
@@ -13,7 +16,7 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   int paginaAtual = 0;
-  bool isDrawerOen = false;
+  bool isDrawerOpen = false;
 
   @override
   void initState() {
@@ -46,22 +49,35 @@ class _IndexPageState extends State<IndexPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (isDrawerOen) {
+        if (isDrawerOpen) {
           return true;
         }
         FocusManager.instance.primaryFocus?.unfocus();
+        showDialog(
+          context: context,
+          builder: (_) => AppConfirmDialog(
+            titulo: "Fechar o aplicativo?",
+            descricao: "Tem certeza que deseja sair do HashPass?",
+            onAction: (confirmed) {
+              if (confirmed) {
+                exit(0);
+              }
+            },
+          ),
+        );
         return false;
       },
       child: Scaffold(
-          onDrawerChanged: (isOn) {
-            FocusManager.instance.primaryFocus?.unfocus();
-            isDrawerOen = isOn;
-          },
-          drawer: const AppDrawer(),
-          appBar: AppBar(
-            title: const Text("HashPass - Suas senhas com criptografia!"),
-          ),
-          body: const MenuSenhas()),
+        onDrawerChanged: (isOn) {
+          FocusManager.instance.primaryFocus?.unfocus();
+          isDrawerOpen = isOn;
+        },
+        drawer: const AppDrawer(),
+        appBar: AppBar(
+          title: const Text("Minhas senhas"),
+        ),
+        body: const MenuSenhas(),
+      ),
     );
   }
 }

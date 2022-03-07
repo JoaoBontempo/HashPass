@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert' show utf8;
 
-const BASE_URL = "http://634c-187-120-135-190.ngrok.io";
+const BASE_URL = "https://hashpass-api.herokuapp.com";
 const HEADERS = {"content-type": "application/json; charset=utf-8"};
 
 class HTTPRequest {

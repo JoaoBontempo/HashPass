@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hashpass/View/change_mail.dart';
 import 'package:hashpass/View/configuracoes.dart';
 import 'package:hashpass/View/dados.dart';
 import 'package:hashpass/View/index.dart';
@@ -24,7 +25,7 @@ class AppDrawer extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(15),
               child: Image.asset(
-                Theme.of(context).primaryColor == AppColors.SECONDARY_DARK ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
+                Theme.of(context).primaryColor == AppColors.SECONDARY_DARK ? "assets/images/logo-dark.png" : "assets/images/logo-back-light.png",
               ),
             ),
           ),
@@ -40,6 +41,34 @@ class AppDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MudarSenhaPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.mail_outline,
+              color: Theme.of(context).textTheme.bodyText2?.color,
+            ),
+            title: const Text('Alterar e-mail'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChangeMailView(
+                    onMailChanged: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "E-mail alterado com sucesso!",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          backgroundColor: Colors.greenAccent,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               );
             },

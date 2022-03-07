@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Util/criptografia.dart';
-import 'package:hashpass/Widgets/button.dart';
 import 'package:hashpass/main.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -18,6 +17,7 @@ class MenuConfiguracoes extends StatefulWidget {
 
 class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
   bool isBiometria = Configuration.isBiometria;
+  bool hasTimer = Configuration.hasTimer;
   double timer = Configuration.showPasswordTime;
   int theme = Configuration.darkMode;
   bool aceitaBiometria = false;
@@ -29,18 +29,47 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
     auth.isDeviceSupported().then((value) {
       setState(() {
         aceitaBiometria = value;
-        timerEC.text = timer.toInt().toString();
       });
+    });
+    setState(() {
+      timerEC.text = timer.toInt().toString();
     });
     super.initState();
   }
 
-  void _salvarConfiguracoes() {
-    if (timerEC.text == "" || timerEC.text.isEmpty) {
+  void _saveConfiguration() {
+    Configuration.setConfigs(theme, timer, isBiometria, hasTimer);
+  }
+
+  void _changeTimer(String value) {
+    if (value == null || value == '') {
       timerEC.text = "30";
+      timer = 30;
+    } else {
+      timer = double.parse(value);
     }
-    timer = double.parse(timerEC.text);
-    Configuration.setConfigs(theme, timer, isBiometria);
+    _saveConfiguration();
+  }
+
+  void _changeValidation() {
+    if (Configuration.isBiometria) {
+      _saveConfiguration();
+      return;
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => ValidarSenhaGeral(
+          onValidate: (senha) {
+            Criptografia.criarChaveGeral(senha);
+            Navigator.of(context).pop();
+            _saveConfiguration();
+          },
+        ),
+      );
+    }
+  }
+
+  void _changeTheme() {
     switch (theme) {
       case 1:
         MyApp.of(context)!.changeTheme(ThemeMode.light);
@@ -54,15 +83,16 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
         MyApp.of(context)!.changeTheme(ThemeMode.system);
         break;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          "Configurações atualizadas com sucesso!",
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.greenAccent,
-      ),
-    );
+    _saveConfiguration();
+  }
+
+  void _changeHasTimer() {
+    debugPrint("Mudou has timer");
+    if (!hasTimer) {
+      timerEC.text = "30";
+      timer = double.parse(timerEC.text);
+    }
+    _saveConfiguration();
   }
 
   @override
@@ -101,6 +131,7 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                                 onChanged: (checked) {
                                   setState(() {
                                     isBiometria = checked;
+                                    _changeValidation();
                                   });
                                 },
                               ),
@@ -158,6 +189,7 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                             onChanged: (value) {
                               setState(() {
                                 theme = value as int;
+                                _changeTheme();
                               });
                             },
                           ),
@@ -171,6 +203,7 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                             onChanged: (value) {
                               setState(() {
                                 theme = value as int;
+                                _changeTheme();
                               });
                             },
                           ),
@@ -184,6 +217,7 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                             onChanged: (value) {
                               setState(() {
                                 theme = value as int;
+                                _changeTheme();
                               });
                             },
                           ),
@@ -200,7 +234,7 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, bottom: 10),
+                    padding: const EdgeInsets.only(left: 20),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -212,68 +246,81 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                             size: 30,
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 10),
-                          child: Text("Tempo de visibilidade: "),
+                        const Text("Temporizador de senha:"),
+                        Checkbox(
+                          value: hasTimer,
+                          side: BorderSide(color: Theme.of(context).hintColor),
+                          activeColor: Theme.of(context).hintColor,
+                          checkColor: Theme.of(context).shadowColor,
+                          onChanged: (isSelected) {
+                            setState(() {
+                              hasTimer = isSelected!;
+                              _changeHasTimer();
+                            });
+                          },
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * .12,
-                          height: 25,
-                          child: AppTextField(
-                            label: "",
-                            controller: timerEC,
-                            padding: 0,
-                            fontSize: 15,
-                            textAlign: TextAlign.center,
-                            formatter: <TextInputFormatter>[
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        const Text("s"),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 70),
+                    padding: const EdgeInsets.only(left: 70, right: 20),
                     child: Text(
-                      "Determina a quantidade de tempo que uma senha ficará disponível para visualizá-la ",
+                      "Ativa ou desativa o temporizador de senha. O temporizador "
+                      "serve para limitar a quantidade de tempo que uma senha ficará "
+                      "disponível para visualização.",
                       style: Theme.of(context).textTheme.headline1,
+                      textAlign: TextAlign.justify,
                     ),
-                  )
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20, top: 50),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: AppButton(
-                    label: "Salvar configurações",
-                    width: MediaQuery.of(context).size.width * .5,
-                    height: 35,
-                    onPressed: () {
-                      if (isBiometria) {
-                        if (Configuration.isBiometria) {
-                          _salvarConfiguracoes();
-                          return;
-                        }
-                        showDialog(
-                          context: context,
-                          builder: (_) => ValidarSenhaGeral(
-                            onValidate: (senha) {
-                              Criptografia.criarChaveGeral(senha);
-                              Navigator.of(context).pop();
-                              _salvarConfiguracoes();
-                            },
-                          ),
-                        );
-                      } else {
-                        _salvarConfiguracoes();
-                      }
-                    },
                   ),
-                ),
+                  Visibility(
+                    visible: hasTimer,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, top: 25),
+                          child: Row(
+                            children: [
+                              const Text("Duração do temporizador: "),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * .12,
+                                  height: 25,
+                                  child: AppTextField(
+                                    label: "",
+                                    onSave: (value) {
+                                      _changeTimer(value);
+                                    },
+                                    controller: timerEC,
+                                    padding: 0,
+                                    fontSize: 15,
+                                    textAlign: TextAlign.center,
+                                    formatter: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ),
+                              const Text("s"),
+                            ],
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20, top: 10, right: 20, bottom: 25),
+                            child: Text(
+                              "Determina a duração do temporizador de senha, em segundos.",
+                              style: Theme.of(context).textTheme.headline1,
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -12,9 +12,13 @@ import '../Util/criptografia.dart';
 class ValidarSenhaGeral extends StatefulWidget {
   const ValidarSenhaGeral({
     Key? key,
+    this.onlyText = false,
+    this.lastKeyLabel = false,
     required this.onValidate,
   }) : super(key: key);
   final Function(String) onValidate;
+  final bool onlyText;
+  final bool lastKeyLabel;
   @override
   _ValidarSenhaGeralState createState() => _ValidarSenhaGeralState();
 }
@@ -30,7 +34,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
 
   @override
   void initState() {
-    if (isBiometria) {
+    if (isBiometria && !widget.onlyText) {
       auth
           .authenticate(
         localizedReason: "O desbloqueio é necessário para recuperar a senha do aplicativo",
@@ -58,7 +62,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
 
   @override
   Widget build(BuildContext context) {
-    return isBiometria
+    return isBiometria && !widget.onlyText
         ? Container()
         : AlertDialog(
             title: const Text("Autenticação necessária"),
@@ -68,7 +72,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                 Form(
                   key: formKey,
                   child: AppTextField(
-                    label: "Senha do aplicativo:",
+                    label: widget.lastKeyLabel ? "Informe sua senha antiga:" : "Senha do aplicativo:",
                     padding: 10,
                     controller: senhaEC,
                     validator: Validatorless.multiple([
@@ -94,6 +98,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
               TextButton(
                 child: const Text("Validar"),
                 onPressed: () async {
+                  senhaEC.text = senhaEC.text.trim();
                   final formValido = formKey.currentState?.validate() ?? false;
                   if (formValido) {
                     bool chaveValida = await Criptografia.validarChaveInserida(senhaEC.text);

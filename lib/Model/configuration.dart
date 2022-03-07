@@ -8,9 +8,10 @@ class Configuration {
   static late double showPasswordTime;
   static late bool isBiometria;
   static late SharedPreferences configs;
+  static late bool hasTimer;
 
   static void printConfigs() {
-    debugPrint("DarkMode: $darkMode | Timer: $showPasswordTime | Biometria: $isBiometria");
+    debugPrint("DarkMode: $darkMode | Timer: $showPasswordTime | Biometria: $isBiometria | hasTimer: $hasTimer");
   }
 
   static Future<bool> addCheckPrimeiraEntrada() async {
@@ -23,7 +24,7 @@ class Configuration {
   }
 
   static void setDefaultConfig() {
-    setConfigs(3, 30, false);
+    setConfigs(3, 30, false, true);
   }
 
   static Future<ThemeMode> getTema() async {
@@ -41,10 +42,11 @@ class Configuration {
     }
   }
 
-  static void setConfigs(int theme, double timer, bool biometria) {
+  static void setConfigs(int theme, double timer, bool biometria, bool hasTimer) {
     configs.setInt("theme", theme);
     configs.setDouble("timer", timer);
     configs.setBool("biometria", biometria);
+    configs.setBool("hasTimer", hasTimer);
     getConfigs();
   }
 
@@ -57,6 +59,9 @@ class Configuration {
 
     bool? auth = configs.getBool("biometria");
     isBiometria = auth ?? false;
+
+    bool? activetedTimer = configs.getBool("hasTimer");
+    hasTimer = activetedTimer ?? true;
   }
 
   static Future<bool> adicionarEmail(String email) {

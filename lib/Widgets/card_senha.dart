@@ -7,10 +7,10 @@ import 'package:hashpass/Widgets/confirmdialog.dart';
 import 'package:hashpass/Widgets/textfield.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:hashpass/Widgets/visualizar_senha.dart';
+import 'package:validatorless/validatorless.dart';
 
 import '../Model/hash_function.dart';
 import '../Util/criptografia.dart';
-import '../Util/util.dart';
 
 class CardSenha extends StatefulWidget {
   const CardSenha({
@@ -18,12 +18,10 @@ class CardSenha extends StatefulWidget {
     required this.senha,
     required this.onDelete,
     required this.onUpdate,
-    required this.onCopy,
   }) : super(key: key);
   final Senha senha;
   final Function(int) onDelete;
   final Function(int) onUpdate;
-  final Function onCopy;
 
   @override
   CardSenhaState createState() => CardSenhaState();
@@ -42,6 +40,8 @@ class CardSenhaState extends State<CardSenha> {
 
   bool toDelete = true;
   String lastText = "";
+  late String basePassword;
+  final formKey = GlobalKey<FormState>();
 
   final Icon visiblePasswordIcon = const Icon(
     Icons.visibility,
@@ -53,10 +53,14 @@ class CardSenhaState extends State<CardSenha> {
     color: AppColors.ACCENT_LIGHT_2,
   );
 
-  void atualizarParametrosSenha(String senha, String credencial, int algoritmo) {
-    widget.senha.algoritmo = algoritmo;
-    widget.senha.credencial = credencial;
-    widget.senha.senhaBase = senha;
+  void atualizarParametrosSenha(String lastPassword, String newPassword, String credential, int algorithm) {
+    widget.senha.algoritmo = algorithm;
+    widget.senha.credencial = credential;
+    if (lastPassword != basePassword) {
+      widget.senha.senhaBase = newPassword;
+      basePassword = newPassword;
+      senhaEC.text = newPassword;
+    }
   }
 
   @override
@@ -64,6 +68,7 @@ class CardSenhaState extends State<CardSenha> {
     credencialEC.text = widget.senha.credencial;
     senhaEC.text = widget.senha.senhaBase;
     isPasswordVisibleIcon = visiblePasswordIcon;
+    basePassword = widget.senha.senhaBase;
     super.initState();
   }
 
@@ -74,6 +79,7 @@ class CardSenhaState extends State<CardSenha> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Form(
+        key: formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -97,6 +103,7 @@ class CardSenhaState extends State<CardSenha> {
                 fontColor: Colors.grey.shade300,
                 borderColor: Theme.of(context).highlightColor,
                 labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                validator: Validatorless.required("A credencial não pode estar vazia."),
               ),
             ),
             Row(
@@ -110,6 +117,7 @@ class CardSenhaState extends State<CardSenha> {
                       label: widget.senha.criptografado ? "Senha base" : "Senha",
                       padding: 0,
                       labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                      validator: Validatorless.required("A senha não pode estar vazia."),
                       controller: senhaEC,
                       dark: true,
                       obscureText: true,
@@ -172,6 +180,7 @@ class CardSenhaState extends State<CardSenha> {
                           algoritmoSelecionado = algoritmos.firstWhere((algoritmo) => algoritmo.index == idSelecionado);
                         });
                       },
+                      dropdownColor: Theme.of(context).primaryColor == AppColors.SECONDARY_DARK ? Colors.grey.shade900 : AppColors.SECONDARY_LIGHT,
                       hint: const Text(
                         "Função Hash",
                         style: TextStyle(color: Colors.grey),
@@ -268,8 +277,6 @@ class CardSenhaState extends State<CardSenha> {
                                       },
                                     ),
                                   );
-                                } else {
-                                  //Navigator.of(context).pop();
                                 }
                               },
                             ),
@@ -281,38 +288,32 @@ class CardSenhaState extends State<CardSenha> {
                       IconButton(
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          showDialog(
-                            context: context,
-                            builder: (_) => AppConfirmDialog(
-                              titulo: "Confirmar",
-                              descricao: "Tem certeza que deseja atualizar os dados desta senha?",
-                              onAction: (confirmed) {
-                                if (confirmed) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => ValidarSenhaGeral(
-                                      onValidate: (chaveGeral) async {
-                                        Navigator.of(context).pop();
-                                        String senhaAntiga = widget.senha.senhaBase;
-                                        String senhaCripto = await Criptografia.criptografarSenha(senhaEC.text, chaveGeral);
-                                        atualizarParametrosSenha(senhaCripto, credencialEC.text, algoritmoSelecionado.index);
-                                        widget.senha.senhaBase = senhaCripto;
-                                        int code = await SenhaDBSource().atualizarSenha(widget.senha);
-                                        if (code == 1) {
-                                          senhaEC.text = senhaCripto;
-                                        } else {
-                                          widget.senha.senhaBase = senhaAntiga;
-                                        }
-                                        widget.onUpdate(code);
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  //Navigator.of(context).pop();
-                                }
-                              },
-                            ),
-                          );
+                          final formValido = formKey.currentState?.validate() ?? false;
+                          if (formValido) {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AppConfirmDialog(
+                                titulo: "Confirmar",
+                                descricao: "Tem certeza que deseja atualizar os dados desta senha?",
+                                onAction: (confirmed) {
+                                  if (confirmed) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => ValidarSenhaGeral(
+                                        onValidate: (chaveGeral) async {
+                                          Navigator.of(context).pop();
+                                          String senhaCripto = await Criptografia.criptografarSenha(senhaEC.text, chaveGeral);
+                                          atualizarParametrosSenha(senhaEC.text, senhaCripto, credencialEC.text, algoritmoSelecionado.index);
+                                          int code = await SenhaDBSource().atualizarSenha(widget.senha);
+                                          widget.onUpdate(code);
+                                        },
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            );
+                          }
                         },
                         icon: const Icon(Icons.save),
                         color: Theme.of(context).highlightColor,

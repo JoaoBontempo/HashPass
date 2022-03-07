@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import '../Themes/colors.dart';
 import '../Util/util.dart';
 
 class AppTextField extends StatelessWidget {
@@ -12,7 +10,6 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.validator,
     this.onChange,
-    this.onTextChange,
     this.padding,
     this.keyboardType,
     this.formatter,
@@ -22,6 +19,7 @@ class AppTextField extends StatelessWidget {
     this.borderColor,
     this.textAlign = TextAlign.start,
     this.labelStyle,
+    this.onSave,
   }) : super(key: key);
 
   final String label;
@@ -29,7 +27,6 @@ class AppTextField extends StatelessWidget {
   final bool obscureText;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChange;
-  final ValueChanged<String>? onTextChange;
   final double? padding;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? formatter;
@@ -39,6 +36,7 @@ class AppTextField extends StatelessWidget {
   final Color? borderColor;
   final TextAlign textAlign;
   final TextStyle? labelStyle;
+  final Function(String)? onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +48,7 @@ class AppTextField extends StatelessWidget {
           fontSize: fontSize,
           color: fontColor ?? Theme.of(context).textTheme.bodyText1?.color,
         ),
+        onSaved: onSave != null ? onSave!(controller!.text) : null,
         controller: controller,
         obscureText: obscureText,
         validator: validator,

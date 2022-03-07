@@ -14,6 +14,7 @@ class AppWelcomePage extends StatefulWidget {
 
 class _AppWelcomePageState extends State<AppWelcomePage> {
   final senhaEC = TextEditingController();
+  final passwordTrimCompare = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -26,9 +27,12 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  Theme.of(context).primaryColor == AppColors.SECONDARY_DARK ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
-                  width: MediaQuery.of(context).size.width * .5,
+                Padding(
+                  padding: const EdgeInsets.only(top: 25),
+                  child: Image.asset(
+                    Theme.of(context).primaryColor == AppColors.SECONDARY_DARK ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
+                    width: MediaQuery.of(context).size.width * .5,
+                  ),
                 ),
                 const Text(
                   "Seja bem-vindo ao HashPass!",
@@ -48,7 +52,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                     "Não será possível recuperar esta senha, portanto, guarde sua senha geral e "
                     "não esqueça ou compartilhe esta senha de forma alguma."
                     "\n"
-                    "\nVocê poderá acessá-la com sua biometria posteriormente, caso prefira.",
+                    "\nVocê poderá acessá-la com sua biometria posteriormente, caso seu dispositivo suporte esse recurso.",
                     textAlign: TextAlign.justify,
                   ),
                 ),
@@ -57,7 +61,10 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                   child: AppTextField(
                     label: "Informe uma senha geral",
                     padding: 20,
-                    validator: Validatorless.required("Este campo não pode estar vazio"),
+                    validator: Validatorless.multiple([
+                      Validatorless.required("Este campo não pode estar vazio"),
+                      Validatorless.compare(passwordTrimCompare, "A senha não pode conter espaços")
+                    ]),
                     controller: senhaEC,
                   ),
                 ),
@@ -71,6 +78,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                     width: MediaQuery.of(context).size.width * .5,
                     height: 35,
                     onPressed: () async {
+                      passwordTrimCompare.text = senhaEC.text.trim();
                       final formValido = formKey.currentState?.validate() ?? false;
                       if (formValido) {
                         bool validacaoCriada = await Criptografia.adicionarHashValidacao(senhaEC.text);

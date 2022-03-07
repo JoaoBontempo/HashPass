@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Themes/dark.dart';
 import 'package:hashpass/Themes/light.dart';
 import 'package:hashpass/View/cadastroemail.dart';
@@ -13,6 +14,7 @@ import 'Model/configuration.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  MobileAds.instance.initialize();
   runApp(const MyApp());
 }
 
@@ -27,14 +29,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system;
-  // This widget is the root of your application.
 
   @override
   void initState() {
     Configuration.getTema().then((value) {
-      _themeMode = value;
+      setState(() {
+        _themeMode = value;
+      });
     });
-    debugPrint("Tema: $_themeMode");
     super.initState();
   }
 

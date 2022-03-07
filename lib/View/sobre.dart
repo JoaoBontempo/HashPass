@@ -44,12 +44,9 @@ class SobreAppPage extends StatelessWidget {
           ),
           Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: Text(
-                  "Desenvolvido por: João Vitor Pedon Bontempo",
-                  style: Theme.of(context).textTheme.bodyText1,
-                ),
+              Text(
+                "Desenvolvido por: João Vitor Bontempo",
+                style: Theme.of(context).textTheme.bodyText1,
               ),
               Padding(
                 padding: const EdgeInsets.all(10),

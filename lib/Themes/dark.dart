@@ -17,6 +17,10 @@ class DarkAppTheme {
   }
 
   ThemeData get defaultTheme => ThemeData(
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          circularTrackColor: Colors.grey,
+          color: Colors.black,
+        ),
         cardTheme: const CardTheme(
           color: AppColors.SECONDARY_DARK,
         ),
@@ -28,7 +32,7 @@ class DarkAppTheme {
         hintColor: Colors.grey,
         canvasColor: Colors.grey.shade900,
         highlightColor: AppColors.ACCENT_DARK_2,
-        primaryColorLight: Color(0xFF202029),
+        primaryColorLight: const Color(0xFF202029),
         inputDecorationTheme: InputDecorationTheme(
           border: Util.bordaPadrao(AppColors.ACCENT_DARK_2),
           enabledBorder: Util.bordaPadrao(AppColors.ACCENT_DARK_2),
@@ -118,6 +122,11 @@ class DarkAppTheme {
             primary: AppColors.ACCENT_DARK_2,
             shape: const StadiumBorder(),
             side: const BorderSide(width: 1.0, color: AppColors.ACCENT_DARK_2),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            primary: Colors.grey,
           ),
         ),
         cardColor: Colors.grey,

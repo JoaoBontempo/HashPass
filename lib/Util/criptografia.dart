@@ -1,20 +1,62 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart' as hashs;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
+import 'package:hashpass/DTO/exportdata_dto.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/hash_function.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:intl/intl.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
 
 import '../Model/configuration.dart';
 import 'http.dart';
 
 class Criptografia {
+  static final List<int> _specialCharCodes = [
+    33,
+    35,
+    36,
+    37,
+    40,
+    41,
+    45,
+    46,
+    47,
+    60,
+    62,
+    63,
+    64,
+    91,
+    92,
+    93,
+    94,
+    95,
+    123,
+    125,
+  ];
+
+  static List<int> _passwordNumbers = <int>[];
+
+  static String _getSpecialChar(int index) {
+    if (index > _specialCharCodes.length) {
+      return String.fromCharCode(_specialCharCodes[index ~/ 3]);
+    }
+    return String.fromCharCode(_specialCharCodes[index % 2 == 0 ? _specialCharCodes.length - index + 1 : index]);
+  }
+
+  static String _getPasswordNumber(int index) {
+    if (index > _passwordNumbers.length) {
+      return _passwordNumbers[index ~/ 3].toString();
+    }
+    return _passwordNumbers[index % 2 == 0 ? _passwordNumbers.length - index + 1 : index].toString();
+  }
+
   static final List<HashFunction> algoritmos = [
     HashFunction(index: 0, label: "SHA-512"),
     HashFunction(index: 1, label: "MD-5"),
@@ -48,6 +90,17 @@ class Criptografia {
     }
   }
 
+  static String generateJWTKey(String? email) {
+    if (email == null) {
+      email = '';
+    }
+    Random random = Random();
+    return _aplicarAlgoritmoHash(
+      hashs.sha256,
+      email + DateTime.now().microsecondsSinceEpoch.toString() + random.nextInt(1000000).toString(),
+    );
+  }
+
   static Future<String> exportarDados() async {
     try {
       String? emailUsuario = Configuration.getEmail();
@@ -67,13 +120,8 @@ class Criptografia {
         baseFileKey = _aplicarAlgoritmoHash(hashs.sha256, emailUsuario! + dispositivo + androidInfo.id! + androidInfo.androidId!);
       } else if (Platform.isIOS) {}
 
-      Random random = Random();
-      debugPrint('Instanciou o random');
-      final key = _aplicarAlgoritmoHash(
-        hashs.sha256,
-        emailUsuario! + DateTime.now().microsecondsSinceEpoch.toString() + random.nextInt(1000000).toString(),
-      );
-
+      final key = generateJWTKey(emailUsuario);
+      final date = DateTime.now();
       String token = await gerarWebToken(
         'data export',
         <String, dynamic>{
@@ -81,6 +129,8 @@ class Criptografia {
           "SO": sistema,
           "dispositivo": dispositivo,
           "email": emailUsuario,
+          "data": DateFormat("dd/MM/yyyy").format(date),
+          "horario": DateFormat("HH:mm:ss").format(date)
         },
         key,
       );
@@ -93,11 +143,34 @@ class Criptografia {
         senha.senhaBase = await criptografarSenha(senha.senhaBase, baseFileKey);
       }
 
-      String response = await HTTPRequest.postRequest("/export?token=$token&key=$key", jsonEncode(senhas));
+      String response = await HTTPRequest.postRequest(
+        "/exportData",
+        DataExportDTO(token: token, key: key, passwords: senhas).toJson(),
+      );
       debugPrint(response);
       return response;
     } on Exception catch (erro) {
       debugPrint("$erro");
+      return erro.toString();
+    }
+  }
+
+  static Future<String> compressString(String originalString) async {
+    try {
+      String compressed;
+      int cont = 0;
+      for (compressed = originalString; compressed.length > 100; cont++) {
+        debugPrint("Compressed before compress: $compressed, lenght: ${compressed.length}");
+        List<int> bytes = const ZLibEncoder().encode(compressed.codeUnits);
+        compressed = base64.encode(bytes);
+        debugPrint("Compressão realizada: $compressed, length: ${compressed.length}");
+        if (cont > 10) {
+          break;
+        }
+      }
+      return compressed;
+    } catch (erro) {
+      debugPrint("Erro: $erro");
       return erro.toString();
     }
   }
@@ -143,7 +216,36 @@ class Criptografia {
     if (isAvancado) {
       try {
         senhaReal = (await FlutterAesEcbPkcs5.encryptString(senhaReal, senhaReal.substring(0, 32)))!;
-        senhaReal = "@!" + base64Encode(senhaReal.codeUnits) + "_%#";
+        senhaReal = base64Encode(senhaReal.codeUnits);
+        int length = senhaReal.length;
+        int numCaracteres = (length / 3) ~/ 10;
+        List<int> numbers = <int>[];
+        for (int index = 0; index < length; index++) {
+          if (senhaReal[index].contains(new RegExp(r'[0-9]'))) {
+            numbers.add(int.parse(senhaReal[index]));
+          }
+        }
+        _passwordNumbers = numbers;
+        String halfPassword = _getSubStringPassword(senhaReal);
+        int newPassLen = halfPassword.length;
+        int caracFrequency = newPassLen ~/ numCaracteres;
+        int numCount = numbers.length ~/ 4;
+        int numFrequency = newPassLen ~/ numCount;
+        String realPassword = "";
+        for (int index = 0, insertSpecialCarac = 0, insertNumber = 0, newChar = 0;
+            index < newPassLen;
+            index++, insertSpecialCarac++, insertNumber++) {
+          if (insertSpecialCarac == caracFrequency) {
+            realPassword += index % 2 == 0 ? _getSpecialChar(++newChar) : _getSpecialChar(newChar += 2);
+            insertSpecialCarac = 0;
+          }
+          if (insertNumber == numFrequency) {
+            realPassword += _getPasswordNumber(index);
+            insertNumber = 0;
+          }
+          realPassword += halfPassword[index];
+        }
+        return realPassword;
       } catch (erro) {
         debugPrint(erro.toString());
         return erro.toString();
@@ -152,12 +254,18 @@ class Criptografia {
     return senhaReal;
   }
 
+  static String _getSubStringPassword(String password) {
+    String newPassword = password;
+    while (newPassword.length > 50) {
+      newPassword = newPassword.substring(0, newPassword.length ~/ 3);
+    }
+    return newPassword;
+  }
+
   static Future<bool> validarChaveInserida(String? chaveGeral) async {
     try {
       String? mensagemCifrada = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"));
-      //debugPrint("Mensagem cifrada: $mensagemCifrada");
       String? mensagemDecifrada = await decifrarSenha(mensagemCifrada!, chaveGeral);
-      //debugPrint("Mensagem decifrada: $mensagemDecifrada");
       return mensagemDecifrada == _aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta");
     } catch (erro) {
       debugPrint(erro.toString());

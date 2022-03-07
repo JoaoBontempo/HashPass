@@ -15,6 +15,7 @@ class _CadastroEmailPageState extends State<CadastroEmailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
           reverse: true,
