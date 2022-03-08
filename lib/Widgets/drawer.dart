@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hashpass/Util/criptografia.dart';
 import 'package:hashpass/View/change_mail.dart';
 import 'package:hashpass/View/configuracoes.dart';
 import 'package:hashpass/View/dados.dart';
 import 'package:hashpass/View/index.dart';
 import 'package:hashpass/View/mudarsenha.dart';
+import 'package:hashpass/View/password_leak.dart';
 import 'package:hashpass/View/sobre.dart';
 
 import '../Themes/colors.dart';
@@ -85,6 +87,22 @@ class AppDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MenuDados(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.security,
+              color: Theme.of(context).textTheme.bodyText2?.color,
+            ),
+            title: const Text('Verificação de vazamento'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PasswordLeakPage(),
                 ),
               );
             },

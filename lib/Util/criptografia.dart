@@ -14,6 +14,7 @@ import 'package:hashpass/Util/util.dart';
 import 'package:intl/intl.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
 
+import '../DTO/password_leak_dto.dart';
 import '../Model/configuration.dart';
 import 'http.dart';
 
@@ -40,6 +41,23 @@ class Criptografia {
     123,
     125,
   ];
+
+  static Future<PasswordLeakDTO> verifyPassowordLeak(String basePass) async {
+    String passwordHash = _aplicarAlgoritmoHash(hashs.sha1, basePass);
+    String response = await HTTPRequest.requestPasswordLeak(passwordHash);
+    String passwordSubHash = passwordHash.substring(5).toUpperCase();
+
+    List<String> leakedPasswords = response.split('\n');
+
+    for (int index = 0, length = leakedPasswords.length; index < length; index += 1) {
+      List<String> passwordInfo = leakedPasswords[index].split(':');
+      if (passwordInfo[0] == passwordSubHash) {
+        int leakCount = int.parse(passwordInfo[1]);
+        return PasswordLeakDTO(message: 'Esta senha foi vazada pelo menos $leakCount vezes!', leakCount: leakCount);
+      }
+    }
+    return PasswordLeakDTO(message: 'Sua senha tem grandes chances de não ter sido vazada!', leakCount: 0);
+  }
 
   static List<int> _passwordNumbers = <int>[];
 
