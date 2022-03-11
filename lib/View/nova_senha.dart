@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/Database/datasource.dart';
+import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/hash_function.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
@@ -28,8 +29,26 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final formKey = GlobalKey<FormState>();
   bool isCriptografado = false;
 
+  final Icon leakedIcon = const Icon(
+    Icons.warning,
+    color: Colors.redAccent,
+  );
+
+  final Icon notLeakedIcon = const Icon(
+    Icons.verified_user,
+    color: Colors.greenAccent,
+  );
+
+  late Icon verifyPassIcon;
+  bool hasPasswordVerification = false;
+  String isLeakedMessage = '';
+
+  bool hidePassword = true;
+  String hidePasswordLabel = 'Mostrar senha';
+
   @override
   void initState() {
+    verifyPassIcon = leakedIcon;
     algoritmoSelecionado = algoritmos[0];
     super.initState();
   }
@@ -96,16 +115,94 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                     ]),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: AppTextField(
-                    label: "Senha",
-                    padding: 0,
-                    controller: senhaEC,
-                    validator: Validatorless.multiple([
-                      Validatorless.required("A senha é obrigatória"),
-                    ]),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: hasPasswordVerification ? MediaQuery.of(context).size.width * .85 : MediaQuery.of(context).size.width,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                            child: AppTextField(
+                              label: "Senha",
+                              padding: 0,
+                              obscureText: hidePassword,
+                              controller: senhaEC,
+                              validator: Validatorless.multiple(
+                                [
+                                  Validatorless.required("A senha é obrigatória"),
+                                  Validatorless.min(4, 'A senha é pequena demais'),
+                                ],
+                              ),
+                              onSave: (password) {
+                                Criptografia.verifyPassowordLeak(password).then(
+                                  (response) {
+                                    setState(
+                                      () {
+                                        if (password.isEmpty || password.length < 4) {
+                                          hasPasswordVerification = false;
+                                          return;
+                                        }
+                                        hasPasswordVerification = true;
+                                        isLeakedMessage = response.message;
+                                        verifyPassIcon = response.leakCount == 0 ? notLeakedIcon : leakedIcon;
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                hidePassword = !hidePassword;
+                                hidePasswordLabel = hidePassword ? 'Mostrar senha' : 'Ocultar senha';
+                              });
+                            },
+                            child: Text(
+                              hidePasswordLabel,
+                              style: const TextStyle(
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Visibility(
+                      visible: hasPasswordVerification,
+                      child: Tooltip(
+                        margin: EdgeInsets.only(left: 20, right: MediaQuery.of(context).size.width * .15 + 20, top: 5),
+                        padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                        triggerMode: TooltipTriggerMode.tap,
+                        showDuration: const Duration(seconds: 3),
+                        message: isLeakedMessage,
+                        child: Visibility(
+                          visible: Configuration.showHelpTooltips,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: verifyPassIcon,
+                          ),
+                        ),
+                        textStyle: TextStyle(
+                          color: verifyPassIcon.color == Colors.greenAccent ? Colors.black : Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: verifyPassIcon.color,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -131,16 +228,19 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                             },
                           ),
                         ),
-                        const Tooltip(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 5),
-                          padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                        Tooltip(
+                          margin: const EdgeInsets.only(left: 20, right: 20, top: 5),
+                          padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
                           triggerMode: TooltipTriggerMode.tap,
-                          showDuration: Duration(seconds: 10),
+                          showDuration: const Duration(seconds: 10),
                           message: "Ao marcar esta caixa, sua senha real será a "
                               "combinação entre uma senha base e um algoritmo hash.",
-                          child: Icon(
-                            Icons.help_outline,
-                            color: Colors.grey,
+                          child: Visibility(
+                            visible: Configuration.showHelpTooltips,
+                            child: const Icon(
+                              Icons.help_outline,
+                              color: Colors.grey,
+                            ),
                           ),
                         )
                       ],
@@ -229,9 +329,12 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                                 triggerMode: TooltipTriggerMode.tap,
                                 showDuration: const Duration(seconds: 10),
                                 message: "Sua senha final será a senha base com o algoritmo hash aplicado.",
-                                child: const Icon(
-                                  Icons.help_outline,
-                                  color: Colors.grey,
+                                child: Visibility(
+                                  visible: Configuration.showHelpTooltips,
+                                  child: const Icon(
+                                    Icons.help_outline,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               )
                             ],
@@ -260,9 +363,12 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                                 triggerMode: TooltipTriggerMode.tap,
                                 showDuration: const Duration(seconds: 5),
                                 message: "Além do algoritmo hash, sua senha real terá uma criptografia simétrica adicional.",
-                                child: const Icon(
-                                  Icons.help_outline,
-                                  color: Colors.grey,
+                                child: Visibility(
+                                  visible: Configuration.showHelpTooltips,
+                                  child: const Icon(
+                                    Icons.help_outline,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               )
                             ],

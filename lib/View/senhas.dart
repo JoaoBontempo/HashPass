@@ -128,6 +128,18 @@ class _MenuSenhasState extends State<MenuSenhas> {
                           ),
                           child: CardSenha(
                             senha: senhasView[index],
+                            onCopy: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Senha copiada!",
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  backgroundColor: Colors.greenAccent,
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                            },
                             onUpdate: (code) {
                               if (code == 1) {
                                 ScaffoldMessenger.of(context).showSnackBar(

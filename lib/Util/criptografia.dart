@@ -42,6 +42,16 @@ class Criptografia {
     125,
   ];
 
+  static final List<HashFunction> algoritmos = [
+    HashFunction(index: 0, label: "SHA-512"),
+    HashFunction(index: 1, label: "MD-5"),
+    HashFunction(index: 2, label: "SHA-256"),
+    HashFunction(index: 3, label: "SHA-384"),
+    HashFunction(index: 4, label: "SHA-224"),
+    HashFunction(index: 5, label: "SHA-1"),
+    HashFunction(index: 6, label: "HMAC"),
+  ];
+
   static Future<PasswordLeakDTO> verifyPassowordLeak(String basePass) async {
     String passwordHash = _aplicarAlgoritmoHash(hashs.sha1, basePass);
     String response = await HTTPRequest.requestPasswordLeak(passwordHash);
@@ -53,7 +63,9 @@ class Criptografia {
       List<String> passwordInfo = leakedPasswords[index].split(':');
       if (passwordInfo[0] == passwordSubHash) {
         int leakCount = int.parse(passwordInfo[1]);
-        return PasswordLeakDTO(message: 'Esta senha foi vazada pelo menos $leakCount vezes!', leakCount: leakCount);
+        return leakCount == 1
+            ? PasswordLeakDTO(message: 'Esta senha foi vazada pelo menos uma vez!', leakCount: leakCount)
+            : PasswordLeakDTO(message: 'Esta senha foi vazada pelo menos ${Util.formatInteger(leakCount)} vezes!', leakCount: leakCount);
       }
     }
     return PasswordLeakDTO(message: 'Sua senha tem grandes chances de não ter sido vazada!', leakCount: 0);
@@ -74,16 +86,6 @@ class Criptografia {
     }
     return _passwordNumbers[index % 2 == 0 ? _passwordNumbers.length - index + 1 : index].toString();
   }
-
-  static final List<HashFunction> algoritmos = [
-    HashFunction(index: 0, label: "SHA-512"),
-    HashFunction(index: 1, label: "MD-5"),
-    HashFunction(index: 2, label: "SHA-256"),
-    HashFunction(index: 3, label: "SHA-384"),
-    HashFunction(index: 4, label: "SHA-224"),
-    HashFunction(index: 5, label: "SHA-1"),
-    HashFunction(index: 6, label: "HMAC"),
-  ];
 
   static Future<String> gerarWebToken(String subject, Map<String, dynamic> payload, String key) async {
     try {
@@ -109,9 +111,7 @@ class Criptografia {
   }
 
   static String generateJWTKey(String? email) {
-    if (email == null) {
-      email = '';
-    }
+    email ??= '';
     Random random = Random();
     return _aplicarAlgoritmoHash(
       hashs.sha256,

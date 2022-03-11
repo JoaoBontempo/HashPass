@@ -15,16 +15,17 @@ class PasswordLeakMessage extends StatefulWidget {
 
 class _PasswordLeakMessageState extends State<PasswordLeakMessage> {
   final Icon leakedIcon = const Icon(
-    Icons.highlight_off,
-    color: Colors.redAccent,
+    Icons.warning,
+    color: Colors.white,
   );
 
   final Icon notLeakedIcon = const Icon(
     Icons.verified_user,
-    color: Colors.greenAccent,
+    color: Colors.white,
   );
-  final Color isLeakedBackgorundColor = Colors.red;
-  final Color notLeakedBackgroundColor = Colors.green;
+
+  final Color isLeakedBackgorundColor = Colors.redAccent;
+  final Color notLeakedBackgroundColor = Colors.greenAccent;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +49,8 @@ class _PasswordLeakMessageState extends State<PasswordLeakMessage> {
                 widget.passwordInfo.message,
                 style: const TextStyle(
                   fontSize: 13,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

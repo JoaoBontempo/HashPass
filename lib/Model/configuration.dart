@@ -9,9 +9,15 @@ class Configuration {
   static late bool isBiometria;
   static late SharedPreferences configs;
   static late bool hasTimer;
+  static late bool insertPassVerify;
+  static late bool updatePassVerify;
+  static late bool showHelpTooltips;
+  static late bool onlyVerifiedPasswords;
 
   static void printConfigs() {
-    debugPrint("DarkMode: $darkMode | Timer: $showPasswordTime | Biometria: $isBiometria | hasTimer: $hasTimer");
+    debugPrint('DarkMode: $darkMode | Timer: $showPasswordTime | Biometria: $isBiometria | hasTimer: $hasTimer'
+        ' | Insert pass verify: $insertPassVerify | Update pass verify: $updatePassVerify | Tooltips: $showHelpTooltips'
+        ' | Only verified passwords: $onlyVerifiedPasswords');
   }
 
   static Future<bool> addCheckPrimeiraEntrada() async {
@@ -24,7 +30,16 @@ class Configuration {
   }
 
   static void setDefaultConfig() {
-    setConfigs(3, 30, false, true);
+    setConfigs(
+      3,
+      30,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+    );
   }
 
   static Future<ThemeMode> getTema() async {
@@ -42,11 +57,24 @@ class Configuration {
     }
   }
 
-  static void setConfigs(int theme, double timer, bool biometria, bool hasTimer) {
+  static void setConfigs(
+    int theme,
+    double timer,
+    bool biometria,
+    bool hasTimer,
+    bool insertVerify,
+    bool updateVerify,
+    bool tooltips,
+    bool onlyVerified,
+  ) {
     configs.setInt("theme", theme);
     configs.setDouble("timer", timer);
     configs.setBool("biometria", biometria);
     configs.setBool("hasTimer", hasTimer);
+    configs.setBool("insertVerify", insertVerify);
+    configs.setBool("updateVerify", updateVerify);
+    configs.setBool("onlyVerified", onlyVerified);
+    configs.setBool("tooltips", tooltips);
     getConfigs();
   }
 
@@ -62,6 +90,18 @@ class Configuration {
 
     bool? activetedTimer = configs.getBool("hasTimer");
     hasTimer = activetedTimer ?? true;
+
+    bool? insertVerify = configs.getBool("insertVerify");
+    insertPassVerify = insertVerify ?? true;
+
+    bool? updateVerify = configs.getBool("updateVerify");
+    updatePassVerify = updateVerify ?? true;
+
+    bool? tooltips = configs.getBool("tooltips");
+    showHelpTooltips = tooltips ?? true;
+
+    bool? onlyVerified = configs.getBool("onlyVerified");
+    onlyVerifiedPasswords = onlyVerified ?? true;
   }
 
   static Future<bool> adicionarEmail(String email) {

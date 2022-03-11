@@ -21,6 +21,10 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
   double timer = Configuration.showPasswordTime;
   int theme = Configuration.darkMode;
   bool aceitaBiometria = false;
+  bool onlyVerifiedPasswords = Configuration.onlyVerifiedPasswords;
+  bool updatePassVerify = Configuration.updatePassVerify;
+  bool insertPassVerify = Configuration.insertPassVerify;
+  bool showTooltips = Configuration.showHelpTooltips;
   final timerEC = TextEditingController();
 
   @override
@@ -38,7 +42,16 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
   }
 
   void _saveConfiguration() {
-    Configuration.setConfigs(theme, timer, isBiometria, hasTimer);
+    Configuration.setConfigs(
+      theme,
+      timer,
+      isBiometria,
+      hasTimer,
+      insertPassVerify,
+      updatePassVerify,
+      showTooltips,
+      onlyVerifiedPasswords,
+    );
   }
 
   void _changeTimer(String value) {
@@ -274,53 +287,232 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                   ),
                   Visibility(
                     visible: hasTimer,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 50),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20, top: 25),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  "Duração do temporizador: ",
+                                  style: TextStyle(fontSize: 13.5),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 5),
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.width * .12,
+                                    height: 25,
+                                    child: AppTextField(
+                                      label: "",
+                                      onSave: (value) {
+                                        _changeTimer(value);
+                                      },
+                                      controller: timerEC,
+                                      padding: 0,
+                                      fontSize: 14,
+                                      textAlign: TextAlign.center,
+                                      formatter: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                ),
+                                const Text("s"),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 20, top: 10, right: 20, bottom: 25),
+                              child: Text(
+                                "Determina a duração do temporizador de senha, em segundos.",
+                                style: Theme.of(context).textTheme.headline1,
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20, top: 20),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Padding(
+                          padding: EdgeInsets.only(right: 20),
+                          child: Icon(
+                            Icons.security,
+                            color: Colors.grey,
+                            size: 30,
+                          ),
+                        ),
+                        Text("Verificação de senhas"),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 70, right: 20),
+                    child: Text(
+                      'Configurações relacionadas com a verificação das senhas informadas por você no sistema '
+                      'em bancos de dados de senhas que já foram vazadas na internet.',
+                      style: Theme.of(context).textTheme.headline1,
+                      textAlign: TextAlign.justify,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50),
                     child: Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(left: 20, top: 25),
-                          child: Row(
+                          child: Column(
                             children: [
-                              const Text("Duração do temporizador: "),
                               Padding(
-                                padding: const EdgeInsets.only(top: 5),
-                                child: SizedBox(
-                                  width: MediaQuery.of(context).size.width * .12,
-                                  height: 25,
-                                  child: AppTextField(
-                                    label: "",
-                                    onSave: (value) {
-                                      _changeTimer(value);
-                                    },
-                                    controller: timerEC,
-                                    padding: 0,
-                                    fontSize: 15,
-                                    textAlign: TextAlign.center,
-                                    formatter: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.digitsOnly,
-                                    ],
-                                    keyboardType: TextInputType.number,
-                                  ),
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          "Verificar ao cadastrar:",
+                                          style: TextStyle(fontSize: 13.5),
+                                        ),
+                                        Switch(
+                                          value: insertPassVerify,
+                                          onChanged: (checked) {
+                                            setState(() {
+                                              insertPassVerify = checked;
+                                            });
+                                            _saveConfiguration();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      'Ativa a verificação real-time ao cadastrar uma senha.',
+                                      style: Theme.of(context).textTheme.headline1,
+                                      textAlign: TextAlign.justify,
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const Text("s"),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          "Verificar ao atualizar:",
+                                          style: TextStyle(fontSize: 13.5),
+                                        ),
+                                        Switch(
+                                          value: updatePassVerify,
+                                          onChanged: (checked) {
+                                            setState(() {
+                                              updatePassVerify = checked;
+                                            });
+                                            _saveConfiguration();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      'Ativa a verificação real-time ao atualizar uma senha já cadastrada.',
+                                      style: Theme.of(context).textTheme.headline1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          "Cadastrar somente verificadas:",
+                                          style: TextStyle(fontSize: 13.5),
+                                        ),
+                                        Switch(
+                                          value: onlyVerifiedPasswords,
+                                          onChanged: (checked) {
+                                            setState(() {
+                                              onlyVerifiedPasswords = checked;
+                                            });
+                                            _saveConfiguration();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      'Permite ou não cadastrar uma senha que já foi vazada.',
+                                      style: Theme.of(context).textTheme.headline1,
+                                      textAlign: TextAlign.justify,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 20, top: 10, right: 20, bottom: 25),
-                            child: Text(
-                              "Determina a duração do temporizador de senha, em segundos.",
-                              style: Theme.of(context).textTheme.headline1,
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   ),
                 ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, bottom: 20),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(right: 20),
+                          child: Icon(
+                            Icons.help,
+                            color: Colors.grey,
+                            size: 30,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Text("Habilitar ajuda: "),
+                            Switch(
+                              value: showTooltips,
+                              onChanged: (checked) {
+                                setState(() {
+                                  showTooltips = checked;
+                                });
+                                _saveConfiguration();
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 50, right: 10),
+                      child: Text(
+                        "Habilita ou desabilita ícones (?) para informações e explicações de ajuda em relação a como o aplicativo funciona.",
+                        style: Theme.of(context).textTheme.headline1,
+                      ),
+                    )
+                  ],
+                ),
               ),
             ],
           ),

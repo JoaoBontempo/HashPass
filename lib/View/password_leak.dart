@@ -76,6 +76,10 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                       showMessage = true;
                       passwordInfo = response;
                     });
+                  } else {
+                    setState(() {
+                      showMessage = false;
+                    });
                   }
                 },
               )

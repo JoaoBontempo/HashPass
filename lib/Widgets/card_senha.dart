@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hashpass/Database/datasource.dart';
 
 import 'package:hashpass/Model/senha.dart';
@@ -18,10 +19,12 @@ class CardSenha extends StatefulWidget {
     required this.senha,
     required this.onDelete,
     required this.onUpdate,
+    required this.onCopy,
   }) : super(key: key);
   final Senha senha;
   final Function(int) onDelete;
   final Function(int) onUpdate;
+  final Function() onCopy;
 
   @override
   CardSenhaState createState() => CardSenhaState();
@@ -53,6 +56,25 @@ class CardSenhaState extends State<CardSenha> {
     color: AppColors.ACCENT_LIGHT_2,
   );
 
+  final Icon leakedIcon = const Icon(
+    Icons.warning,
+    color: Colors.redAccent,
+    size: 16,
+  );
+
+  final Icon notLeakedIcon = const Icon(
+    Icons.verified_user,
+    color: Colors.greenAccent,
+    size: 16,
+  );
+
+  late Icon verifyPassIcon;
+  bool hasPasswordVerification = false;
+  String isLeakedMessage = '';
+
+  bool hidePassword = true;
+  String hidePasswordLabel = 'Mostrar senha';
+
   void atualizarParametrosSenha(String lastPassword, String newPassword, String credential, int algorithm) {
     widget.senha.algoritmo = algorithm;
     widget.senha.credencial = credential;
@@ -65,6 +87,7 @@ class CardSenhaState extends State<CardSenha> {
 
   @override
   void initState() {
+    verifyPassIcon = leakedIcon;
     credencialEC.text = widget.senha.credencial;
     senhaEC.text = widget.senha.senhaBase;
     isPasswordVisibleIcon = visiblePasswordIcon;
@@ -106,59 +129,167 @@ class CardSenhaState extends State<CardSenha> {
                 validator: Validatorless.required("A credencial não pode estar vazia."),
               ),
             ),
-            Row(
+            Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .7,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20, bottom: 15, right: 2),
-                    child: AppTextField(
-                      label: widget.senha.criptografado ? "Senha base" : "Senha",
-                      padding: 0,
-                      labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
-                      validator: Validatorless.required("A senha não pode estar vazia."),
-                      controller: senhaEC,
-                      dark: true,
-                      obscureText: true,
-                      borderColor: Theme.of(context).highlightColor,
-                      fontColor: Colors.grey.shade300,
-                      onChange: (text) {
-                        setState(() {
-                          toDelete = true;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: IconButton(
-                    onPressed: () {
-                      if (toDelete) {
-                        setState(() {
-                          lastText = senhaEC.text;
-                          toDelete = false;
-                          senhaEC.text = "";
-                        });
-                      } else {
-                        setState(() {
-                          toDelete = true;
-                          senhaEC.text = lastText;
-                        });
-                      }
-                    },
-                    icon: toDelete
-                        ? const Icon(
-                            Icons.close,
-                            color: Colors.redAccent,
-                          )
-                        : Icon(
-                            Icons.history,
-                            color: Theme.of(context).highlightColor,
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * .7,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20, bottom: 15, right: 2),
+                            child: AppTextField(
+                              label: widget.senha.criptografado ? "Senha base" : "Senha",
+                              padding: 0,
+                              labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                              validator: Validatorless.multiple(
+                                [
+                                  Validatorless.required("A senha não pode estar vazia."),
+                                  Validatorless.min(4, 'A senha é curta demais!'),
+                                ],
+                              ),
+                              controller: senhaEC,
+                              dark: true,
+                              obscureText: true,
+                              borderColor: Theme.of(context).highlightColor,
+                              fontColor: Colors.grey.shade300,
+                              onChange: (text) {
+                                setState(() {
+                                  toDelete = true;
+                                  if (text.isEmpty) {
+                                    hasPasswordVerification = false;
+                                  }
+                                });
+                                if (text.isNotEmpty || text.length < 4) {
+                                  Criptografia.verifyPassowordLeak(text).then(
+                                    (response) {
+                                      setState(
+                                        () {
+                                          if (text.isEmpty || text.length < 4) {
+                                            hasPasswordVerification = false;
+                                            return;
+                                          }
+                                          hasPasswordVerification = true;
+                                          isLeakedMessage = response.message;
+                                          verifyPassIcon = response.leakCount == 0 ? notLeakedIcon : leakedIcon;
+                                        },
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                            ),
                           ),
-                  ),
-                )
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: IconButton(
+                            onPressed: () {
+                              if (toDelete) {
+                                setState(() {
+                                  lastText = senhaEC.text;
+                                  toDelete = false;
+                                  senhaEC.text = "";
+                                  hasPasswordVerification = false;
+                                });
+                              } else {
+                                setState(() {
+                                  toDelete = true;
+                                  senhaEC.text = lastText;
+                                  if (lastText.length > 4 || lastText.isNotEmpty) {
+                                    hasPasswordVerification = true;
+                                  }
+                                });
+                              }
+                            },
+                            icon: toDelete
+                                ? const Icon(
+                                    Icons.close,
+                                    color: Colors.redAccent,
+                                  )
+                                : Icon(
+                                    Icons.history,
+                                    color: Theme.of(context).highlightColor,
+                                  ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * .7,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => ValidarSenhaGeral(
+                                      onValidate: (key) {
+                                        if (widget.senha.criptografado) {
+                                          Criptografia.aplicarAlgoritmos(
+                                            widget.senha.algoritmo,
+                                            widget.senha.senhaBase,
+                                            widget.senha.avancado,
+                                            key,
+                                          ).then((value) {
+                                            Clipboard.setData(ClipboardData(text: value));
+                                          });
+                                        } else {
+                                          Criptografia.decifrarSenha(widget.senha.senhaBase, key).then(
+                                            (value) {
+                                              Clipboard.setData(ClipboardData(text: value));
+                                            },
+                                          );
+                                        }
+                                        Navigator.of(context).pop();
+                                        widget.onCopy();
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Copiar senha',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: hasPasswordVerification,
+                              child: Tooltip(
+                                margin: EdgeInsets.only(left: 20, right: MediaQuery.of(context).size.width * .15 + 20, top: 5),
+                                padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                                triggerMode: TooltipTriggerMode.tap,
+                                showDuration: const Duration(seconds: 5),
+                                message: isLeakedMessage,
+                                child: verifyPassIcon,
+                                textStyle: TextStyle(
+                                  color: verifyPassIcon.color == Colors.greenAccent ? Colors.black : Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: verifyPassIcon.color,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ],
             ),
             Visibility(
@@ -230,11 +361,11 @@ class CardSenhaState extends State<CardSenha> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20, right: 10, top: 8, bottom: 15),
+              padding: const EdgeInsets.only(right: 10, top: 8, bottom: 15, left: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  OutlinedButton(
+                  TextButton(
                     onPressed: () async {
                       showDialog(
                         context: context,
@@ -253,7 +384,13 @@ class CardSenhaState extends State<CardSenha> {
                         ),
                       );
                     },
-                    child: const Text("Visualizar senha"),
+                    child: Text(
+                      "VISUALIZAR SENHA",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).highlightColor,
+                      ),
+                    ),
                   ),
                   Row(
                     children: [
@@ -306,6 +443,9 @@ class CardSenhaState extends State<CardSenha> {
                                           atualizarParametrosSenha(senhaEC.text, senhaCripto, credencialEC.text, algoritmoSelecionado.index);
                                           int code = await SenhaDBSource().atualizarSenha(widget.senha);
                                           widget.onUpdate(code);
+                                          setState(() {
+                                            hasPasswordVerification = false;
+                                          });
                                         },
                                       ),
                                     );
