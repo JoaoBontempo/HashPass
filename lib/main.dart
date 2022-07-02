@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Themes/dark.dart';
 import 'package:hashpass/Themes/light.dart';
@@ -11,40 +13,31 @@ import 'package:hashpass/View/welcomepage.dart';
 
 import 'Model/configuration.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   MobileAds.instance.initialize();
-  runApp(const MyApp());
+  await Configuration.getConfigs();
+  runApp(const HashPassApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class HashPassApp extends StatefulWidget {
+  const HashPassApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<HashPassApp> createState() => _HashPassAppState();
 
-  static _MyAppState? of(BuildContext context) => context.findAncestorStateOfType<_MyAppState>();
+  static _HashPassAppState? of(BuildContext context) => context.findAncestorStateOfType<_HashPassAppState>();
 }
 
-class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
-
-  @override
-  void initState() {
-    Configuration.getTema().then((value) {
-      setState(() {
-        _themeMode = value;
-      });
-    });
-    super.initState();
-  }
-
+class _HashPassAppState extends State<HashPassApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      supportedLocales: const [Locale('pt', 'BR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       title: 'Hash Pass',
-      themeMode: _themeMode,
+      themeMode: Configuration.instance.theme.mode,
       theme: LightAppTheme(context).defaultTheme,
       darkTheme: DarkAppTheme(context).defaultTheme,
       initialRoute: "/",
@@ -56,11 +49,5 @@ class _MyAppState extends State<MyApp> {
         "/": (_) => const HashPasshSplashPage(),
       },
     );
-  }
-
-  void changeTheme(ThemeMode themeMode) {
-    setState(() {
-      _themeMode = themeMode;
-    });
   }
 }

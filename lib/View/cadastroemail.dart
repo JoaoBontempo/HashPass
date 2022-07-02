@@ -48,7 +48,7 @@ class _CadastroEmailPageState extends State<CadastroEmailPage> {
               VerificarTokenWidget(
                 isFirstTime: true,
                 onValidate: (destinatario) async {
-                  bool cadastrouEmail = await Configuration.adicionarEmail(destinatario);
+                  bool cadastrouEmail = true;
                   if (cadastrouEmail) {
                     Navigator.pushReplacementNamed(
                       context,

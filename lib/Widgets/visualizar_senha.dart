@@ -1,13 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Util/ads.dart';
 import 'package:hashpass/Util/criptografia.dart';
+import 'package:hashpass/Widgets/data/copyButton.dart';
 
 import '../Model/senha.dart';
 
@@ -28,19 +27,10 @@ class VisualizacaoSenhaModal extends StatefulWidget {
 
 class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
   double tempo = 0;
-  double tempoTotal = Configuration.showPasswordTime;
+  double tempoTotal = Configuration.instance.showPasswordTime;
   late Timer time;
-  double cont = Configuration.showPasswordTime;
+  double cont = Configuration.instance.showPasswordTime;
   String senha = "";
-
-  late Icon toCopy;
-  final Icon copied = const Icon(
-    Icons.check_circle,
-    color: Colors.greenAccent,
-  );
-
-  late Icon copyIcon = Icon(Icons.abc);
-
   bool isBannerLoaded = false;
   bool isVideoLoaded = false;
   bool isAdLoaded = false;
@@ -65,7 +55,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
             isBannerLoaded = false;
             ad.dispose();
           }),
-          request: AdRequest(),
+          request: const AdRequest(),
         )..load().then((value) {
             _initPasswordDialog();
           });
@@ -73,7 +63,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
       case 2:
         InterstitialAd.load(
           adUnitId: 'ca-app-pub-3940256099942544/1033173712',
-          request: AdRequest(),
+          request: const AdRequest(),
           adLoadCallback: InterstitialAdLoadCallback(
             onAdLoaded: videoAdLoaded,
             onAdFailedToLoad: (error) {
@@ -86,7 +76,6 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
         _initPasswordDialog();
         break;
     }
-    //_initPasswordDialog(); //excluir depois
     super.initState();
   }
 
@@ -109,11 +98,6 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
     setState(() {
       isAdLoaded = true;
     });
-    toCopy = Icon(
-      Icons.copy,
-      color: widget.copyIconColor,
-    );
-    copyIcon = toCopy;
     if (widget.senha.criptografado) {
       Criptografia.aplicarAlgoritmos(
         widget.senha.algoritmo,
@@ -123,7 +107,6 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
       ).then((value) {
         setState(() {
           senha = value;
-          debugPrint("Senha final: $senha");
         });
       });
     } else {
@@ -134,13 +117,12 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
         (value) {
           setState(() {
             senha = value!;
-            debugPrint("Senha final: $senha");
           });
         },
       );
     }
 
-    if (Configuration.hasTimer) {
+    if (Configuration.instance.hasTimer) {
       time = Timer.periodic(
         const Duration(seconds: 1),
         (timer) {
@@ -160,10 +142,10 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
   }
 
   void closeModal() {
-    if (Configuration.hasTimer) {
+    if (Configuration.instance.hasTimer) {
       time.cancel();
     }
-    Navigator.pop(context);
+    Get.back();
   }
 
   @override
@@ -171,106 +153,99 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
     return isAdLoaded
         ? Visibility(
             visible: isAdLoaded,
-            child: AlertDialog(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.senha.titulo,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      closeModal();
-                    },
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(senha),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Row(
+            child: Dialog(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Visibility(
-                          visible: Configuration.hasTimer,
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width * .5,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                LinearProgressIndicator(
-                                  value: tempo,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).toggleableActiveColor),
-                                  backgroundColor: AppColors.ACCENT_LIGHT.withOpacity(0.3),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 5),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.timer,
-                                          color: Theme.of(context).hintColor,
-                                          size: 12,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 5),
-                                          child: Text(
-                                            "${cont.toInt()} segundos",
-                                            style: TextStyle(
-                                              color: Theme.of(context).hintColor,
-                                              fontSize: 11,
-                                            ),
+                        Text(
+                          widget.senha.titulo,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          onPressed: () => closeModal(),
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(senha),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Visibility(
+                                visible: Configuration.instance.hasTimer,
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * .5,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      LinearProgressIndicator(
+                                        value: tempo,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).toggleableActiveColor),
+                                        backgroundColor: AppColors.ACCENT_LIGHT.withOpacity(0.3),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 5),
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.timer,
+                                                color: Theme.of(context).hintColor,
+                                                size: 12,
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(left: 5),
+                                                child: Text(
+                                                  "${cont.toInt()} segundos",
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).hintColor,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
+                              ),
+                              CopyTextButton(textToCopy: senha),
+                            ],
+                          ),
+                        ),
+                        Visibility(
+                          visible: isBannerLoaded,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Container(
+                              width: Get.size.width,
+                              height: isBannerLoaded ? bannerAd.size.height.toDouble() : 0,
+                              color: Colors.transparent,
+                              child: isBannerLoaded ? AdWidget(ad: bannerAd) : null,
                             ),
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            Clipboard.setData(ClipboardData(text: senha));
-                            setState(() {
-                              copyIcon = copied;
-                              Future.delayed(const Duration(seconds: 1), () {
-                                setState(() {
-                                  copyIcon = toCopy;
-                                });
-                              });
-                            });
-                          },
-                          icon: copyIcon,
-                        )
                       ],
                     ),
-                  ),
-                  Visibility(
-                    visible: isBannerLoaded,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: isBannerLoaded ? bannerAd.size.height.toDouble() : 0,
-                        color: Colors.transparent,
-                        child: isBannerLoaded ? AdWidget(ad: bannerAd) : null,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           )

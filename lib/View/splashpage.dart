@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
+import 'package:hashpass/Themes/theme.dart';
+import 'package:hashpass/Util/route.dart';
+import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
-
 import '../Database/datasource.dart';
-import '../Themes/colors.dart';
 import '../Util/util.dart';
 
 class HashPasshSplashPage extends StatefulWidget {
@@ -16,35 +18,32 @@ class HashPasshSplashPage extends StatefulWidget {
 class HashPasshSplashPageState extends State<HashPasshSplashPage> {
   @override
   void initState() {
-    Configuration.checarPrimeiraEntrada().then((value) {
-      if (value) {
-        Configuration.setDefaultConfig();
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          "/welcome",
-          (_) => false,
-        );
-      } else {
-        Configuration.getConfigs();
-        Configuration.printConfigs();
-        showDialog(
-          context: context,
-          builder: (_) => ValidarSenhaGeral(
-            onValidate: (senha) {
-              Navigator.of(context).pop();
-              SenhaDBSource().getTodasSenhas().then((value) {
-                Util.senhas.addAll(value);
-                Navigator.pushReplacementNamed(
-                  context,
-                  "/index",
-                );
-              });
-            },
-          ),
-        );
-      }
-    });
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      verifyEntrance();
+    });
+  }
+
+  void verifyEntrance() {
+    if (!Configuration.instance.hasEntrance) {
+      Configuration.setDefaultConfig();
+      HashPassRoute.to("/welcome", context);
+    } else {
+      authUser();
+    }
+  }
+
+  void authUser() {
+    Get.dialog(
+      ValidarSenhaGeral(
+        onValidate: (senha) {
+          SenhaDBSource().getTodasSenhas().then((senhas) {
+            Util.senhas.addAll(senhas);
+            HashPassRoute.to("/index", context);
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -54,9 +53,13 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            Theme.of(context).primaryColor == AppColors.SECONDARY_DARK ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
+            HashPassTheme.isDarkMode ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
           ),
           const CircularProgressIndicator(),
+          TextButton(
+            onPressed: () => authUser(),
+            child: const HashPassLabel(text: "Entrar no app"),
+          ),
         ],
       ),
     );

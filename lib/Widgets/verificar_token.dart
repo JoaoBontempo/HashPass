@@ -3,8 +3,8 @@ import 'package:hashpass/DTO/sendtoken_dto.dart';
 import 'package:hashpass/Util/criptografia.dart';
 import 'package:validatorless/validatorless.dart';
 
-import 'package:hashpass/Widgets/button.dart';
-import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/data/button.dart';
+import 'package:hashpass/Widgets/data/textfield.dart';
 
 import '../Model/configuration.dart';
 import '../Model/verificar_usuario_dto.dart';
@@ -40,12 +40,12 @@ class _VerificarTokenWidgetState extends State<VerificarTokenWidget> {
 
   bool showProgress = false;
 
-  String? emailCadastrado = Configuration.getEmail();
+  //String? emailCadastrado = Configuration.getEmail();
 
   @override
   void initState() {
     if (!widget.isFirstTime) {
-      userEmailEC.text = emailCadastrado!;
+      userEmailEC.text = "emailCadastrado";
     }
     super.initState();
   }

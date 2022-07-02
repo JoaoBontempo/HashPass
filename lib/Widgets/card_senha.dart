@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hashpass/Database/datasource.dart';
+import 'package:hashpass/Model/configuration.dart';
 
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Widgets/confirmdialog.dart';
-import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:hashpass/Widgets/visualizar_senha.dart';
 import 'package:validatorless/validatorless.dart';
@@ -42,6 +43,7 @@ class CardSenhaState extends State<CardSenha> {
   late Icon isPasswordVisibleIcon;
 
   bool toDelete = true;
+  bool isDeleting = false;
   String lastText = "";
   late String basePassword;
   final formKey = GlobalKey<FormState>();
@@ -70,6 +72,7 @@ class CardSenhaState extends State<CardSenha> {
 
   late Icon verifyPassIcon;
   bool hasPasswordVerification = false;
+  bool isVerifiedPassword = false;
   String isLeakedMessage = '';
 
   bool hidePassword = true;
@@ -163,18 +166,27 @@ class CardSenhaState extends State<CardSenha> {
                                     hasPasswordVerification = false;
                                   }
                                 });
-                                if (text.isNotEmpty || text.length < 4) {
+                                if (text.isEmpty || text.length < 4) {
+                                  isDeleting = true;
+                                  setState(() {
+                                    hasPasswordVerification = false;
+                                  });
+                                  return;
+                                } else {
+                                  isDeleting = false;
+                                }
+                                if (Configuration.instance.updatePassVerify) {
                                   Criptografia.verifyPassowordLeak(text).then(
                                     (response) {
+                                      if (isDeleting) {
+                                        return;
+                                      }
                                       setState(
                                         () {
-                                          if (text.isEmpty || text.length < 4) {
-                                            hasPasswordVerification = false;
-                                            return;
-                                          }
                                           hasPasswordVerification = true;
                                           isLeakedMessage = response.message;
                                           verifyPassIcon = response.leakCount == 0 ? notLeakedIcon : leakedIcon;
+                                          isVerifiedPassword = response.leakCount == 0;
                                         },
                                       );
                                     },
@@ -265,7 +277,7 @@ class CardSenhaState extends State<CardSenha> {
                               ),
                             ),
                             Visibility(
-                              visible: hasPasswordVerification,
+                              visible: hasPasswordVerification && Configuration.instance.updatePassVerify,
                               child: Tooltip(
                                 margin: EdgeInsets.only(left: 20, right: MediaQuery.of(context).size.width * .15 + 20, top: 5),
                                 padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
@@ -371,7 +383,6 @@ class CardSenhaState extends State<CardSenha> {
                         context: context,
                         builder: (_) => ValidarSenhaGeral(
                           onValidate: (chaveGeral) {
-                            Navigator.of(context).pop();
                             showDialog(
                               context: context,
                               builder: (_) => VisualizacaoSenhaModal(
@@ -426,6 +437,9 @@ class CardSenhaState extends State<CardSenha> {
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
                           final formValido = formKey.currentState?.validate() ?? false;
+                          if (!isVerifiedPassword && Configuration.instance.updatePassVerify) {
+                            return;
+                          }
                           if (formValido) {
                             showDialog(
                               context: context,

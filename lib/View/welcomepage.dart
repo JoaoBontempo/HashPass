@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Util/criptografia.dart';
-import 'package:hashpass/Widgets/button.dart';
-import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/data/button.dart';
+import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:validatorless/validatorless.dart';
 
 class AppWelcomePage extends StatefulWidget {

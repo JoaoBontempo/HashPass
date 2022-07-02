@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:local_auth/auth_strings.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:validatorless/validatorless.dart';
-import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/data/textfield.dart';
 
 import '../Util/criptografia.dart';
 
@@ -29,7 +30,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
   bool chaveInvalida = false;
   int tentativas = 3;
   late bool aceitaDigital;
-  final bool isBiometria = Configuration.isBiometria;
+  final bool isBiometria = Configuration.instance.isBiometria;
   final LocalAuthentication auth = LocalAuthentication();
 
   @override
@@ -45,14 +46,13 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
       )
           .then(
         (biometriaValida) {
+          Get.back();
           if (biometriaValida) {
             Criptografia.validarChaveInserida(null).then((value) {
               if (value) {
                 widget.onValidate(Criptografia.recuperarBaseChaveGeral());
               }
             });
-          } else {
-            exit(0);
           }
         },
       );

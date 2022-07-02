@@ -1,27 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/criptografia.dart';
+import 'package:hashpass/Widgets/validarChave.dart';
 
 class Configuration {
-  static late int darkMode;
-  static late double showPasswordTime;
-  static late bool isBiometria;
   static late SharedPreferences configs;
-  static late bool hasTimer;
-  static late bool insertPassVerify;
-  static late bool updatePassVerify;
-  static late bool showHelpTooltips;
-  static late bool onlyVerifiedPasswords;
+  static late Configuration instance;
+  static bool hasInit = false;
+
+  bool hasEntrance;
+  HashPassTheme theme;
+  double showPasswordTime;
+  bool isBiometria;
+  bool hasTimer;
+  bool insertPassVerify;
+  bool updatePassVerify;
+  bool showHelpTooltips;
+
+  Configuration({
+    required this.hasEntrance,
+    required this.theme,
+    required this.showPasswordTime,
+    required this.isBiometria,
+    required this.hasTimer,
+    required this.insertPassVerify,
+    required this.updatePassVerify,
+    required this.showHelpTooltips,
+  });
 
   static void printConfigs() {
-    debugPrint('DarkMode: $darkMode | Timer: $showPasswordTime | Biometria: $isBiometria | hasTimer: $hasTimer'
-        ' | Insert pass verify: $insertPassVerify | Update pass verify: $updatePassVerify | Tooltips: $showHelpTooltips'
-        ' | Only verified passwords: $onlyVerifiedPasswords');
-  }
-
-  static Future<bool> addCheckPrimeiraEntrada() async {
-    return await configs.setBool("hasEntrada", true);
+    debugPrint('Theme: ${Configuration.instance.theme} theme | Timer: ${Configuration.instance.showPasswordTime} | '
+        'Biometria: ${Configuration.instance.isBiometria} | hasTimer: ${Configuration.instance.hasTimer}'
+        ' | Insert pass verify: ${Configuration.instance.insertPassVerify} | Update pass verify: ${Configuration.instance.updatePassVerify} | '
+        'Tooltips: ${Configuration.instance.showHelpTooltips} | Entrance: ${Configuration.instance.hasEntrance}');
   }
 
   static Future<bool> adicionarPrimeiraChave(String chaveGeral) async {
@@ -31,91 +45,72 @@ class Configuration {
 
   static void setDefaultConfig() {
     setConfigs(
-      3,
-      30,
-      false,
-      true,
-      true,
-      true,
-      true,
-      true,
+      theme: HashPassTheme(mode: ThemeMode.system),
+      timer: 30,
+      biometria: false,
+      hasTimer: true,
+      insertVerify: true,
+      updateVerify: true,
+      tooltips: true,
     );
   }
 
-  static Future<ThemeMode> getTema() async {
-    final configs = await SharedPreferences.getInstance();
-    darkMode = configs.getInt("theme")!;
-    switch (darkMode) {
-      case 1:
-        return ThemeMode.light;
-      case 2:
-        return ThemeMode.dark;
-      case 3:
-        return ThemeMode.system;
-      default:
-        return ThemeMode.system;
+  static void setConfigs({
+    HashPassTheme? theme,
+    double? timer,
+    bool? biometria,
+    bool? hasTimer,
+    bool? insertVerify,
+    bool? updateVerify,
+    bool? tooltips,
+    bool? entrance,
+  }) {
+    if (theme != null) {
+      Get.changeThemeMode(theme.mode);
+      configs.setInt("theme", theme.mode.index);
     }
-  }
-
-  static void setConfigs(
-    int theme,
-    double timer,
-    bool biometria,
-    bool hasTimer,
-    bool insertVerify,
-    bool updateVerify,
-    bool tooltips,
-    bool onlyVerified,
-  ) {
-    configs.setInt("theme", theme);
-    configs.setDouble("timer", timer);
-    configs.setBool("biometria", biometria);
-    configs.setBool("hasTimer", hasTimer);
-    configs.setBool("insertVerify", insertVerify);
-    configs.setBool("updateVerify", updateVerify);
-    configs.setBool("onlyVerified", onlyVerified);
-    configs.setBool("tooltips", tooltips);
+    if (timer != null) configs.setDouble("timer", timer);
+    if (biometria != null) {
+      if (Configuration.instance.isBiometria) {
+        configs.setBool("biometria", biometria);
+        return;
+      } else {
+        Get.dialog(
+          ValidarSenhaGeral(
+            onValidate: (senha) {
+              Criptografia.criarChaveGeral(senha);
+              Get.back();
+              configs.setBool("biometria", biometria);
+            },
+          ),
+        );
+      }
+    }
+    if (hasTimer != null) configs.setBool("hasTimer", hasTimer);
+    if (insertVerify != null) configs.setBool("insertVerify", insertVerify);
+    if (updateVerify != null) configs.setBool("updateVerify", updateVerify);
+    if (tooltips != null) configs.setBool("tooltips", tooltips);
+    if (entrance != null) configs.setBool("hasEntrance", entrance);
     getConfigs();
   }
 
-  static void getConfigs() {
-    int? theme = configs.getInt("theme");
-    darkMode = theme ?? 1;
+  static Future<Configuration> getConfigs() async {
+    if (!hasInit) configs = await SharedPreferences.getInstance();
+    hasInit = true;
 
-    double? timer = configs.getDouble("timer");
-    showPasswordTime = timer ?? 30;
-
-    bool? auth = configs.getBool("biometria");
-    isBiometria = auth ?? false;
-
-    bool? activetedTimer = configs.getBool("hasTimer");
-    hasTimer = activetedTimer ?? true;
-
-    bool? insertVerify = configs.getBool("insertVerify");
-    insertPassVerify = insertVerify ?? true;
-
-    bool? updateVerify = configs.getBool("updateVerify");
-    updatePassVerify = updateVerify ?? true;
-
-    bool? tooltips = configs.getBool("tooltips");
-    showHelpTooltips = tooltips ?? true;
-
-    bool? onlyVerified = configs.getBool("onlyVerified");
-    onlyVerifiedPasswords = onlyVerified ?? true;
-  }
-
-  static Future<bool> adicionarEmail(String email) {
-    return configs.setString("email", email);
-  }
-
-  static String? getEmail() {
-    return configs.getString("email");
-  }
-
-  static Future<bool> checarPrimeiraEntrada() async {
-    configs = await SharedPreferences.getInstance();
-    bool? hasEntrada = configs.getBool("hasEntrada");
-    debugPrint("Já entrou? $hasEntrada");
-    return hasEntrada == null;
+    instance = Configuration(
+      hasEntrance: configs.getBool("hasEntrada") ?? false,
+      theme: HashPassTheme.values.firstWhere(
+        (theme) => theme.mode.index == (configs.getInt("theme") ?? ThemeMode.system.index),
+        orElse: () => HashPassTheme(mode: ThemeMode.system),
+      ),
+      showPasswordTime: configs.getDouble("timer") ?? 30,
+      isBiometria: configs.getBool("biometria") ?? false,
+      hasTimer: configs.getBool("hasTimer") ?? true,
+      insertPassVerify: configs.getBool("insertVerify") ?? true,
+      updatePassVerify: configs.getBool("updateVerify") ?? true,
+      showHelpTooltips: configs.getBool("tooltips") ?? true,
+    );
+    return instance;
   }
 }

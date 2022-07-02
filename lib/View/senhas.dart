@@ -42,7 +42,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
         isBannerReady = false;
         ad.dispose();
       }),
-      request: AdRequest(),
+      request: const AdRequest(),
     )..load();
   }
 
@@ -113,7 +113,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      key: new Key(senhasView.toString()),
+                      key: Key(senhasView.toString()),
                       padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 100),
                       controller: scroller,
                       scrollDirection: Axis.vertical,

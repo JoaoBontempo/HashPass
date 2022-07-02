@@ -5,9 +5,9 @@ import 'package:hashpass/Model/hash_function.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Util/criptografia.dart';
-import 'package:hashpass/Widgets/button.dart';
+import 'package:hashpass/Widgets/data/button.dart';
 import 'package:hashpass/Widgets/confirmdialog.dart';
-import 'package:hashpass/Widgets/textfield.dart';
+import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -41,7 +41,9 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
 
   late Icon verifyPassIcon;
   bool hasPasswordVerification = false;
+  bool isVerifiedPassword = false;
   String isLeakedMessage = '';
+  bool isDeleting = false;
 
   bool hidePassword = true;
   String hidePasswordLabel = 'Mostrar senha';
@@ -123,7 +125,9 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: hasPasswordVerification ? MediaQuery.of(context).size.width * .85 : MediaQuery.of(context).size.width,
+                          width: hasPasswordVerification && Configuration.instance.insertPassVerify
+                              ? MediaQuery.of(context).size.width * .85
+                              : MediaQuery.of(context).size.width,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                             child: AppTextField(
@@ -137,18 +141,27 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                                   Validatorless.min(4, 'A senha é pequena demais'),
                                 ],
                               ),
-                              onSave: (password) {
+                              onChange: (password) {
+                                if (password.isEmpty || password.length < 4) {
+                                  isDeleting = true;
+                                  setState(() {
+                                    hasPasswordVerification = false;
+                                  });
+                                  return;
+                                } else {
+                                  isDeleting = false;
+                                }
                                 Criptografia.verifyPassowordLeak(password).then(
                                   (response) {
+                                    if (isDeleting) {
+                                      return;
+                                    }
                                     setState(
                                       () {
-                                        if (password.isEmpty || password.length < 4) {
-                                          hasPasswordVerification = false;
-                                          return;
-                                        }
                                         hasPasswordVerification = true;
                                         isLeakedMessage = response.message;
                                         verifyPassIcon = response.leakCount == 0 ? notLeakedIcon : leakedIcon;
+                                        isVerifiedPassword = response.leakCount == 0;
                                       },
                                     );
                                   },
@@ -185,7 +198,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                         showDuration: const Duration(seconds: 3),
                         message: isLeakedMessage,
                         child: Visibility(
-                          visible: Configuration.showHelpTooltips,
+                          visible: Configuration.instance.insertPassVerify,
                           child: Padding(
                             padding: const EdgeInsets.only(right: 20),
                             child: verifyPassIcon,
@@ -236,7 +249,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                           message: "Ao marcar esta caixa, sua senha real será a "
                               "combinação entre uma senha base e um algoritmo hash.",
                           child: Visibility(
-                            visible: Configuration.showHelpTooltips,
+                            visible: Configuration.instance.showHelpTooltips,
                             child: const Icon(
                               Icons.help_outline,
                               color: Colors.grey,
@@ -330,7 +343,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                                 showDuration: const Duration(seconds: 10),
                                 message: "Sua senha final será a senha base com o algoritmo hash aplicado.",
                                 child: Visibility(
-                                  visible: Configuration.showHelpTooltips,
+                                  visible: Configuration.instance.showHelpTooltips,
                                   child: const Icon(
                                     Icons.help_outline,
                                     color: Colors.grey,
@@ -364,7 +377,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                                 showDuration: const Duration(seconds: 5),
                                 message: "Além do algoritmo hash, sua senha real terá uma criptografia simétrica adicional.",
                                 child: Visibility(
-                                  visible: Configuration.showHelpTooltips,
+                                  visible: Configuration.instance.showHelpTooltips,
                                   child: const Icon(
                                     Icons.help_outline,
                                     color: Colors.grey,
@@ -389,6 +402,9 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       senhaEC.text = senhaEC.text.trim();
                       credencialEC.text = credencialEC.text.trim();
                       final formValido = formKey.currentState?.validate() ?? false;
+                      if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
+                        return;
+                      }
                       if (formValido) {
                         showDialog(
                           context: context,

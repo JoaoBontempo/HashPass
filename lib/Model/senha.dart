@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 class Senha {
   int? id;
   String titulo;
@@ -24,16 +26,7 @@ class Senha {
   }
 
   static List<Senha> serializeList(String data) {
-    try {
-      List<Senha> senhas = <Senha>[];
-      var jsonArray = json.decode(data);
-      for (var json in jsonArray) {
-        senhas.add(Senha.fromMap(json));
-      }
-      return senhas;
-    } on Exception catch (error) {
-      return <Senha>[];
-    }
+    return List<dynamic>.from(json.decode(data)).map((x) => Senha.fromMap(x)).toList();
   }
 
   Map<String, dynamic> toMap() {

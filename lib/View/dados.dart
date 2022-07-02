@@ -1,18 +1,21 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:get/get.dart';
+import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Util/criptografia.dart';
 import 'package:hashpass/View/index.dart';
-import 'package:hashpass/Widgets/textfield.dart';
-import 'package:hashpass/Widgets/validarChave.dart';
+import 'package:hashpass/Widgets/data/copyButton.dart';
+import 'package:hashpass/Widgets/data/textfield.dart';
+import 'package:hashpass/Widgets/interface/label.dart';
+import 'package:hashpass/Widgets/interface/messageBox.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:validatorless/validatorless.dart';
 
 import '../Util/util.dart';
-import '../Widgets/button.dart';
+import '../Widgets/data/button.dart';
 
 class MenuDados extends StatefulWidget {
   const MenuDados({Key? key}) : super(key: key);
@@ -39,6 +42,42 @@ class _MenuDadosState extends State<MenuDados> {
     }
   }
 
+  void dataExport() async {
+    DataExportDTO exportDTO = await Criptografia.exportarDados();
+    String filePath = '${Directory.systemTemp.path}/hashpass.txt';
+    final File file = File(filePath);
+    await file.writeAsString(exportDTO.fileContent);
+    await Share.shareFiles([filePath]);
+    HashPassMessage.show(
+      body: Column(
+        children: [
+          const HashPassLabel(
+            text: "Seus dados foram exportados com sucesso! Você deverá usar a chave abaixo para importar seus dados.",
+            size: 14.5,
+          ),
+          HashPassLabel(
+            text: exportDTO.fileKey,
+            paddingTop: 10,
+            paddingBottom: 10,
+            size: 14,
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: CopyTextButton(
+              textToCopy: exportDTO.fileKey,
+              label: "Copiar chave",
+              labelSize: 14.5,
+              widgetSize: 20,
+            ),
+          )
+        ],
+      ),
+      title: "Dados exportados com sucesso!",
+    );
+  }
+
+  void dataImport() async {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,80 +102,24 @@ class _MenuDadosState extends State<MenuDados> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Exportação de dados",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                          const HashPassLabel(
+                            text: "Exportação de dados",
+                            fontWeight: FontWeight.bold,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text(
-                              "Será enviado um arquivo, em formato .json, e uma chave criptográfica para o e-mail que você cadastrou no app. O arquivo terá suas informações "
-                              "criptografadas e prontas para serem importadas. A chave é necessária para decifrar o conteúdo criptografado do arquivo.",
-                              style: Theme.of(context).textTheme.headline1,
-                            ),
+                          HashPassLabel(
+                            paddingTop: 20,
+                            text:
+                                "Será enviado um arquivo, em formato .json, e uma chave criptográfica para o e-mail que você cadastrou no app. O arquivo terá suas informações "
+                                "criptografadas e prontas para serem importadas. A chave é necessária para decifrar o conteúdo criptografado do arquivo.",
+                            style: Get.theme.textTheme.headline1,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 25),
                             child: AppButton(
                               label: "Exportar dados",
-                              width: MediaQuery.of(context).size.width * .5,
+                              width: Get.size.width * .5,
                               height: 35,
-                              onPressed: () async {
-                                setState(() {
-                                  showExportProgress = true;
-                                });
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => ValidarSenhaGeral(onValidate: (senha) async {
-                                    Navigator.of(context).pop();
-                                    String response = await Criptografia.exportarDados();
-                                    if (response == 'Dados exportados com sucesso!') {
-                                      setState(() {
-                                        showExportProgress = false;
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => AlertDialog(
-                                            title: const Text("Dados exportados!"),
-                                            content: const Text("Seus dados foram exportados com sucesso! Verifique o e-mail "
-                                                "que você cadastrou no app, inclusive a caixa de spam. Foram enviados um arquivo "
-                                                "e uma chave criptográfica para que você possa importar seus dados."),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text("OK"),
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      });
-                                    } else {
-                                      setState(() {
-                                        showExportProgress = false;
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => AlertDialog(
-                                            title: const Text("Ocorreu um erro"),
-                                            content: Text("Um erro inesperado ocorreu ao exportar seus dados. Por favor, tente novamente \n\n"
-                                                "Mensagem de erro: $response"),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text("OK"),
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      });
-                                    }
-                                  }),
-                                );
-                              },
+                              onPressed: () => dataExport(),
                             ),
                           ),
                           Visibility(

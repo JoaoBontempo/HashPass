@@ -1,19 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart' as hashs;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
-import 'package:hashpass/DTO/exportdata_dto.dart';
+import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/hash_function.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Util/util.dart';
-import 'package:intl/intl.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
-
 import '../DTO/password_leak_dto.dart';
 import '../Model/configuration.dart';
 import 'http.dart';
@@ -53,6 +50,7 @@ class Criptografia {
   ];
 
   static Future<PasswordLeakDTO> verifyPassowordLeak(String basePass) async {
+    debugPrint('Realizando requisição...');
     String passwordHash = _aplicarAlgoritmoHash(hashs.sha1, basePass);
     String response = await HTTPRequest.requestPasswordLeak(passwordHash);
     String passwordSubHash = passwordHash.substring(5).toUpperCase();
@@ -119,78 +117,69 @@ class Criptografia {
     );
   }
 
-  static Future<String> exportarDados() async {
-    try {
-      String? emailUsuario = Configuration.getEmail();
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-      //IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      //debugPrint('Running on ${iosInfo.utsname.machine}');
-
-      String baseFileKey = "";
-      String dispositivo = "";
-      String sistema = "";
-
-      if (Platform.isAndroid) {
-        dispositivo = androidInfo.manufacturer! + " " + androidInfo.model!;
-        sistema = androidInfo.version.release!;
-        baseFileKey = _aplicarAlgoritmoHash(hashs.sha256, emailUsuario! + dispositivo + androidInfo.id! + androidInfo.androidId!);
-      } else if (Platform.isIOS) {}
-
-      final key = generateJWTKey(emailUsuario);
-      final date = DateTime.now();
-      String token = await gerarWebToken(
-        'data export',
-        <String, dynamic>{
-          "chave": baseFileKey,
-          "SO": sistema,
-          "dispositivo": dispositivo,
-          "email": emailUsuario,
-          "data": DateFormat("dd/MM/yyyy").format(date),
-          "horario": DateFormat("HH:mm:ss").format(date)
-        },
-        key,
-      );
-
-      List<Senha> senhas = await SenhaDBSource().getTodasSenhas();
-
-      for (Senha senha in senhas) {
-        senha.titulo = await criptografarSenha(senha.titulo, baseFileKey);
-        senha.credencial = await criptografarSenha(senha.credencial, baseFileKey);
-        senha.senhaBase = await criptografarSenha(senha.senhaBase, baseFileKey);
-      }
-
-      String response = await HTTPRequest.postRequest(
-        "/exportData",
-        DataExportDTO(token: token, key: key, passwords: senhas).toJson(),
-      );
-      debugPrint(response);
-      return response;
-    } on Exception catch (erro) {
-      debugPrint("$erro");
-      return erro.toString();
-    }
+  static String _generatePasswordKey() {
+    Random random = Random();
+    return _aplicarAlgoritmoHash(
+      hashs.sha256,
+      DateTime.now().microsecondsSinceEpoch.toString() + random.nextInt(1000000).toString(),
+    );
   }
 
-  static Future<String> compressString(String originalString) async {
-    try {
-      String compressed;
-      int cont = 0;
-      for (compressed = originalString; compressed.length > 100; cont++) {
-        debugPrint("Compressed before compress: $compressed, lenght: ${compressed.length}");
-        List<int> bytes = const ZLibEncoder().encode(compressed.codeUnits);
-        compressed = base64.encode(bytes);
-        debugPrint("Compressão realizada: $compressed, length: ${compressed.length}");
-        if (cont > 10) {
-          break;
-        }
-      }
-      return compressed;
-    } catch (erro) {
-      debugPrint("Erro: $erro");
-      return erro.toString();
+  static Future<DataExportDTO> exportarDados() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+    //IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    //debugPrint('Running on ${iosInfo.utsname.machine}');
+
+    String baseFileKey = "";
+    String dispositivo = "";
+    String sistema = "";
+
+    if (Platform.isAndroid) {
+      dispositivo = androidInfo.manufacturer! + androidInfo.model!;
+      sistema = androidInfo.version.release!;
+      baseFileKey = _aplicarAlgoritmoHash(hashs.sha256, dispositivo + androidInfo.id! + androidInfo.androidId!);
+    } else if (Platform.isIOS) {}
+
+    List<Senha> passwords = await SenhaDBSource().getTodasSenhas();
+    String passwordsKey = _generatePasswordKey();
+    List<String> keys = <String>[];
+
+    for (Senha password in passwords) {
+      String key = _generatePasswordKey();
+      password.titulo = await criptografarSenha(password.titulo, key);
+      password.credencial = await criptografarSenha(password.credencial, key);
+      password.senhaBase = await criptografarSenha(password.senhaBase, key);
+      keys.add(key);
     }
+
+    String passwordsFileContent = await criptografarSenha(passwords.map((password) => password.toJson()).toList().toString(), passwordsKey);
+    String fileContent = toBase64(await criptografarSenha("$passwordsKey;${keys.join(';')};$passwordsFileContent", baseFileKey));
+    return DataExportDTO(fileKey: baseFileKey, fileContent: fileContent);
+  }
+
+  static Future<List<Senha>> importPasswords(String fileContent) async {
+    fileContent = fromBase64(fileContent);
+    List<String> values = fileContent.split(';');
+    String? passwordsJson = await Criptografia.decifrarSenha(values[values.length - 1], values[0]);
+    List<Senha> senhas = Senha.serializeList(passwordsJson!);
+
+    for (int index = 0; index < senhas.length; index++) {
+      senhas[index].titulo = await Criptografia.decifrarSenha(senhas[index].titulo, values[index + 1]) ?? '';
+      senhas[index].credencial = await Criptografia.decifrarSenha(senhas[index].credencial, values[index + 1]) ?? '';
+      senhas[index].senhaBase = await Criptografia.decifrarSenha(senhas[index].senhaBase, values[index + 1]) ?? '';
+    }
+
+    return senhas;
+  }
+
+  static String toBase64(String text) {
+    return base64.encode(utf8.encode(text));
+  }
+
+  static String fromBase64(String textBase64) {
+    return utf8.decode(base64.decode(textBase64));
   }
 
   static String _aplicarAlgoritmoHash(hashs.Hash algotimo, String base) {
@@ -239,7 +228,7 @@ class Criptografia {
         int numCaracteres = (length / 3) ~/ 10;
         List<int> numbers = <int>[];
         for (int index = 0; index < length; index++) {
-          if (senhaReal[index].contains(new RegExp(r'[0-9]'))) {
+          if (senhaReal[index].contains(RegExp(r'[0-9]'))) {
             numbers.add(int.parse(senhaReal[index]));
           }
         }
@@ -317,18 +306,16 @@ class Criptografia {
 
   static String recuperarBaseChaveGeral() {
     String key = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
-    return utf8.decode(base64.decode(key));
+    return toBase64(key);
   }
 
   static Future<String?> recuperarChaveGeral(String? base) async {
     if (base == null) {
       String key = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
       String chave = _aplicarAlgoritmoHash(hashs.sha512, utf8.decode(base64.decode(key))).substring(0, 32);
-      //debugPrint("Chave geral: " + chave);
       return chave;
     } else {
       String chave = _aplicarAlgoritmoHash(hashs.sha512, base).substring(0, 32);
-      //debugPrint("Chave geral: " + chave);
       return chave;
     }
   }
@@ -336,7 +323,7 @@ class Criptografia {
   static Future<bool> alterarSenhaGeral(String chaveAntiga, String base) async {
     try {
       List<Senha> senhas = <Senha>[];
-      if (Configuration.isBiometria) {
+      if (Configuration.instance.isBiometria) {
         await criarChaveGeral(base);
       }
 

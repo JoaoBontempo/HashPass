@@ -20,10 +20,9 @@ class _IndexPageState extends State<IndexPage> {
 
   @override
   void initState() {
-    Configuration.checarPrimeiraEntrada().then((value) {
-      if (value) {
-        Configuration.addCheckPrimeiraEntrada();
-        showDialog(
+    if (!Configuration.instance.hasEntrance) {
+      //TODO: Criar um messageBox do HashPass
+      /*showDialog(
           context: context,
           builder: (_) => AlertDialog(
             title: const Text("Tudo certo!"),
@@ -38,10 +37,9 @@ class _IndexPageState extends State<IndexPage> {
                 },
               ),
             ],
-          ),
-        );
-      }
-    });
+          ),*/
+      Configuration.setConfigs(entrance: true);
+    }
     super.initState();
   }
 
