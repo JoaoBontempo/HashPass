@@ -47,15 +47,16 @@ class HashPassMessage extends StatelessWidget {
             child: const HashPassLabel(text: 'OK'),
           )
         : Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
                 onPressed: () => onAction(MessageResponse.NO),
-                child: const HashPassLabel(text: 'SIM'),
+                child: const HashPassLabel(text: 'NÃO'),
               ),
               TextButton(
                 onPressed: () => onAction(MessageResponse.YES),
-                child: const HashPassLabel(text: 'NÃO'),
-              )
+                child: const HashPassLabel(text: 'SIM'),
+              ),
             ],
           );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:hashpass/DTO/password_leak_dto.dart';
+import 'package:hashpass/DTO/leakPassDTO.dart';
 
 class PasswordLeakMessage extends StatefulWidget {
   const PasswordLeakMessage({

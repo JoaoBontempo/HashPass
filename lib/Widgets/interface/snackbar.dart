@@ -4,19 +4,36 @@ import 'package:hashpass/Widgets/interface/label.dart';
 
 class HashPassSnackBar {
   static void show({
-    Color? textColor,
     required message,
-    Color background = Colors.greenAccent,
+    SnackBarType type = SnackBarType.SUCCESS,
+    Duration duration = const Duration(seconds: 3),
   }) {
     ScaffoldMessenger.of(Get.context!).showSnackBar(
       SnackBar(
+        duration: duration,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         content: HashPassLabel(
           text: message,
-          color: textColor,
+          color: type == SnackBarType.ERROR ? Colors.white : Colors.black,
           fontWeight: FontWeight.bold,
         ),
-        backgroundColor: background,
+        backgroundColor: type == SnackBarType.ERROR
+            ? Colors.redAccent
+            : type == SnackBarType.SUCCESS
+                ? Colors.greenAccent
+                : Colors.yellow,
       ),
     );
   }
+}
+
+enum SnackBarType {
+  ERROR,
+  WARNING,
+  SUCCESS,
 }

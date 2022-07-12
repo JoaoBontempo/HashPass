@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hashpass/DTO/password_leak_dto.dart';
-import 'package:hashpass/Util/criptografia.dart';
+import 'package:hashpass/DTO/leakPassDTO.dart';
+import 'package:hashpass/Util/cryptography.dart';
+import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/data/button.dart';
-import 'package:hashpass/Widgets/password_leak_message.dart';
+import 'package:hashpass/Widgets/leakPassMessage.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -70,13 +71,12 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                 width: MediaQuery.of(context).size.width * .5,
                 height: 35,
                 onPressed: () async {
-                  final formValido = formKey.currentState?.validate() ?? false;
-                  if (formValido) {
+                  if (Util.validateForm(formKey)) {
                     if (lastPass == passwordEC.text) {
                       return;
                     }
                     lastPass = passwordEC.text;
-                    PasswordLeakDTO response = await Criptografia.verifyPassowordLeak(passwordEC.text);
+                    PasswordLeakDTO response = await HashCrypt.verifyPassowordLeak(passwordEC.text);
                     setState(() {
                       showMessage = true;
                       passwordInfo = response;

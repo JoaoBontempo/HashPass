@@ -3,19 +3,18 @@ import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart' as hashs;
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
-import 'package:hashpass/Model/hash_function.dart';
+import 'package:hashpass/Model/hashFunction.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Util/util.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
-import '../DTO/password_leak_dto.dart';
+import '../DTO/leakPassDTO.dart';
 import '../Model/configuration.dart';
 import 'http.dart';
 
-class Criptografia {
+class HashCrypt {
   static final List<int> _specialCharCodes = [
     33,
     35,
@@ -50,8 +49,7 @@ class Criptografia {
   ];
 
   static Future<PasswordLeakDTO> verifyPassowordLeak(String basePass) async {
-    debugPrint('Realizando requisição...');
-    String passwordHash = _aplicarAlgoritmoHash(hashs.sha1, basePass);
+    String passwordHash = _applyHashAlgorithm(hashs.sha1, basePass);
     String response = await HTTPRequest.requestPasswordLeak(passwordHash);
     String passwordSubHash = passwordHash.substring(5).toUpperCase();
 
@@ -85,41 +83,9 @@ class Criptografia {
     return _passwordNumbers[index % 2 == 0 ? _passwordNumbers.length - index + 1 : index].toString();
   }
 
-  static Future<String> gerarWebToken(String subject, Map<String, dynamic> payload, String key) async {
-    try {
-      final claimSet = JwtClaim(
-          subject: subject,
-          issuer: 'HashPass',
-          //audience: <String>['audience1.example.com', 'audience2.example.com'],
-          otherClaims: <String, dynamic>{
-            'type': 'Dart JWT',
-            "alg": "HS256",
-          },
-          payload: payload,
-          maxAge: const Duration(minutes: 1));
-      debugPrint('Gerou a base do token');
-      String token = issueJwtHS256(claimSet, key);
-      debugPrint('Token: $token');
-
-      return token;
-    } on Exception catch (erro) {
-      debugPrint("$erro");
-      return erro.toString();
-    }
-  }
-
-  static String generateJWTKey(String? email) {
-    email ??= '';
-    Random random = Random();
-    return _aplicarAlgoritmoHash(
-      hashs.sha256,
-      email + DateTime.now().microsecondsSinceEpoch.toString() + random.nextInt(1000000).toString(),
-    );
-  }
-
   static String _generatePasswordKey() {
     Random random = Random();
-    return _aplicarAlgoritmoHash(
+    return _applyHashAlgorithm(
       hashs.sha256,
       DateTime.now().microsecondsSinceEpoch.toString() + random.nextInt(1000000).toString(),
     );
@@ -130,7 +96,6 @@ class Criptografia {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
     //IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    //debugPrint('Running on ${iosInfo.utsname.machine}');
 
     String baseFileKey = "";
     String dispositivo = "";
@@ -139,7 +104,10 @@ class Criptografia {
     if (Platform.isAndroid) {
       dispositivo = androidInfo.manufacturer! + androidInfo.model!;
       sistema = androidInfo.version.release!;
-      baseFileKey = _aplicarAlgoritmoHash(hashs.sha256, dispositivo + androidInfo.id! + androidInfo.androidId!);
+      baseFileKey = _applyHashAlgorithm(
+        hashs.sha256,
+        dispositivo + androidInfo.id! + androidInfo.androidId! + _generatePasswordKey(),
+      );
     } else if (Platform.isIOS) {}
 
     List<Senha> passwords = await SenhaDBSource().getTodasSenhas();
@@ -148,29 +116,27 @@ class Criptografia {
 
     for (Senha password in passwords) {
       String key = _generatePasswordKey();
-      password.titulo = await criptografarSenha(password.titulo, key);
-      password.credencial = await criptografarSenha(password.credencial, key);
-      password.senhaBase = await criptografarSenha(password.senhaBase, key);
+      password.titulo = await cipherString(password.titulo, key);
+      password.credencial = await cipherString(password.credencial, key);
+      password.senhaBase = await cipherString(password.senhaBase, key);
       keys.add(key);
     }
 
-    String passwordsFileContent = await criptografarSenha(passwords.map((password) => password.toJson()).toList().toString(), passwordsKey);
-    String fileContent = toBase64(await criptografarSenha("$passwordsKey;${keys.join(';')};$passwordsFileContent", baseFileKey));
+    String passwordsFileContent = await cipherString(passwords.map((password) => password.toJson()).toList().toString(), passwordsKey);
+    String fileContent = toBase64(await cipherString("$passwordsKey;${keys.join(';')};$passwordsFileContent", baseFileKey));
     return DataExportDTO(fileKey: baseFileKey, fileContent: fileContent);
   }
 
-  static Future<List<Senha>> importPasswords(String fileContent) async {
-    fileContent = fromBase64(fileContent);
+  static Future<List<Senha>> importPasswords(String fileContent, String key) async {
+    fileContent = await decipherString(fromBase64(fileContent), key) ?? "";
     List<String> values = fileContent.split(';');
-    String? passwordsJson = await Criptografia.decifrarSenha(values[values.length - 1], values[0]);
+    String? passwordsJson = await HashCrypt.decipherString(values[values.length - 1], values[0]);
     List<Senha> senhas = Senha.serializeList(passwordsJson!);
-
     for (int index = 0; index < senhas.length; index++) {
-      senhas[index].titulo = await Criptografia.decifrarSenha(senhas[index].titulo, values[index + 1]) ?? '';
-      senhas[index].credencial = await Criptografia.decifrarSenha(senhas[index].credencial, values[index + 1]) ?? '';
-      senhas[index].senhaBase = await Criptografia.decifrarSenha(senhas[index].senhaBase, values[index + 1]) ?? '';
+      senhas[index].titulo = await HashCrypt.decipherString(senhas[index].titulo, values[index + 1]) ?? '';
+      senhas[index].credencial = await HashCrypt.decipherString(senhas[index].credencial, values[index + 1]) ?? '';
+      senhas[index].senhaBase = await HashCrypt.decipherString(senhas[index].senhaBase, values[index + 1]) ?? '';
     }
-
     return senhas;
   }
 
@@ -182,44 +148,37 @@ class Criptografia {
     return utf8.decode(base64.decode(textBase64));
   }
 
-  static String _aplicarAlgoritmoHash(hashs.Hash algotimo, String base) {
+  static String _applyHashAlgorithm(hashs.Hash algotimo, String base) {
     var bytes = utf8.encode(base);
     var digest = algotimo.convert(bytes);
     return digest.toString();
   }
 
-  static String _aplicacarHash(int algoritmo, String senha) {
-    switch (algoritmo) {
+  static String _applyHash(int algorithm, String text) {
+    switch (algorithm) {
       case 0:
-        return _aplicarAlgoritmoHash(hashs.sha512, senha);
+        return _applyHashAlgorithm(hashs.sha512, text);
       case 1:
-        return _aplicarAlgoritmoHash(hashs.md5, senha);
+        return _applyHashAlgorithm(hashs.md5, text);
       case 2:
-        return _aplicarAlgoritmoHash(hashs.sha256, senha);
+        return _applyHashAlgorithm(hashs.sha256, text);
       case 3:
-        return _aplicarAlgoritmoHash(hashs.sha384, senha);
+        return _applyHashAlgorithm(hashs.sha384, text);
       case 4:
-        return _aplicarAlgoritmoHash(hashs.sha224, senha);
+        return _applyHashAlgorithm(hashs.sha224, text);
       case 5:
-        return _aplicarAlgoritmoHash(hashs.sha1, senha);
+        return _applyHashAlgorithm(hashs.sha1, text);
       case 6:
-        var key = utf8.encode(senha);
-        var bytes = utf8.encode(senha);
-        var hmacSha256 = hashs.Hmac(hashs.sha256, key);
-        var digest = hmacSha256.convert(bytes);
-        return digest.toString();
+        List<int> bytes = utf8.encode(text);
+        return hashs.Hmac(hashs.sha256, bytes).convert(bytes).toString();
       default:
         return "";
     }
   }
 
-  static String gerarToken(String base) {
-    return _aplicarAlgoritmoHash(hashs.sha256, base + DateTime.now().millisecondsSinceEpoch.toString());
-  }
-
-  static Future<String> aplicarAlgoritmos(int algoritmo, String senha, bool isAvancado, String? chaveGeral) async {
-    String? senhaDecifrada = await decifrarSenha(senha, chaveGeral);
-    String senhaReal = _aplicacarHash(algoritmo, senhaDecifrada!);
+  static Future<String> applyAlgorithms(int algoritmo, String senha, bool isAvancado, String? chaveGeral) async {
+    String? senhaDecifrada = await decipherString(senha, chaveGeral);
+    String senhaReal = _applyHash(algoritmo, senhaDecifrada!);
     if (isAvancado) {
       try {
         senhaReal = (await FlutterAesEcbPkcs5.encryptString(senhaReal, senhaReal.substring(0, 32)))!;
@@ -254,7 +213,6 @@ class Criptografia {
         }
         return realPassword;
       } catch (erro) {
-        debugPrint(erro.toString());
         return erro.toString();
       }
     }
@@ -271,51 +229,48 @@ class Criptografia {
 
   static Future<bool> validarChaveInserida(String? chaveGeral) async {
     try {
-      String? mensagemCifrada = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"));
-      String? mensagemDecifrada = await decifrarSenha(mensagemCifrada!, chaveGeral);
-      return mensagemDecifrada == _aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta");
+      String? mensagemCifrada = Configuration.configs.getString(_applyHashAlgorithm(hashs.sha512, "validateKey"));
+      String? mensagemDecifrada = await decipherString(mensagemCifrada!, chaveGeral);
+      return mensagemDecifrada == _applyHashAlgorithm(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta");
     } catch (erro) {
-      debugPrint(erro.toString());
       return false;
     }
   }
 
   static Future<bool> adicionarHashValidacao(String chaveGeral) async {
-    String message = await criptografarSenha(
-      _aplicarAlgoritmoHash(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta"),
+    String message = await cipherString(
+      _applyHashAlgorithm(hashs.sha512, "Mensagem para verificar se a chave informada de fato está correta"),
       chaveGeral,
     );
-    return Configuration.configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "validateKey"), message);
+    return Configuration.configs.setString(_applyHashAlgorithm(hashs.sha512, "validateKey"), message);
   }
 
-  static Future<String?> decifrarSenha(String cripted, String? chaveGeral) async {
+  static Future<String?> decipherString(String cripted, String? chaveGeral) async {
     try {
-      String? key = await recuperarChaveGeral(chaveGeral);
-      //debugPrint("Chave decifrar: $key");
+      String? key = await getDefaultKey(chaveGeral);
       return await FlutterAesEcbPkcs5.decryptString(cripted, key!);
     } catch (erro) {
-      debugPrint(erro.toString());
       return erro.toString();
     }
   }
 
-  static Future<String> criptografarSenha(String senha, String? chaveGeral) async {
-    String? key = await recuperarChaveGeral(chaveGeral);
+  static Future<String> cipherString(String senha, String? chaveGeral) async {
+    String? key = await getDefaultKey(chaveGeral);
     return (await FlutterAesEcbPkcs5.encryptString(senha, key!))!;
   }
 
   static String recuperarBaseChaveGeral() {
-    String key = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
+    String key = Configuration.configs.getString(_applyHashAlgorithm(hashs.sha512, "key"))!;
     return toBase64(key);
   }
 
-  static Future<String?> recuperarChaveGeral(String? base) async {
+  static Future<String?> getDefaultKey(String? base) async {
     if (base == null) {
-      String key = Configuration.configs.getString(_aplicarAlgoritmoHash(hashs.sha512, "key"))!;
-      String chave = _aplicarAlgoritmoHash(hashs.sha512, utf8.decode(base64.decode(key))).substring(0, 32);
+      String key = Configuration.configs.getString(_applyHashAlgorithm(hashs.sha512, "key"))!;
+      String chave = _applyHashAlgorithm(hashs.sha512, utf8.decode(base64.decode(key))).substring(0, 32);
       return chave;
     } else {
-      String chave = _aplicarAlgoritmoHash(hashs.sha512, base).substring(0, 32);
+      String chave = _applyHashAlgorithm(hashs.sha512, base).substring(0, 32);
       return chave;
     }
   }
@@ -324,14 +279,14 @@ class Criptografia {
     try {
       List<Senha> senhas = <Senha>[];
       if (Configuration.instance.isBiometria) {
-        await criarChaveGeral(base);
+        await createDefaultKey(base);
       }
 
       senhas = await SenhaDBSource().getTodasSenhas();
 
       for (Senha senha in senhas) {
-        String? senhaDecifrada = await decifrarSenha(senha.senhaBase, chaveAntiga);
-        senha.senhaBase = await criptografarSenha(senhaDecifrada!, base);
+        String? senhaDecifrada = await decipherString(senha.senhaBase, chaveAntiga);
+        senha.senhaBase = await cipherString(senhaDecifrada!, base);
         SenhaDBSource().atualizarSenha(senha);
       }
 
@@ -339,16 +294,14 @@ class Criptografia {
       Util.senhas = await SenhaDBSource().getTodasSenhas();
       return true;
     } on Exception catch (erro) {
-      debugPrint("$erro");
       return false;
     }
   }
 
-  static Future<bool> criarChaveGeral(String baseKey) async {
+  static Future<bool> createDefaultKey(String baseKey) async {
     try {
-      return Configuration.configs.setString(_aplicarAlgoritmoHash(hashs.sha512, "key"), base64.encode(utf8.encode(baseKey)));
+      return Configuration.configs.setString(_applyHashAlgorithm(hashs.sha512, "key"), base64.encode(utf8.encode(baseKey)));
     } catch (erro) {
-      debugPrint(erro.toString());
       return false;
     }
   }

@@ -5,8 +5,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Util/ads.dart';
-import 'package:hashpass/Util/criptografia.dart';
+import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Widgets/data/copyButton.dart';
+import 'package:hashpass/Widgets/interface/label.dart';
 
 import '../Model/senha.dart';
 
@@ -99,7 +100,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
       isAdLoaded = true;
     });
     if (widget.senha.criptografado) {
-      Criptografia.aplicarAlgoritmos(
+      HashCrypt.applyAlgorithms(
         widget.senha.algoritmo,
         widget.senha.senhaBase,
         widget.senha.avancado,
@@ -110,7 +111,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
         });
       });
     } else {
-      Criptografia.decifrarSenha(
+      HashCrypt.decipherString(
         widget.senha.senhaBase,
         widget.chaveGeral,
       ).then(
@@ -155,16 +156,22 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
             visible: isAdLoaded,
             child: Dialog(
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.only(
+                  top: 10,
+                  left: 15,
+                  right: 5,
+                  bottom: 20,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          widget.senha.titulo,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        HashPassLabel(
+                          text: widget.senha.titulo,
+                          fontWeight: FontWeight.bold,
+                          size: 19,
                         ),
                         IconButton(
                           onPressed: () => closeModal(),
@@ -178,22 +185,30 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(senha),
+                        HashPassLabel(
+                          text: senha,
+                          size: 15,
+                          paddingRight: 15,
+                        ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 15),
+                          padding: const EdgeInsets.only(
+                            top: 25,
+                            bottom: 10,
+                            right: 15,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Visibility(
                                 visible: Configuration.instance.hasTimer,
                                 child: SizedBox(
-                                  width: MediaQuery.of(context).size.width * .5,
+                                  width: MediaQuery.of(context).size.width * .6,
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       LinearProgressIndicator(
                                         value: tempo,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).toggleableActiveColor),
+                                        valueColor: AlwaysStoppedAnimation<Color>(Get.theme.toggleableActiveColor),
                                         backgroundColor: AppColors.ACCENT_LIGHT.withOpacity(0.3),
                                       ),
                                       Padding(
@@ -233,7 +248,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                         Visibility(
                           visible: isBannerLoaded,
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20, right: 10),
                             child: Container(
                               width: Get.size.width,
                               height: isBannerLoaded ? bannerAd.size.height.toDouble() : 0,

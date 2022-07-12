@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/Model/senha.dart';
-import 'package:hashpass/Widgets/card_senha.dart';
+import 'package:hashpass/Themes/colors.dart';
+import 'package:hashpass/Widgets/cardSenha.dart';
 
 class Util {
   static UnderlineInputBorder bordaPadrao(Color cor) {
@@ -12,16 +13,29 @@ class Util {
 
   static const String adMobAppID = 'ca-app-pub-2117228224971128~4230023543';
 
-  static bool isInFilter = false;
+  static const Icon visiblePasswordIcon = Icon(
+    Icons.visibility,
+    color: AppColors.ACCENT_LIGHT_2,
+  );
 
-  static void removePassword(Senha pswd) {
-    for (int index = 0, length = senhas.length; index < length; index++) {
-      if (senhas[index].id == pswd.id) {
-        senhas.removeAt(index);
-        return;
-      }
-    }
-  }
+  static const Icon notVisiblePasswordIcon = Icon(
+    Icons.visibility_off,
+    color: AppColors.ACCENT_LIGHT_2,
+  );
+
+  static const Icon leakedIcon = Icon(
+    Icons.warning,
+    color: Colors.redAccent,
+    size: 16,
+  );
+
+  static const Icon notLeakedIcon = Icon(
+    Icons.verified_user,
+    color: Colors.greenAccent,
+    size: 16,
+  );
+
+  static bool isInFilter = false;
 
   static String formatInteger(int number) {
     String numberFormat = '';
@@ -47,6 +61,10 @@ class Util {
     } else {
       return numberStr;
     }
+  }
+
+  static bool validateForm(GlobalKey<FormState> formKey) {
+    return formKey.currentState?.validate() ?? false;
   }
 
   static List<CardSenhaState> teste = <CardSenhaState>[];

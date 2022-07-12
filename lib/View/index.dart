@@ -1,9 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:hashpass/View/senhas.dart';
-import 'package:hashpass/Widgets/confirmdialog.dart';
 import 'package:hashpass/Widgets/drawer.dart';
+import 'package:hashpass/Widgets/interface/messageBox.dart';
 
 import '../Model/configuration.dart';
 
@@ -21,23 +20,13 @@ class _IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     if (!Configuration.instance.hasEntrance) {
-      //TODO: Criar um messageBox do HashPass
-      /*showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text("Tudo certo!"),
-            content: const Text("Sua senha e seu e-mail foram cadastrados com sucesso. \n\nNão esqueça sua senha, "
-                "pois não é possível recuperá-la! "
-                "\n\nPara cadastrar uma nova senha, clique no botão ( + )  no canto inferior direito do menu principal."),
-            actions: [
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),*/
+      HashPassMessage.show(
+        title: "Tudo certo!",
+        message: "Sua senha geral do HashPass foi cadastrada com sucesso!. \n\nNão esqueça sua senha geral, "
+            "pois não é possível recuperá-la! "
+            "\n\n"
+            "Para cadastrar uma nova senha, clique no botão ( + )  no canto inferior direito do menu principal.",
+      );
       Configuration.setConfigs(entrance: true);
     }
     super.initState();
@@ -51,18 +40,15 @@ class _IndexPageState extends State<IndexPage> {
           return true;
         }
         FocusManager.instance.primaryFocus?.unfocus();
-        showDialog(
-          context: context,
-          builder: (_) => AppConfirmDialog(
-            titulo: "Fechar o aplicativo?",
-            descricao: "Tem certeza que deseja sair do HashPass?",
-            onAction: (confirmed) {
-              if (confirmed) {
-                exit(0);
-              }
-            },
-          ),
-        );
+        HashPassMessage.show(
+          title: "Fechar o aplicativo?",
+          message: "Tem certeza que deseja sair do HashPass?",
+          type: MessageType.YESNO,
+        ).then((action) {
+          if (action == MessageResponse.YES) {
+            exit(0);
+          }
+        });
         return false;
       },
       child: Scaffold(

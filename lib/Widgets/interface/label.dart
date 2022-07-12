@@ -12,6 +12,7 @@ class HashPassLabel extends StatelessWidget {
     this.color,
     this.size,
     this.style,
+    this.textAlign,
   }) : super(key: key);
   final String text;
   final FontWeight? fontWeight;
@@ -22,6 +23,7 @@ class HashPassLabel extends StatelessWidget {
   final Color? color;
   final double? size;
   final TextStyle? style;
+  final TextAlign? textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +36,7 @@ class HashPassLabel extends StatelessWidget {
       ),
       child: Text(
         text,
+        textAlign: textAlign,
         style: style ??
             TextStyle(
               color: color,

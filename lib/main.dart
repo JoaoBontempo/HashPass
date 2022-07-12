@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Themes/dark.dart';
 import 'package:hashpass/Themes/light.dart';
-import 'package:hashpass/View/cadastroemail.dart';
 import 'package:hashpass/View/index.dart';
 import 'package:hashpass/View/senhas.dart';
 import 'package:hashpass/View/splashpage.dart';
@@ -45,7 +44,6 @@ class _HashPassAppState extends State<HashPassApp> {
         "/index": (_) => const IndexPage(),
         "/senhas": (_) => const MenuSenhas(),
         "/welcome": (_) => const AppWelcomePage(),
-        "/email": (_) => const CadastroEmailPage(),
         "/": (_) => const HashPasshSplashPage(),
       },
     );

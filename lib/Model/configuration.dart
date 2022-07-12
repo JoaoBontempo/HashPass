@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:hashpass/Themes/theme.dart';
-import 'package:hashpass/Util/criptografia.dart';
+import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
 
 class Configuration {
@@ -39,7 +38,7 @@ class Configuration {
   }
 
   static Future<bool> adicionarPrimeiraChave(String chaveGeral) async {
-    bool chaveAdicionada = await Criptografia.criarChaveGeral(chaveGeral);
+    bool chaveAdicionada = await HashCrypt.createDefaultKey(chaveGeral);
     return chaveAdicionada;
   }
 
@@ -52,6 +51,7 @@ class Configuration {
       insertVerify: true,
       updateVerify: true,
       tooltips: true,
+      entrance: false,
     );
   }
 
@@ -78,7 +78,7 @@ class Configuration {
         Get.dialog(
           ValidarSenhaGeral(
             onValidate: (senha) {
-              Criptografia.criarChaveGeral(senha);
+              HashCrypt.createDefaultKey(senha);
               Get.back();
               configs.setBool("biometria", biometria);
             },
@@ -99,7 +99,7 @@ class Configuration {
     hasInit = true;
 
     instance = Configuration(
-      hasEntrance: configs.getBool("hasEntrada") ?? false,
+      hasEntrance: configs.getBool("hasEntrance") ?? false,
       theme: HashPassTheme.values.firstWhere(
         (theme) => theme.mode.index == (configs.getInt("theme") ?? ThemeMode.system.index),
         orElse: () => HashPassTheme(mode: ThemeMode.system),

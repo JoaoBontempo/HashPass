@@ -22,4 +22,11 @@ class HashPassTheme {
         return "Automático (Sistema)";
     }
   }
+
+  static Image getLogo({double? width}) {
+    return Image.asset(
+      HashPassTheme.isDarkMode ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
+      width: width,
+    );
+  }
 }

@@ -5,12 +5,13 @@ import 'package:get/get.dart';
 import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/senha.dart';
-import 'package:hashpass/Util/criptografia.dart';
+import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/View/index.dart';
 import 'package:hashpass/Widgets/data/copyButton.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
+import 'package:hashpass/Widgets/interface/snackbar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -43,7 +44,7 @@ class _MenuDadosState extends State<MenuDados> {
   }
 
   void dataExport() async {
-    DataExportDTO exportDTO = await Criptografia.exportarDados();
+    DataExportDTO exportDTO = await HashCrypt.exportarDados();
     String filePath = '${Directory.systemTemp.path}/hashpass.txt';
     final File file = File(filePath);
     await file.writeAsString(exportDTO.fileContent);
@@ -76,7 +77,76 @@ class _MenuDadosState extends State<MenuDados> {
     );
   }
 
-  void dataImport() async {}
+  Future<FilePickerResult?> getFile({
+    FileType type = FileType.any,
+    List<String>? types,
+  }) async {
+    try {
+      FilePickerResult? file = await FilePicker.platform
+          .pickFiles(
+        dialogTitle: "Selecione o arquivo para importação",
+        type: FileType.custom,
+        allowedExtensions: types,
+        allowMultiple: false,
+      )
+          .onError(
+        (error, stackTrace) {
+          if (error.toString().toLowerCase().contains('user did not allow reading external storage')) {
+            HashPassMessage.show(
+              message: "Para importar seus dados, é necessário permitir o acesso aos arquivos do "
+                  "dispositivo.",
+              title: "Acesso negado",
+            );
+          } else {
+            HashPassMessage.show(
+              message: error.toString(),
+              title: "Erro desconhecido ao abrir o arquivo",
+            );
+          }
+        },
+      );
+      return file;
+    } catch (erro) {
+      throw erro;
+    }
+  }
+
+  void dataImport() async {
+    FilePickerResult? file;
+    if (Util.validateForm(formKey)) {
+      try {
+        file = await getFile(type: FileType.custom, types: ['txt']);
+      } catch (erro) {
+        file = await getFile();
+      }
+      if (file != null) {
+        try {
+          File arquivo = File(file.files.first.path!);
+          List<String> fileLines = await arquivo.readAsLines();
+          List<Senha> senhas = await HashCrypt.importPasswords(fileLines.join(','), chaveEC.text);
+          for (Senha senha in senhas) {
+            SenhaDBSource().inserirSenha(senha);
+            Util.senhas.add(senha);
+          }
+          arquivo.delete();
+          Get.to(const IndexPage());
+          HashPassSnackBar.show(message: "Dados importados com sucesso!");
+        } on Exception catch (erro) {
+          HashPassMessage.show(
+            message: "Um erro inesperado ocorreu ao importar seus dados. Por favor, tente novamente \n\n"
+                "* Verifique se a chave inserida está correta"
+                "\n* Verifique se o arquivo selecionado é o correto para esta chave",
+            title: "Ocorreu um erro",
+          );
+        }
+      } else {
+        HashPassSnackBar.show(
+          message: "Importação cancelada. Nenhum arquivo foi selecionado",
+          type: SnackBarType.ERROR,
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,138 +259,7 @@ class _MenuDadosState extends State<MenuDados> {
                           label: "Importar dados",
                           width: MediaQuery.of(context).size.width * .5,
                           height: 35,
-                          onPressed: () async {
-                            final formValido = formKey.currentState?.validate() ?? false;
-                            var file;
-                            if (formValido) {
-                              try {
-                                file = await FilePicker.platform.pickFiles(
-                                  dialogTitle: "Selecione o arquivo enviado para seu e-mail",
-                                  type: FileType.custom,
-                                  allowedExtensions: ['json'],
-                                  allowMultiple: false,
-                                );
-                              } catch (erro) {
-                                file = await FilePicker.platform
-                                    .pickFiles(
-                                  dialogTitle: "Selecione o arquivo enviado para seu e-mail",
-                                  type: FileType.any,
-                                  allowMultiple: false,
-                                )
-                                    .onError((error, stackTrace) {
-                                  if (error.toString().toLowerCase().contains('user did not allow reading external storage')) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: const Text("Erro ao abrir arquivo",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            )),
-                                        content: const Text("Para importar seus dados, é necessário permitir o acesso aos arquivos do "
-                                            "dispositivo."),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text("OK"),
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                });
-                              }
-                              if (file != null) {
-                                try {
-                                  File arquivo = File(file.files.first.path);
-                                  String jsonString = await arquivo.readAsString();
-                                  jsonString = jsonString.replaceAll("\\", "");
-                                  jsonString = jsonString.replaceAll('"{', "{");
-                                  jsonString = jsonString.replaceAll('}"', "}");
-                                  List<Senha> senhas = Senha.serializeList(jsonString);
-                                  for (Senha senha in senhas) {
-                                    senha.titulo = (await Criptografia.decifrarSenha(
-                                      senha.titulo,
-                                      chaveEC.text,
-                                    ))!;
-                                    senha.credencial = (await Criptografia.decifrarSenha(
-                                      senha.credencial,
-                                      chaveEC.text,
-                                    ))!;
-                                    senha.senhaBase = (await Criptografia.decifrarSenha(
-                                      senha.senhaBase,
-                                      chaveEC.text,
-                                    ))!;
-                                    if (!verifyPasswordInfoIntegrity(senha)) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text("Erro ao importar dados",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              )),
-                                          content: const Text("Não foi decifrar as informações inseridas. \n\n"
-                                              "* Verifique se a chave de exportação inserida está correta;\n"
-                                              "* Verifique se a senha do aplicativo é a mesma que você utilizava antes."),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text("OK"),
-                                            )
-                                          ],
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    SenhaDBSource().inserirSenha(senha);
-                                    Util.senhas.add(senha);
-                                  }
-                                  arquivo.delete();
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const IndexPage()));
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Dados importados com sucesso!",
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                      backgroundColor: Colors.greenAccent,
-                                    ),
-                                  );
-                                } on Exception catch (erro) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      title: const Text("Ocorreu um erro"),
-                                      content: const Text("Um erro inesperado ocorreu ao importar seus dados. Por favor, tente novamente \n\n"
-                                          "* Verifique se a chave inserida está correta"
-                                          "\n* Verifique se o arquivo selecionado é o correto para esta chave"),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text("OK"),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Importação cancelada. Nenhum arquivo foi selecionado",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
-                              }
-                            }
-                          },
+                          onPressed: () => dataImport(),
                         ),
                       ),
                     ],

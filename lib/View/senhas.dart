@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:hashpass/View/nova_senha.dart';
-import 'package:hashpass/Widgets/card_senha.dart';
+import 'package:hashpass/Model/senha.dart';
+import 'package:hashpass/View/cadastroSenha.dart';
+import 'package:hashpass/Widgets/cardSenha.dart';
 import 'package:hashpass/Widgets/hideonscroll.dart';
+import 'package:hashpass/Widgets/interface/snackbar.dart';
 import 'package:hashpass/Widgets/searchtext.dart';
-
-import '../Model/senha.dart';
 import '../Util/util.dart';
 
 class MenuSenhas extends StatefulWidget {
@@ -16,32 +17,24 @@ class MenuSenhas extends StatefulWidget {
 }
 
 class _MenuSenhasState extends State<MenuSenhas> {
-  bool hasSenhas = true;
-  late List<Senha> senhasView;
   final filterController = TextEditingController();
   late ScrollController scroller;
-  double showPadding = 0;
   late BannerAd bannerAd;
-  bool isBannerReady = false;
+  late List<Senha> passwords = Util.senhas;
 
   @override
   void initState() {
     scroller = ScrollController();
-    hasSenhas = Util.senhas.isNotEmpty;
-    senhasView = Util.senhas;
     super.initState();
     bannerAd = BannerAd(
       size: AdSize.banner,
       adUnitId: 'ca-app-pub-3940256099942544/6300978111', //Util.adMobAppID,
-      listener: BannerAdListener(onAdLoaded: (ad) {
-        setState(() {
-          isBannerReady = true;
-        });
-      }, onAdFailedToLoad: (ad, error) {
-        debugPrint("Erro ao carregar o banner: ${error.message}");
-        isBannerReady = false;
-        ad.dispose();
-      }),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {},
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
       request: const AdRequest(),
     )..load();
   }
@@ -54,39 +47,24 @@ class _MenuSenhasState extends State<MenuSenhas> {
         child: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NovaSenhaPage(
-                  onCadastro: (senha) {
-                    setState(() {
-                      senhasView = Util.senhas;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Senha cadastrada com sucesso!",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          backgroundColor: Colors.greenAccent,
-                        ),
-                      );
-                      debugPrint("Senha cadastrada: " + senha.toString());
-                      senhasView.add(senha);
-                      hasSenhas = senhasView.isNotEmpty;
-                    });
-                  },
-                ),
+            Get.focusScope!.unfocus();
+            Get.to(
+              NovaSenhaPage(
+                onCadastro: (senha) {
+                  setState(() {
+                    HashPassSnackBar.show(message: "Senha cadastrada com sucesso!");
+                    Util.senhas.add(senha);
+                    passwords = Util.senhas;
+                  });
+                },
               ),
             );
           },
         ),
       ),
-      body: hasSenhas
+      body: Util.senhas.isNotEmpty
           ? GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-              },
+              onTap: () => Get.focusScope!.unfocus(),
               child: Column(
                 children: [
                   AnimatedHide(
@@ -97,27 +75,22 @@ class _MenuSenhasState extends State<MenuSenhas> {
                       controller: filterController,
                       onChange: (filter) {
                         Util.isInFilter = filter.isNotEmpty;
-                        final senhas = Util.senhas.where((senha) {
-                          String tituloSenha = senha.titulo.toLowerCase();
-                          String credential = senha.credencial.toLowerCase();
-                          String query = filter.toLowerCase();
-
-                          return tituloSenha.contains(query) || credential.contains(query);
-                        }).toList();
-
                         setState(() {
-                          senhasView = senhas;
+                          passwords = Util.senhas.where((password) {
+                            String query = filter.toLowerCase();
+                            return password.titulo.toLowerCase().contains(query) || password.credencial.toLowerCase().contains(query);
+                          }).toList();
                         });
                       },
                     ),
                   ),
                   Expanded(
                     child: ListView.builder(
-                      key: Key(senhasView.toString()),
+                      key: Key(passwords.toString()),
                       padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 100),
                       controller: scroller,
                       scrollDirection: Axis.vertical,
-                      itemCount: senhasView.length,
+                      itemCount: passwords.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(
@@ -127,64 +100,33 @@ class _MenuSenhasState extends State<MenuSenhas> {
                             right: 20,
                           ),
                           child: CardSenha(
-                            senha: senhasView[index],
+                            senha: passwords[index],
                             onCopy: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Senha copiada!",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  backgroundColor: Colors.greenAccent,
-                                  duration: Duration(seconds: 1),
-                                ),
+                              HashPassSnackBar.show(
+                                message: "Senha copiada!",
+                                duration: const Duration(seconds: 1),
                               );
                             },
                             onUpdate: (code) {
-                              if (code == 1) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Informações atualizadas com sucesso!",
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    backgroundColor: Colors.greenAccent,
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Ocorreu um erro ao atualizar as informações, tente novamente"),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
-                              }
+                              HashPassSnackBar.show(
+                                message: code == 1
+                                    ? "Informações atualizadas com sucesso!"
+                                    : "Ocorreu um erro ao atualizar as informações, tente novamente",
+                                type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+                              );
                             },
                             onDelete: (code) {
                               if (code == 1) {
                                 setState(() {
-                                  Util.removePassword(senhasView[index]);
-                                  senhasView = Util.senhas;
-                                  hasSenhas = senhasView.isNotEmpty;
+                                  Util.senhas.removeWhere((_password) => _password.id == passwords[index].id);
+                                  passwords.removeAt(index);
+                                  filterController.text = '';
                                 });
-                                filterController.text = '';
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Senha excluída com sucesso!",
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    backgroundColor: Colors.greenAccent,
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Ocorreu um erro ao excluir a senha, tente novamente"),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
                               }
+                              HashPassSnackBar.show(
+                                message: code == 1 ? "Senha excluída com sucesso!" : "Ocorreu um erro ao excluir a senha, tente novamente",
+                                type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+                              );
                             },
                           ),
                         );
@@ -198,10 +140,12 @@ class _MenuSenhasState extends State<MenuSenhas> {
               child: Text("Nenhuma senha foi cadastrada!"),
             ),
       bottomSheet: Container(
-        width: MediaQuery.of(context).size.width,
+        width: Get.width,
         height: bannerAd.size.height.toDouble(),
         color: Colors.transparent,
-        child: Center(child: AdWidget(ad: bannerAd)),
+        child: Center(
+          child: AdWidget(ad: bannerAd),
+        ),
       ),
     );
   }

@@ -52,13 +52,14 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            HashPassTheme.isDarkMode ? "assets/images/logo-dark.png" : "assets/images/logo-light.png",
-          ),
+          HashPassTheme.getLogo(),
           const CircularProgressIndicator(),
           TextButton(
             onPressed: () => authUser(),
-            child: const HashPassLabel(text: "Entrar no app"),
+            child: const HashPassLabel(
+              paddingTop: 20,
+              text: "Entrar no app",
+            ),
           ),
         ],
       ),

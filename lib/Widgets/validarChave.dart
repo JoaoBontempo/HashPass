@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
@@ -8,9 +7,23 @@ import 'package:local_auth/local_auth.dart';
 import 'package:validatorless/validatorless.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
 
-import '../Util/criptografia.dart';
+import '../Util/cryptography.dart';
 
 class ValidarSenhaGeral extends StatefulWidget {
+  static void show({
+    bool lastKeyLabel = false,
+    bool onlyText = false,
+    required Function(String) onValidate,
+  }) {
+    Get.dialog(
+      ValidarSenhaGeral(
+        onValidate: (key) => onValidate(key),
+        onlyText: onlyText,
+        lastKeyLabel: lastKeyLabel,
+      ),
+    );
+  }
+
   const ValidarSenhaGeral({
     Key? key,
     this.onlyText = false,
@@ -48,9 +61,9 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
         (biometriaValida) {
           Get.back();
           if (biometriaValida) {
-            Criptografia.validarChaveInserida(null).then((value) {
+            HashCrypt.validarChaveInserida(null).then((value) {
               if (value) {
-                widget.onValidate(Criptografia.recuperarBaseChaveGeral());
+                widget.onValidate(HashCrypt.recuperarBaseChaveGeral());
               }
             });
           }
@@ -101,7 +114,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                   senhaEC.text = senhaEC.text.trim();
                   final formValido = formKey.currentState?.validate() ?? false;
                   if (formValido) {
-                    bool chaveValida = await Criptografia.validarChaveInserida(senhaEC.text);
+                    bool chaveValida = await HashCrypt.validarChaveInserida(senhaEC.text);
                     if (chaveValida) {
                       widget.onValidate(senhaEC.text);
                     } else {
