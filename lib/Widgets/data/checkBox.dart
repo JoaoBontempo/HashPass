@@ -11,6 +11,8 @@ class HashPassCheckBox extends StatefulWidget {
     this.fontWeight,
     this.labelColor,
     this.scale = 1,
+    this.checkColor,
+    this.backgroundColor,
   }) : super(key: key);
   final Function(bool) onChange;
   final String label;
@@ -18,6 +20,8 @@ class HashPassCheckBox extends StatefulWidget {
   final FontWeight? fontWeight;
   final Color? labelColor;
   final double scale;
+  final Color? backgroundColor;
+  final Color? checkColor;
   bool value;
 
   @override
@@ -47,6 +51,8 @@ class _HashPassCheckBoxState extends State<HashPassCheckBox> {
           Transform.scale(
             scale: widget.scale,
             child: Checkbox(
+              activeColor: widget.backgroundColor,
+              checkColor: widget.checkColor,
               side: const BorderSide(width: 1.25, color: Colors.grey),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5),

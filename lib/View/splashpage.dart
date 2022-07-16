@@ -53,7 +53,10 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           HashPassTheme.getLogo(),
-          const CircularProgressIndicator(),
+          const Padding(
+            padding: EdgeInsets.only(top: 15, bottom: 15),
+            child: CircularProgressIndicator(),
+          ),
           TextButton(
             onPressed: () => authUser(),
             child: const HashPassLabel(

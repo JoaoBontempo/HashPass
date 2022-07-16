@@ -9,7 +9,8 @@ class HashPassTheme {
   });
 
   static final List<HashPassTheme> values = ThemeMode.values.map((mode) => HashPassTheme(mode: mode)).toList();
-  static final bool isDarkMode = Get.theme.primaryColor == AppColors.SECONDARY_DARK;
+
+  static bool get isDarkMode => Get.theme.primaryColor == AppColors.SECONDARY_DARK;
 
   @override
   String toString() {

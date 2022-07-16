@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:get/get.dart';
 
-import '../Util/util.dart';
+import '../../Util/util.dart';
 
 class AnimatedHide extends StatefulWidget {
   const AnimatedHide({
@@ -79,7 +80,7 @@ class AnimatedHideState extends State<AnimatedHide> {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       height: isVisible ? widget.height : 0,
-      width: isVisible ? MediaQuery.of(context).size.width : 0,
+      width: isVisible ? Get.size.width : 0,
       onEnd: () {
         setState(() {
           if (!isVisible) {

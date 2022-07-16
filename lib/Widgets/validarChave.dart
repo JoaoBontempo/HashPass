@@ -43,12 +43,11 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
   bool chaveInvalida = false;
   int tentativas = 3;
   late bool aceitaDigital;
-  final bool isBiometria = Configuration.instance.isBiometria;
   final LocalAuthentication auth = LocalAuthentication();
 
   @override
   void initState() {
-    if (isBiometria && !widget.onlyText) {
+    if (Configuration.instance.isBiometria && !widget.onlyText) {
       auth
           .authenticate(
         localizedReason: "O desbloqueio é necessário para recuperar a senha do aplicativo",
@@ -75,7 +74,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
 
   @override
   Widget build(BuildContext context) {
-    return isBiometria && !widget.onlyText
+    return Configuration.instance.isBiometria && !widget.onlyText
         ? Container()
         : AlertDialog(
             title: const Text("Autenticação necessária"),
@@ -116,6 +115,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                   if (formValido) {
                     bool chaveValida = await HashCrypt.validarChaveInserida(senhaEC.text);
                     if (chaveValida) {
+                      Get.back();
                       widget.onValidate(senhaEC.text);
                     } else {
                       setState(() {

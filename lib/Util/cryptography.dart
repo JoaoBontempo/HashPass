@@ -261,7 +261,7 @@ class HashCrypt {
 
   static String recuperarBaseChaveGeral() {
     String key = Configuration.configs.getString(_applyHashAlgorithm(hashs.sha512, "key"))!;
-    return toBase64(key);
+    return fromBase64(key);
   }
 
   static Future<String?> getDefaultKey(String? base) async {
@@ -300,7 +300,7 @@ class HashCrypt {
 
   static Future<bool> createDefaultKey(String baseKey) async {
     try {
-      return Configuration.configs.setString(_applyHashAlgorithm(hashs.sha512, "key"), base64.encode(utf8.encode(baseKey)));
+      return Configuration.configs.setString(_applyHashAlgorithm(hashs.sha512, "key"), toBase64(baseKey));
     } catch (erro) {
       return false;
     }

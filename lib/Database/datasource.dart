@@ -10,6 +10,7 @@ class SenhaDBSource {
     return openDatabase(
       join(await getDatabasesPath(), DB_NAME),
       onCreate: (db, version) async {
+        debugPrint('Creating DATABASE');
         await db.execute(CREATE_TABLE_SENHA);
       },
       version: DB_VERSION,
@@ -39,9 +40,25 @@ class SenhaDBSource {
 
       senha.id = await db.rawInsert('''
           INSERT INTO $SENHA_TABLE_NAME 
-          ($SENHA_TITULO_NAME, $SENHA_CREDENCIAL_NAME, $SENHA_SENHA_BASE_NAME, $SENHA_AVANCADO_NAME, $SENHA_ALGORITMO_NAME, $SENHA_CRIPTOGRAFADO_NAME) 
+            (
+              $SENHA_TITULO_NAME, 
+              $SENHA_CREDENCIAL_NAME, 
+              $SENHA_SENHA_BASE_NAME, 
+              $SENHA_AVANCADO_NAME,
+              $SENHA_ALGORITMO_NAME, 
+              $SENHA_CRIPTOGRAFADO_NAME,
+              $PASSWORD_LEAK_COUNT
+            ) 
           VALUES 
-          ('${senha.titulo}', '${senha.credencial}', '${senha.senhaBase}', ${senha.avancado ? 1 : 0}, ${senha.algoritmo}, ${senha.criptografado ? 1 : 0})
+            ( 
+              '${senha.titulo}', 
+              '${senha.credencial}', 
+              '${senha.senhaBase}', 
+              ${senha.avancado ? 1 : 0}, 
+              ${senha.algoritmo}, 
+              ${senha.criptografado ? 1 : 0},
+              ${senha.leakCount}
+            )
       ''');
 
       return senha;
@@ -61,6 +78,7 @@ class SenhaDBSource {
         return Senha.fromMap(senhas[i]);
       });
     } catch (erro) {
+      debugPrint('GET ERROR');
       debugPrint(erro.toString());
       return List.empty();
     }

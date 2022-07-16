@@ -11,10 +11,12 @@ class HashPassDropDown<T> extends StatelessWidget {
     required this.onChange,
     required this.hintText,
     required this.selectedItem,
+    this.isLightBackground = false,
   }) : super(key: key);
   final List<T> itens;
   final Function(T) onChange;
   final String hintText;
+  final bool isLightBackground;
   T selectedItem;
 
   @override
@@ -27,7 +29,11 @@ class HashPassDropDown<T> extends StatelessWidget {
         );
       }).toList(),
       onChanged: (selectedItem) => onChange(selectedItem!),
-      dropdownColor: HashPassTheme.isDarkMode ? Colors.grey.shade900 : AppColors.SECONDARY_LIGHT,
+      dropdownColor: HashPassTheme.isDarkMode
+          ? Colors.grey.shade900
+          : isLightBackground
+              ? Colors.grey.shade300
+              : AppColors.ACCENT_LIGHT,
       hint: HashPassLabel(
         text: hintText,
         color: Colors.grey,
@@ -37,18 +43,18 @@ class HashPassDropDown<T> extends StatelessWidget {
         quarterTurns: 1,
         child: Icon(
           Icons.chevron_right,
-          color: Get.theme.highlightColor,
+          color: isLightBackground ? AppColors.SECONDARY_LIGHT : Get.theme.highlightColor,
         ),
       ),
       iconSize: 24,
       elevation: 16,
       style: TextStyle(
-        color: Colors.grey.shade300,
+        color: isLightBackground ? AppColors.SECONDARY_LIGHT : Colors.grey.shade300,
         fontWeight: FontWeight.bold,
       ),
       underline: Container(
         height: 2,
-        color: Get.theme.highlightColor,
+        color: isLightBackground ? AppColors.SECONDARY_LIGHT : Get.theme.highlightColor,
       ),
       value: selectedItem,
     );

@@ -12,6 +12,7 @@ import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
 import 'package:hashpass/Widgets/interface/snackbar.dart';
+import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -44,37 +45,39 @@ class _MenuDadosState extends State<MenuDados> {
   }
 
   void dataExport() async {
-    DataExportDTO exportDTO = await HashCrypt.exportarDados();
-    String filePath = '${Directory.systemTemp.path}/hashpass.txt';
-    final File file = File(filePath);
-    await file.writeAsString(exportDTO.fileContent);
-    await Share.shareFiles([filePath]);
-    HashPassMessage.show(
-      body: Column(
-        children: [
-          const HashPassLabel(
-            text: "Seus dados foram exportados com sucesso! Você deverá usar a chave abaixo para importar seus dados.",
-            size: 14.5,
-          ),
-          HashPassLabel(
-            text: exportDTO.fileKey,
-            paddingTop: 10,
-            paddingBottom: 10,
-            size: 14,
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: CopyTextButton(
-              textToCopy: exportDTO.fileKey,
-              label: "Copiar chave",
-              labelSize: 14.5,
-              widgetSize: 20,
+    ValidarSenhaGeral.show(onValidate: (key) async {
+      DataExportDTO exportDTO = await HashCrypt.exportarDados();
+      String filePath = '${Directory.systemTemp.path}/hashpass.txt';
+      final File file = File(filePath);
+      await file.writeAsString(exportDTO.fileContent);
+      await Share.shareFiles([filePath]);
+      HashPassMessage.show(
+        body: Column(
+          children: [
+            const HashPassLabel(
+              text: "Seus dados foram exportados com sucesso! Você deverá usar a chave abaixo para importar seus dados.",
+              size: 14.5,
             ),
-          )
-        ],
-      ),
-      title: "Dados exportados com sucesso!",
-    );
+            HashPassLabel(
+              text: exportDTO.fileKey,
+              paddingTop: 10,
+              paddingBottom: 10,
+              size: 14,
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: CopyTextButton(
+                textToCopy: exportDTO.fileKey,
+                label: "Copiar chave",
+                labelSize: 14.5,
+                widgetSize: 20,
+              ),
+            )
+          ],
+        ),
+        title: "Dados exportados com sucesso!",
+      );
+    });
   }
 
   Future<FilePickerResult?> getFile({
@@ -178,10 +181,16 @@ class _MenuDadosState extends State<MenuDados> {
                           ),
                           HashPassLabel(
                             paddingTop: 20,
-                            text:
-                                "Será enviado um arquivo, em formato .json, e uma chave criptográfica para o e-mail que você cadastrou no app. O arquivo terá suas informações "
-                                "criptografadas e prontas para serem importadas. A chave é necessária para decifrar o conteúdo criptografado do arquivo.",
+                            text: 'Um arquivo com suas senhas criptografadas com uma chave aleatória será gerado. '
+                                'Você poderá exportar este arquivo para o lugar de sua preferência e copiar a chave aleatória que foi gerada. '
+                                'A chave será necessária para decifrar o conteúdo do arquivo criptografado do arquivo.',
                             style: Get.theme.textTheme.headline1,
+                          ),
+                          const HashPassLabel(
+                            paddingTop: 15,
+                            text: 'NÃO COMPARTILHE SUA CHAVE E NÃO ENVIE O ARQUIVO PARA NINGUÉM!',
+                            size: 10,
+                            color: Colors.redAccent,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 25),
@@ -237,7 +246,7 @@ class _MenuDadosState extends State<MenuDados> {
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: Text(
-                          "Insira a chave criptográfica que foi enviada para seu e-mail e pressione o botão 'Importar dados'. "
+                          "Insira a chave criptográfica que foi gerada ao exportar os dados e pressione o botão 'Importar dados'. "
                           "Selecione o arquivo que contém seus dados para que seja possível a importação. Certifique-se de que "
                           "você está usando a chave e o arquivo corretos. Após a importação, o arquivo será excluído automaticamente "
                           "do seu dispositivo. Será necessário permitir o acesso aos arquivos do dispositivo.",
@@ -250,7 +259,7 @@ class _MenuDadosState extends State<MenuDados> {
                           label: "Insira a chave de exportação",
                           padding: 0,
                           controller: chaveEC,
-                          validator: Validatorless.required("Este campo é obrigatório"),
+                          validator: Validatorless.required("A chave é obrigatória!"),
                         ),
                       ),
                       Padding(

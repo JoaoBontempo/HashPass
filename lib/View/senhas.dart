@@ -4,7 +4,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/View/cadastroSenha.dart';
 import 'package:hashpass/Widgets/cardSenha.dart';
-import 'package:hashpass/Widgets/hideonscroll.dart';
+import 'package:hashpass/Widgets/animations/hideonscroll.dart';
 import 'package:hashpass/Widgets/interface/snackbar.dart';
 import 'package:hashpass/Widgets/searchtext.dart';
 import '../Util/util.dart';
@@ -84,55 +84,59 @@ class _MenuSenhasState extends State<MenuSenhas> {
                       },
                     ),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      key: Key(passwords.toString()),
-                      padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 100),
-                      controller: scroller,
-                      scrollDirection: Axis.vertical,
-                      itemCount: passwords.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            top: 12,
-                            bottom: 12,
-                            right: 20,
+                  passwords.isEmpty
+                      ? const Center(
+                          child: Text("Nenhuma senha encontrada!"),
+                        )
+                      : Expanded(
+                          child: ListView.builder(
+                            key: Key(passwords.toString()),
+                            padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 100),
+                            controller: scroller,
+                            scrollDirection: Axis.vertical,
+                            itemCount: passwords.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 20,
+                                  top: 12,
+                                  bottom: 12,
+                                  right: 20,
+                                ),
+                                child: CardSenha(
+                                  senha: passwords[index],
+                                  onCopy: () {
+                                    HashPassSnackBar.show(
+                                      message: "Senha copiada!",
+                                      duration: const Duration(seconds: 1),
+                                    );
+                                  },
+                                  onUpdate: (code) {
+                                    HashPassSnackBar.show(
+                                      message: code == 1
+                                          ? "Informações atualizadas com sucesso!"
+                                          : "Ocorreu um erro ao atualizar as informações, tente novamente",
+                                      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+                                    );
+                                  },
+                                  onDelete: (code) {
+                                    if (code == 1) {
+                                      setState(() {
+                                        Util.senhas.removeWhere((_password) => _password.id == passwords[index].id);
+                                        passwords = Util.senhas;
+                                        filterController.text = '';
+                                      });
+                                    }
+                                    HashPassSnackBar.show(
+                                      message: code == 1 ? "Senha excluída com sucesso!" : "Ocorreu um erro ao excluir a senha, tente novamente",
+                                      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
                           ),
-                          child: CardSenha(
-                            senha: passwords[index],
-                            onCopy: () {
-                              HashPassSnackBar.show(
-                                message: "Senha copiada!",
-                                duration: const Duration(seconds: 1),
-                              );
-                            },
-                            onUpdate: (code) {
-                              HashPassSnackBar.show(
-                                message: code == 1
-                                    ? "Informações atualizadas com sucesso!"
-                                    : "Ocorreu um erro ao atualizar as informações, tente novamente",
-                                type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
-                              );
-                            },
-                            onDelete: (code) {
-                              if (code == 1) {
-                                setState(() {
-                                  Util.senhas.removeWhere((_password) => _password.id == passwords[index].id);
-                                  passwords.removeAt(index);
-                                  filterController.text = '';
-                                });
-                              }
-                              HashPassSnackBar.show(
-                                message: code == 1 ? "Senha excluída com sucesso!" : "Ocorreu um erro ao excluir a senha, tente novamente",
-                                type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                        ),
                 ],
               ),
             )

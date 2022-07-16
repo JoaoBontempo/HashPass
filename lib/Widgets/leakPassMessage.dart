@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/DTO/leakPassDTO.dart';
+import 'package:hashpass/Widgets/interface/label.dart';
 
-class PasswordLeakMessage extends StatefulWidget {
+class PasswordLeakMessage extends StatelessWidget {
   const PasswordLeakMessage({
     Key? key,
     required this.passwordInfo,
   }) : super(key: key);
   final PasswordLeakDTO passwordInfo;
 
-  @override
-  State<PasswordLeakMessage> createState() => _PasswordLeakMessageState();
-}
-
-class _PasswordLeakMessageState extends State<PasswordLeakMessage> {
   final Icon leakedIcon = const Icon(
     Icons.warning,
     color: Colors.white,
@@ -20,7 +16,7 @@ class _PasswordLeakMessageState extends State<PasswordLeakMessage> {
 
   final Icon notLeakedIcon = const Icon(
     Icons.verified_user,
-    color: Colors.white,
+    color: Colors.black,
   );
 
   final Color isLeakedBackgorundColor = Colors.redAccent;
@@ -31,7 +27,7 @@ class _PasswordLeakMessageState extends State<PasswordLeakMessage> {
     return Container(
       decoration: ShapeDecoration(
         shape: const StadiumBorder(),
-        color: widget.passwordInfo.leakCount == 0 ? notLeakedBackgroundColor : isLeakedBackgorundColor,
+        color: passwordInfo.leakCount == 0 ? notLeakedBackgroundColor : isLeakedBackgorundColor,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -39,19 +35,17 @@ class _PasswordLeakMessageState extends State<PasswordLeakMessage> {
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 15, left: 10),
-            child: widget.passwordInfo.leakCount == 0 ? notLeakedIcon : leakedIcon,
+            child: passwordInfo.leakCount == 0 ? notLeakedIcon : leakedIcon,
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10, top: 10, bottom: 10),
-              child: Text(
-                widget.passwordInfo.message,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            child: HashPassLabel(
+              text: passwordInfo.message,
+              fontWeight: FontWeight.bold,
+              size: 13,
+              color: passwordInfo.leakCount == 0 ? Colors.black : Colors.white,
+              paddingRight: 10,
+              paddingTop: 10,
+              paddingBottom: 10,
             ),
           ),
         ],

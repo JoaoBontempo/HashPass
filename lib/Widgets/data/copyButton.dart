@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
-import 'package:hashpass/Widgets/interface/snackbar.dart';
 
 class CopyTextButton extends StatefulWidget {
   const CopyTextButton({
@@ -21,6 +20,8 @@ class CopyTextButton extends StatefulWidget {
 }
 
 class _CopyTextButtonState extends State<CopyTextButton> {
+  CrossFadeState iconState = CrossFadeState.showFirst;
+
   late Icon copied = Icon(
     Icons.check_circle,
     color: Colors.greenAccent,
@@ -38,10 +39,10 @@ class _CopyTextButtonState extends State<CopyTextButton> {
   void _copyText() {
     Clipboard.setData(ClipboardData(text: widget.textToCopy));
     setState(() {
-      copyIcon = copied;
-      Future.delayed(const Duration(seconds: 1), () {
+      iconState = CrossFadeState.showSecond;
+      Future.delayed(const Duration(milliseconds: 1250), () {
         setState(() {
-          copyIcon = toCopy;
+          iconState = CrossFadeState.showFirst;
         });
       });
     });
@@ -61,7 +62,12 @@ class _CopyTextButtonState extends State<CopyTextButton> {
               paddingRight: 7,
             ),
           ),
-          copyIcon,
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 400),
+            firstChild: toCopy,
+            secondChild: copied,
+            crossFadeState: iconState,
+          ),
         ],
       ),
     );

@@ -73,13 +73,11 @@ class Configuration {
     if (biometria != null) {
       if (Configuration.instance.isBiometria) {
         configs.setBool("biometria", biometria);
-        return;
       } else {
         Get.dialog(
           ValidarSenhaGeral(
             onValidate: (senha) {
               HashCrypt.createDefaultKey(senha);
-              Get.back();
               configs.setBool("biometria", biometria);
             },
           ),

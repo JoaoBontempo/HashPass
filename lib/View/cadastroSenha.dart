@@ -5,10 +5,16 @@ import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/hashFunction.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
+import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/cryptography.dart';
+import 'package:hashpass/Util/route.dart';
+import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/View/configuracoes.dart';
+import 'package:hashpass/Widgets/animations/booleanHide.dart';
 import 'package:hashpass/Widgets/data/button.dart';
-import 'package:hashpass/Widgets/confirmdialog.dart';
 import 'package:hashpass/Widgets/data/checkBox.dart';
+import 'package:hashpass/Widgets/data/dropDown.dart';
+import 'package:hashpass/Widgets/data/radioButton.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
@@ -32,6 +38,26 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final senhaEC = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool isCriptografado = false;
+  int leakCount = 0;
+
+  void insertPassword() {
+    ValidarSenhaGeral.show(
+      onValidate: (key) async {
+        Senha senha = Senha(
+          titulo: tituloEC.text,
+          credencial: credencialEC.text,
+          senhaBase: await HashCrypt.cipherString(senhaEC.text, key),
+          avancado: isAvancado,
+          algoritmo: algoritmoSelecionado == null ? 0 : algoritmoSelecionado!.index,
+          criptografado: isCriptografado,
+          leakCount: leakCount,
+        );
+        senha = await SenhaDBSource().inserirSenha(senha);
+        HashPassRoute.to("/index", context);
+        widget.onCadastro(senha);
+      },
+    );
+  }
 
   final Icon leakedIcon = const Icon(
     Icons.warning,
@@ -48,6 +74,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   bool isVerifiedPassword = false;
   String isLeakedMessage = '';
   bool isDeleting = false;
+  bool useCredential = true;
 
   bool hidePassword = true;
   String hidePasswordLabel = 'Mostrar senha';
@@ -57,6 +84,12 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
     verifyPassIcon = leakedIcon;
     algoritmoSelecionado = algoritmos[0];
     super.initState();
+  }
+
+  void setAdvancedPassword(bool isAdvanced) {
+    setState(() {
+      isAvancado = isAdvanced;
+    });
   }
 
   @override
@@ -76,7 +109,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
           title: const Text("Nova senha"),
         ),
         body: SingleChildScrollView(
-          reverse: true,
+          reverse: false,
           child: Form(
             key: formKey,
             child: Padding(
@@ -104,19 +137,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       ]),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: AppTextField(
-                      label: "Usuário/e-mail/CPF/credencial",
-                      padding: 0,
-                      controller: credencialEC,
-                      validator: Validatorless.multiple([
-                        Validatorless.required("A credencial é obrigatória"),
-                      ]),
-                    ),
-                  ),
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
@@ -153,6 +174,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                                     isLeakedMessage = response.message;
                                     verifyPassIcon = response.leakCount == 0 ? notLeakedIcon : leakedIcon;
                                     isVerifiedPassword = response.leakCount == 0;
+                                    leakCount = response.leakCount;
                                   },
                                 );
                               },
@@ -160,7 +182,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                           },
                           suffixIcon: hasPasswordVerification && Configuration.instance.insertPassVerify
                               ? Tooltip(
-                                  margin: EdgeInsets.only(left: 20, right: MediaQuery.of(context).size.width * .15 + 20, top: 5),
+                                  margin: const EdgeInsets.only(left: 20, right: 20, top: 5),
                                   padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
                                   triggerMode: TooltipTriggerMode.tap,
                                   showDuration: const Duration(seconds: 3),
@@ -196,82 +218,69 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       )
                     ],
                   ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: Get.size.width * .7,
-                          child: HashPassCheckBox(
-                            onChange: (isSelected) {
-                              setState(() {
-                                isCriptografado = isSelected;
-                              });
-                            },
-                            value: isCriptografado,
-                            label: "Senha com criptografia Hash",
-                          ),
-                        ),
-                        Tooltip(
-                          margin: const EdgeInsets.only(left: 20, right: 20, top: 5),
-                          padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                          triggerMode: TooltipTriggerMode.tap,
-                          showDuration: const Duration(seconds: 10),
-                          message: "Ao marcar esta caixa, sua senha real será a "
-                              "combinação entre uma senha base e um algoritmo hash.",
-                          child: Visibility(
-                            visible: Configuration.instance.showHelpTooltips,
-                            child: const Icon(
-                              Icons.help_outline,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        )
-                      ],
+                  const HashPassConfigDivider(),
+                  TooltippedCheckBox(
+                    tooltip: "Marque esta caixa caso deseje salvar a credencial relacionada a esta senha. "
+                        "A credencial pode ser seu nome de usuário, e-mail, CPF, ou qualquer outra informação"
+                        "que deve ser utilizada junto com a senha que deseja guardar",
+                    label: "Salvar credencial",
+                    value: useCredential,
+                    onChange: (isSelected) {
+                      setState(() {
+                        useCredential = isSelected;
+                      });
+                    },
+                  ),
+                  AnimtedBooleanContainer(
+                    show: useCredential,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: AppTextField(
+                        label: "Credencial",
+                        padding: 0,
+                        controller: credencialEC,
+                        validator: useCredential
+                            ? Validatorless.multiple([
+                                Validatorless.required("A credencial é obrigatória"),
+                              ])
+                            : Validatorless.min(0, ''),
+                      ),
                     ),
                   ),
-                  Visibility(
-                    visible: isCriptografado,
+                  TooltippedCheckBox(
+                    tooltip: "Ao marcar esta caixa, sua senha real será a "
+                        "combinação entre uma senha base e um algoritmo hash.",
+                    label: "Usar hash",
+                    value: isCriptografado,
+                    onChange: (isSelected) {
+                      setState(() {
+                        isCriptografado = isSelected;
+                      });
+                    },
+                  ),
+                  AnimtedBooleanContainer(
+                    show: isCriptografado,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            const Text(
-                              "Função Hash:",
+                            const HashPassLabel(
+                              text: "Algoritmo:",
+                              paddingRight: 20,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child: DropdownButton<int>(
-                                items: algoritmos.map<DropdownMenuItem<int>>((HashFunction algoritmo) {
-                                  return DropdownMenuItem<int>(
-                                    value: algoritmo.index,
-                                    child: Text(algoritmo.label),
+                            HashPassDropDown<HashFunction>(
+                              isLightBackground: !HashPassTheme.isDarkMode,
+                              itens: HashCrypt.algoritmos,
+                              onChange: (function) {
+                                setState(() {
+                                  algoritmoSelecionado = HashCrypt.algoritmos.firstWhere(
+                                    (algoritmo) => algoritmo.index == function.index,
                                   );
-                                }).toList(),
-                                onChanged: (idSelecionado) {
-                                  setState(() {
-                                    algoritmoSelecionado = algoritmos.firstWhere((algoritmo) => algoritmo.index == idSelecionado);
-                                  });
-                                },
-                                hint: const Text(
-                                  "Algoritmo hash",
-                                  style: TextStyle(color: AppColors.ACCENT_LIGHT),
-                                  textAlign: TextAlign.center,
-                                ),
-                                icon: RotatedBox(
-                                  quarterTurns: 1,
-                                  child: Icon(Icons.chevron_right, color: Theme.of(context).toggleableActiveColor),
-                                ),
-                                iconSize: 24,
-                                elevation: 16,
-                                style: Theme.of(context).textTheme.bodyText2,
-                                underline: Container(
-                                  height: 2,
-                                  color: Theme.of(context).toggleableActiveColor,
-                                ),
-                                value: algoritmoSelecionado?.index,
-                              ),
+                                });
+                              },
+                              hintText: "Função hash",
+                              selectedItem: algoritmoSelecionado!,
                             ),
                           ],
                         ),
@@ -282,76 +291,22 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                             child: Text("Modo de criptografia:"),
                           ),
                         ),
-                        Row(
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * .35,
-                                  child: RadioListTile(
-                                    title: Text(
-                                      "Modo normal",
-                                      style: Theme.of(context).textTheme.bodyText1,
-                                    ),
-                                    value: false,
-                                    groupValue: isAvancado,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        isAvancado = value as bool;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Tooltip(
-                                  margin: EdgeInsets.only(left: 20, right: MediaQuery.of(context).size.width * .5, top: 5),
-                                  padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                                  triggerMode: TooltipTriggerMode.tap,
-                                  showDuration: const Duration(seconds: 10),
-                                  message: "Sua senha final será a senha base com o algoritmo hash aplicado.",
-                                  child: Visibility(
-                                    visible: Configuration.instance.showHelpTooltips,
-                                    child: const Icon(
-                                      Icons.help_outline,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                )
-                              ],
+                            TooltippedRadioButton(
+                              value: false,
+                              group: isAvancado,
+                              label: "Modo normal",
+                              tooltip: "Sua senha final será a senha base com o algoritmo hash aplicado.",
+                              onSelect: (selected) => setAdvancedPassword(false),
                             ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * .41,
-                                  child: RadioListTile(
-                                    title: Text(
-                                      "Modo Avançado",
-                                      style: Theme.of(context).textTheme.bodyText1,
-                                    ),
-                                    value: true,
-                                    groupValue: isAvancado,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        isAvancado = value as bool;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Tooltip(
-                                  margin: EdgeInsets.only(left: MediaQuery.of(context).size.width * .5, right: 20, top: 5),
-                                  padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                                  triggerMode: TooltipTriggerMode.tap,
-                                  showDuration: const Duration(seconds: 5),
-                                  message: "Além do algoritmo hash, sua senha real terá uma criptografia simétrica adicional.",
-                                  child: Visibility(
-                                    visible: Configuration.instance.showHelpTooltips,
-                                    child: const Icon(
-                                      Icons.help_outline,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                )
-                              ],
+                            TooltippedRadioButton(
+                              value: true,
+                              group: isAvancado,
+                              label: "Modo avançado",
+                              tooltip: "Além do algoritmo hash, sua senha real terá uma criptografia simétrica adicional.",
+                              onSelect: (selected) => setAdvancedPassword(true),
                             ),
                           ],
                         ),
@@ -362,36 +317,24 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                     padding: const EdgeInsets.only(top: 20, bottom: 25),
                     child: AppButton(
                       label: "Cadastrar senha",
-                      width: MediaQuery.of(context).size.width * .5,
+                      width: Get.size.width * .5,
                       height: 35,
                       onPressed: () async {
-                        tituloEC.text = tituloEC.text.trim();
-                        senhaEC.text = senhaEC.text.trim();
-                        credencialEC.text = credencialEC.text.trim();
-                        final formValido = formKey.currentState?.validate() ?? false;
-                        if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
-                          return;
-                        }
-                        if (formValido) {
-                          showDialog(
-                            context: context,
-                            builder: (_) => ValidarSenhaGeral(
-                              onValidate: (chaveGeral) async {
-                                Navigator.of(context).pop();
-                                Senha senha = Senha(
-                                  titulo: tituloEC.text,
-                                  credencial: credencialEC.text,
-                                  senhaBase: await HashCrypt.cipherString(senhaEC.text, chaveGeral),
-                                  avancado: isAvancado,
-                                  algoritmo: algoritmoSelecionado == null ? 0 : algoritmoSelecionado!.index,
-                                  criptografado: isCriptografado,
-                                );
-                                senha = await SenhaDBSource().inserirSenha(senha);
-                                Navigator.of(context).pushNamed("/index");
-                                widget.onCadastro(senha);
-                              },
-                            ),
-                          );
+                        if (Util.validateForm(formKey)) {
+                          tituloEC.text = tituloEC.text.trim();
+                          senhaEC.text = senhaEC.text.trim();
+                          credencialEC.text = credencialEC.text.trim();
+                          if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
+                            HashPassMessage.show(
+                              message: "A senha que você está tentando cadastar já foi vazada! Você deseja cadastrá-la mesmo assim?",
+                              title: "Senha vazada",
+                              type: MessageType.YESNO,
+                            ).then((action) {
+                              if (action == MessageResponse.YES) insertPassword();
+                            });
+                            return;
+                          }
+                          insertPassword();
                         }
                       },
                     ),
@@ -402,6 +345,98 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class TooltippedRadioButton extends StatelessWidget {
+  const TooltippedRadioButton({
+    Key? key,
+    required this.value,
+    required this.group,
+    required this.label,
+    required this.tooltip,
+    required this.onSelect,
+  }) : super(key: key);
+  final bool value;
+  final bool group;
+  final String label;
+  final String tooltip;
+  final Function(bool) onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: HashPassRadioButton<bool>(
+            label: label,
+            value: value,
+            group: group,
+            onSelect: (selected) => onSelect(selected),
+          ),
+        ),
+        Tooltip(
+          margin: EdgeInsets.only(left: 20, right: MediaQuery.of(context).size.width * .5, top: 5),
+          padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+          triggerMode: TooltipTriggerMode.tap,
+          showDuration: const Duration(seconds: 10),
+          message: tooltip,
+          child: Visibility(
+            visible: Configuration.instance.showHelpTooltips,
+            child: const Icon(
+              Icons.help_outline,
+              color: Colors.grey,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class TooltippedCheckBox extends StatelessWidget {
+  const TooltippedCheckBox({
+    Key? key,
+    required this.tooltip,
+    required this.label,
+    required this.value,
+    required this.onChange,
+    this.duration = 10,
+  }) : super(key: key);
+  final String tooltip;
+  final String label;
+  final bool value;
+  final Function(bool) onChange;
+  final int duration;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        HashPassCheckBox(
+          checkColor: HashPassTheme.isDarkMode ? AppColors.SECONDARY_DARK : AppColors.ACCENT_LIGHT_2,
+          onChange: (isSelected) => onChange(isSelected),
+          value: value,
+          labelSize: 15,
+          label: label,
+        ),
+        Tooltip(
+          margin: const EdgeInsets.only(left: 20, right: 20, top: 5),
+          padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+          triggerMode: TooltipTriggerMode.tap,
+          showDuration: Duration(seconds: duration),
+          message: tooltip,
+          child: Visibility(
+            visible: Configuration.instance.showHelpTooltips,
+            child: const Icon(
+              Icons.help_outline,
+              color: Colors.grey,
+            ),
+          ),
+        )
+      ],
     );
   }
 }

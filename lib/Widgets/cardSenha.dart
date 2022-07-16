@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/senha.dart';
+import 'package:hashpass/Themes/colors.dart';
+import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/data/checkBox.dart';
 import 'package:hashpass/Widgets/data/dropDown.dart';
@@ -69,6 +71,14 @@ class CardSenhaState extends State<CardSenha> {
     credencialEC.text = widget.senha.credencial;
     senhaEC.text = widget.senha.senhaBase;
     basePassword = widget.senha.senhaBase;
+
+    verifyPassIcon = widget.senha.leakCount == 0 ? Util.notLeakedIcon : Util.leakedIcon;
+    isLeakedMessage = widget.senha.leakCount == 0
+        ? 'Sua senha tem grandes chances de não ter sido vazada!'
+        : widget.senha.leakCount == 1
+            ? 'Esta senha foi vazada pelo menos uma vez!'
+            : 'Esta senha foi vazada pelo menos ${Util.formatInteger(widget.senha.leakCount)} vezes!';
+
     super.initState();
   }
 
@@ -91,17 +101,21 @@ class CardSenhaState extends State<CardSenha> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
-              child: AppTextField(
-                label: "Usuário/e-mail/credencial",
-                padding: 0,
-                controller: credencialEC,
-                dark: true,
-                fontColor: Colors.grey.shade300,
-                borderColor: Get.theme.highlightColor,
-                labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
-                validator: Validatorless.required("A credencial não pode estar vazia."),
+            Visibility(
+              visible: widget.senha.credencial.isNotEmpty,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
+                child: AppTextField(
+                  label: "Credencial",
+                  padding: 0,
+                  controller: credencialEC,
+                  dark: true,
+                  fontColor: Colors.grey.shade300,
+                  borderColor: Get.theme.highlightColor,
+                  labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                  validator:
+                      widget.senha.credencial.isNotEmpty ? Validatorless.required("A credencial não pode estar vazia.") : Validatorless.min(0, ''),
+                ),
               ),
             ),
             Column(
@@ -219,9 +233,10 @@ class CardSenhaState extends State<CardSenha> {
                                 },
                               );
                             },
-                            child: const HashPassLabel(
+                            child: HashPassLabel(
                               text: "Copiar senha",
                               size: 11,
+                              color: Colors.grey.shade200,
                             ),
                           ),
                           Visibility(
@@ -276,6 +291,9 @@ class CardSenhaState extends State<CardSenha> {
                       value: widget.senha.avancado,
                       label: "Avançado",
                       labelSize: 14,
+                      labelColor: Colors.grey.shade200,
+                      backgroundColor: Get.theme.highlightColor,
+                      checkColor: HashPassTheme.isDarkMode ? AppColors.SECONDARY_DARK : AppColors.SECONDARY_LIGHT,
                     ),
                   ],
                 ),
@@ -294,7 +312,7 @@ class CardSenhaState extends State<CardSenha> {
                             VisualizacaoSenhaModal(
                               chaveGeral: key,
                               senha: widget.senha,
-                              copyIconColor: Theme.of(context).hintColor,
+                              copyIconColor: Get.theme.hintColor,
                             ),
                           );
                         },

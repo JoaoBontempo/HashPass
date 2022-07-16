@@ -40,6 +40,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
               ),
               const HashPassLabel(
                 text: "Seja bem-vindo ao HashPass!",
+                fontWeight: FontWeight.bold,
                 size: 20,
               ),
               const HashPassLabel(
@@ -52,6 +53,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                     "não esqueça ou compartilhe esta senha de forma alguma."
                     "\n"
                     "\nVocê poderá acessá-la com sua biometria posteriormente, caso seu dispositivo suporte esse recurso.",
+                size: 15,
                 paddingTop: 15,
                 paddingLeft: 20,
                 paddingRight: 20,
@@ -76,7 +78,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                 ),
                 child: AppButton(
                   label: "Continuar",
-                  width: MediaQuery.of(context).size.width * .5,
+                  width: Get.size.width * .5,
                   height: 35,
                   onPressed: () async {
                     passwordTrimCompare.text = senhaEC.text.trim();

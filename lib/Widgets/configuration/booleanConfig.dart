@@ -49,11 +49,13 @@ class _BooleanConfigWidgetState extends State<BooleanConfigWidget> {
                     visible: widget.onlyHeader,
                     child: HashPassLabel(
                       text: widget.label,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   Visibility(
                     visible: !widget.onlyHeader,
                     child: HashPassSwitch(
+                      labelWeight: FontWeight.bold,
                       onChange: (value) {
                         setState(() {
                           widget.value = value;
@@ -71,6 +73,7 @@ class _BooleanConfigWidgetState extends State<BooleanConfigWidget> {
                 paddingRight: 10,
                 text: widget.description,
                 style: Theme.of(context).textTheme.headline1,
+                fontWeight: FontWeight.bold,
               ),
             ],
           ),

@@ -17,9 +17,9 @@ class LightAppTheme {
   }
 
   ThemeData get defaultTheme => ThemeData(
-        progressIndicatorTheme: const ProgressIndicatorThemeData(
-          color: Colors.grey,
-          circularTrackColor: AppColors.ACCENT_LIGHT,
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          color: Colors.grey.shade400,
+          circularTrackColor: AppColors.SECONDARY_LIGHT,
         ),
         cardTheme: CardTheme(
           color: AppColors.SECONDARY_LIGHT.withOpacity(0.9),

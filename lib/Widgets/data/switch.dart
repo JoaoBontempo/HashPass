@@ -8,10 +8,12 @@ class HashPassSwitch extends StatefulWidget {
     required this.value,
     required this.label,
     this.labelSize,
+    this.labelWeight,
   }) : super(key: key);
   final Function(bool) onChange;
   final String label;
   final double? labelSize;
+  final FontWeight? labelWeight;
   bool value;
 
   @override
@@ -26,6 +28,7 @@ class _HashPassSwitchState extends State<HashPassSwitch> {
         HashPassLabel(
           text: widget.label,
           size: widget.labelSize,
+          fontWeight: widget.labelWeight,
         ),
         Switch(
           value: widget.value,

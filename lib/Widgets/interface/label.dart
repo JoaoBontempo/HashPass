@@ -9,6 +9,7 @@ class HashPassLabel extends StatelessWidget {
     this.paddingRight = 0,
     this.paddingTop = 0,
     this.paddingBottom = 0,
+    this.padding,
     this.color,
     this.size,
     this.style,
@@ -20,6 +21,7 @@ class HashPassLabel extends StatelessWidget {
   final double paddingRight;
   final double paddingTop;
   final double paddingBottom;
+  final double? padding;
   final Color? color;
   final double? size;
   final TextStyle? style;
@@ -28,12 +30,14 @@ class HashPassLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: paddingTop,
-        bottom: paddingBottom,
-        left: paddingLeft,
-        right: paddingRight,
-      ),
+      padding: padding == null
+          ? EdgeInsets.only(
+              top: paddingTop,
+              bottom: paddingBottom,
+              left: paddingLeft,
+              right: paddingRight,
+            )
+          : EdgeInsets.all(padding!),
       child: Text(
         text,
         textAlign: textAlign,
