@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hashpass/Widgets/interface/label.dart';
 import '../../Util/util.dart';
 
 class AppTextField extends StatelessWidget {
@@ -25,6 +27,7 @@ class AppTextField extends StatelessWidget {
     this.suffixIconClick,
     this.prefixIconClick,
     this.placeholder,
+    this.icon,
   }) : super(key: key);
 
   final String label;
@@ -47,6 +50,7 @@ class AppTextField extends StatelessWidget {
   final VoidCallback? suffixIconClick;
   final VoidCallback? prefixIconClick;
   final String? placeholder;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +71,28 @@ class AppTextField extends StatelessWidget {
         inputFormatters: formatter,
         cursorColor: Colors.grey,
         decoration: InputDecoration(
+          contentPadding: EdgeInsets.only(bottom: label.isEmpty ? 12 : 5),
           hintText: placeholder,
-          labelText: label,
+          label: icon == null
+              ? HashPassLabel(
+                  text: label,
+                  paddingTop: 5,
+                  paddingLeft: 10,
+                )
+              : Row(
+                  children: [
+                    FaIcon(
+                      icon ?? Icons.abc,
+                      color: Colors.grey,
+                      size: 18,
+                    ),
+                    HashPassLabel(
+                      text: label,
+                      paddingTop: 5,
+                      paddingLeft: 10,
+                    )
+                  ],
+                ),
           enabledBorder: borderColor == null ? Theme.of(context).inputDecorationTheme.enabledBorder : Util.bordaPadrao(borderColor!),
           labelStyle: labelStyle ?? Theme.of(context).inputDecorationTheme.labelStyle,
           suffixIcon: suffixIcon != null

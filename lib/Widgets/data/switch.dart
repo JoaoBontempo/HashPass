@@ -32,7 +32,12 @@ class _HashPassSwitchState extends State<HashPassSwitch> {
         ),
         Switch(
           value: widget.value,
-          onChanged: (checked) => widget.onChange(checked),
+          onChanged: (checked) {
+            setState(() {
+              widget.value = checked;
+            });
+            widget.onChange(checked);
+          },
         ),
       ],
     );

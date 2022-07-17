@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
@@ -256,6 +257,7 @@ class _MenuDadosState extends State<MenuDados> {
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: AppTextField(
+                          icon: FontAwesomeIcons.key,
                           label: "Insira a chave de exportação",
                           padding: 0,
                           controller: chaveEC,

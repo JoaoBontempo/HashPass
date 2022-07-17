@@ -5,10 +5,13 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Themes/dark.dart';
 import 'package:hashpass/Themes/light.dart';
+import 'package:hashpass/View/entrance/chooseConfig.dart';
+import 'package:hashpass/View/entrance/entranceSet.dart';
+import 'package:hashpass/View/entrance/setFirstConfig.dart';
 import 'package:hashpass/View/index.dart';
 import 'package:hashpass/View/senhas.dart';
 import 'package:hashpass/View/splashpage.dart';
-import 'package:hashpass/View/welcomepage.dart';
+import 'package:hashpass/View/entrance/welcomepage.dart';
 
 import 'Model/configuration.dart';
 
@@ -41,10 +44,13 @@ class _HashPassAppState extends State<HashPassApp> {
       darkTheme: DarkAppTheme(context).defaultTheme,
       initialRoute: "/",
       routes: {
+        "/": (_) => const HashPasshSplashPage(),
+        "/welcome": (_) => const AppWelcomePage(),
+        "/chooseConfig": (_) => const ChooseConfigScreen(),
+        "/firstConfig": (_) => const FirstConfigScreen(),
+        "/setEntrance": (_) => const SetEntrancePage(),
         "/index": (_) => const IndexPage(),
         "/senhas": (_) => const MenuSenhas(),
-        "/welcome": (_) => const AppWelcomePage(),
-        "/": (_) => const HashPasshSplashPage(),
       },
     );
   }

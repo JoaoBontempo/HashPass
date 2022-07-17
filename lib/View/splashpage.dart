@@ -26,7 +26,6 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
 
   void verifyEntrance() {
     if (!Configuration.instance.hasEntrance) {
-      Configuration.setDefaultConfig();
       HashPassRoute.to("/welcome", context);
     } else {
       authUser();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/DTO/leakPassDTO.dart';
 import 'package:hashpass/Util/cryptography.dart';
@@ -50,6 +51,7 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                   paddingBottom: 20,
                 ),
                 AppTextField(
+                  icon: FontAwesomeIcons.userLock,
                   label: 'Digite a senha ',
                   obscureText: true,
                   controller: passwordEC,

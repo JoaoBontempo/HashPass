@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:local_auth/auth_strings.dart';
@@ -84,6 +85,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                 Form(
                   key: formKey,
                   child: AppTextField(
+                    icon: FontAwesomeIcons.lock,
                     label: widget.lastKeyLabel ? "Informe sua senha antiga:" : "Senha do aplicativo:",
                     padding: 10,
                     controller: senhaEC,

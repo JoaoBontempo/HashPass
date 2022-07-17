@@ -4,8 +4,6 @@ import 'package:hashpass/View/senhas.dart';
 import 'package:hashpass/Widgets/drawer.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
 
-import '../Model/configuration.dart';
-
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
 
@@ -16,21 +14,6 @@ class IndexPage extends StatefulWidget {
 class _IndexPageState extends State<IndexPage> {
   int paginaAtual = 0;
   bool isDrawerOpen = false;
-
-  @override
-  void initState() {
-    if (!Configuration.instance.hasEntrance) {
-      HashPassMessage.show(
-        title: "Tudo certo!",
-        message: "Sua senha geral do HashPass foi cadastrada com sucesso!. \n\nNão esqueça sua senha geral, "
-            "pois não é possível recuperá-la! "
-            "\n\n"
-            "Para cadastrar uma nova senha, clique no botão ( + )  no canto inferior direito do menu principal.",
-      );
-      Configuration.setConfigs(entrance: true);
-    }
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

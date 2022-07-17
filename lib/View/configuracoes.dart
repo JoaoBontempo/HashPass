@@ -102,7 +102,7 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: SizedBox(
-                                  width: MediaQuery.of(context).size.width * .12,
+                                  width: MediaQuery.of(context).size.width * .15,
                                   height: 25,
                                   child: AppTextField(
                                     label: "",

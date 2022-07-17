@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/configuration.dart';
@@ -106,6 +107,7 @@ class CardSenhaState extends State<CardSenha> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
                 child: AppTextField(
+                  icon: FontAwesomeIcons.user,
                   label: "Credencial",
                   padding: 0,
                   controller: credencialEC,
@@ -126,6 +128,7 @@ class CardSenhaState extends State<CardSenha> {
                     Padding(
                       padding: const EdgeInsets.only(left: 20, bottom: 15, right: 20),
                       child: AppTextField(
+                        icon: FontAwesomeIcons.lock,
                         label: widget.senha.criptografado ? "Senha base" : "Senha",
                         padding: 0,
                         labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/configuration.dart';
@@ -129,6 +130,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: AppTextField(
+                      icon: FontAwesomeIcons.pencilAlt,
                       label: "Título",
                       padding: 0,
                       controller: tituloEC,
@@ -143,6 +145,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: AppTextField(
+                          icon: FontAwesomeIcons.lock,
                           label: "Senha",
                           padding: 0,
                           obscureText: hidePassword,
@@ -231,13 +234,14 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       });
                     },
                   ),
-                  AnimtedBooleanContainer(
+                  AnimatedBooleanContainer(
                     show: useCredential,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 20),
                       child: AppTextField(
                         label: "Credencial",
                         padding: 0,
+                        icon: FontAwesomeIcons.userAlt,
                         controller: credencialEC,
                         validator: useCredential
                             ? Validatorless.multiple([
@@ -258,7 +262,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       });
                     },
                   ),
-                  AnimtedBooleanContainer(
+                  AnimatedBooleanContainer(
                     show: isCriptografado,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Util/route.dart';
@@ -46,6 +47,7 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                   child: Column(
                     children: [
                       AppTextField(
+                        icon: FontAwesomeIcons.lock,
                         label: "Nova senha",
                         padding: 0,
                         obscureText: showNewPassword,
@@ -61,20 +63,24 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                           showNewPassword = !showNewPassword;
                         }),
                       ),
-                      AppTextField(
-                        label: "Confirmar nova senha",
-                        padding: 0,
-                        obscureText: showConfirmPassword,
-                        validator: Validatorless.multiple(
-                          [
-                            Validatorless.required("Confirme sua senha"),
-                            Validatorless.compare(newPasswordEC, "As senhas informadas não são iguais"),
-                          ],
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 10),
+                        child: AppTextField(
+                          icon: FontAwesomeIcons.lock,
+                          label: "Confirmar nova senha",
+                          padding: 0,
+                          obscureText: showConfirmPassword,
+                          validator: Validatorless.multiple(
+                            [
+                              Validatorless.required("Confirme sua senha"),
+                              Validatorless.compare(newPasswordEC, "As senhas informadas não são iguais"),
+                            ],
+                          ),
+                          suffixIcon: showConfirmPassword ? Util.visiblePasswordIcon : Util.notVisiblePasswordIcon,
+                          suffixIconClick: () => setState(() {
+                            showConfirmPassword = !showConfirmPassword;
+                          }),
                         ),
-                        suffixIcon: showConfirmPassword ? Util.visiblePasswordIcon : Util.notVisiblePasswordIcon,
-                        suffixIconClick: () => setState(() {
-                          showConfirmPassword = !showConfirmPassword;
-                        }),
                       ),
                     ],
                   ),
