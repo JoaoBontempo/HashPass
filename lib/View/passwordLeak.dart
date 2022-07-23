@@ -26,7 +26,7 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
 
   @override
   void initState() {
-    passwordInfo = PasswordLeakDTO(message: 'Sua senha tem grandes chances de não ter sido vazada!', leakCount: 0);
+    passwordInfo = PasswordLeakDTO(leakCount: 0);
     super.initState();
   }
 
@@ -51,7 +51,7 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                   paddingBottom: 20,
                 ),
                 AppTextField(
-                  icon: FontAwesomeIcons.userLock,
+                  icon: Icons.lock_outline,
                   label: 'Digite a senha ',
                   obscureText: true,
                   controller: passwordEC,

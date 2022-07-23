@@ -64,7 +64,7 @@ class Configuration {
     bool? updateVerify,
     bool? tooltips,
     bool? entrance,
-  }) {
+  }) async {
     if (theme != null) {
       Get.changeThemeMode(theme.mode);
       configs.setInt("theme", theme.mode.index);
@@ -74,10 +74,10 @@ class Configuration {
       if (Configuration.instance.isBiometria) {
         configs.setBool("biometria", biometria);
       } else {
-        Get.dialog(
+        await Get.dialog(
           ValidarSenhaGeral(
-            onValidate: (senha) {
-              HashCrypt.createDefaultKey(senha);
+            onValidate: (senha) async {
+              await HashCrypt.createDefaultKey(senha);
               configs.setBool("biometria", biometria);
             },
           ),

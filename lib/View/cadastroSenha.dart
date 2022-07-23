@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/DTO/leakPassDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/hashFunction.dart';
@@ -39,7 +40,8 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final senhaEC = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool isCriptografado = false;
-  int leakCount = 0;
+
+  late PasswordLeakDTO leakObject = PasswordLeakDTO(leakCount: 0);
 
   void insertPassword() {
     ValidarSenhaGeral.show(
@@ -51,7 +53,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
           avancado: isAvancado,
           algoritmo: algoritmoSelecionado == null ? 0 : algoritmoSelecionado!.index,
           criptografado: isCriptografado,
-          leakCount: leakCount,
+          leakCount: leakObject.leakCount,
         );
         senha = await SenhaDBSource().inserirSenha(senha);
         HashPassRoute.to("/index", context);
@@ -59,16 +61,6 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
       },
     );
   }
-
-  final Icon leakedIcon = const Icon(
-    Icons.warning,
-    color: Colors.redAccent,
-  );
-
-  final Icon notLeakedIcon = const Icon(
-    Icons.verified_user,
-    color: Colors.greenAccent,
-  );
 
   late Icon verifyPassIcon;
   bool hasPasswordVerification = false;
@@ -82,7 +74,6 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
 
   @override
   void initState() {
-    verifyPassIcon = leakedIcon;
     algoritmoSelecionado = algoritmos[0];
     super.initState();
   }
@@ -130,7 +121,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: AppTextField(
-                      icon: FontAwesomeIcons.pencilAlt,
+                      icon: Icons.edit_outlined,
                       label: "Título",
                       padding: 0,
                       controller: tituloEC,
@@ -145,7 +136,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: AppTextField(
-                          icon: FontAwesomeIcons.lock,
+                          icon: Icons.lock_outline,
                           label: "Senha",
                           padding: 0,
                           obscureText: hidePassword,
@@ -173,38 +164,15 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                                 }
                                 setState(
                                   () {
+                                    leakObject = response;
                                     hasPasswordVerification = true;
-                                    isLeakedMessage = response.message;
-                                    verifyPassIcon = response.leakCount == 0 ? notLeakedIcon : leakedIcon;
                                     isVerifiedPassword = response.leakCount == 0;
-                                    leakCount = response.leakCount;
                                   },
                                 );
                               },
                             );
                           },
-                          suffixIcon: hasPasswordVerification && Configuration.instance.insertPassVerify
-                              ? Tooltip(
-                                  margin: const EdgeInsets.only(left: 20, right: 20, top: 5),
-                                  padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                                  triggerMode: TooltipTriggerMode.tap,
-                                  showDuration: const Duration(seconds: 3),
-                                  message: isLeakedMessage,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 20),
-                                    child: verifyPassIcon,
-                                  ),
-                                  textStyle: TextStyle(
-                                    color: verifyPassIcon.color == Colors.greenAccent ? Colors.black : Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: verifyPassIcon.color,
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                )
-                              : null,
+                          suffixIcon: hasPasswordVerification && Configuration.instance.insertPassVerify ? leakObject.getLeakWidget() : null,
                         ),
                       ),
                       GestureDetector(
@@ -224,12 +192,13 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                   const HashPassConfigDivider(),
                   TooltippedCheckBox(
                     tooltip: "Marque esta caixa caso deseje salvar a credencial relacionada a esta senha. "
-                        "A credencial pode ser seu nome de usuário, e-mail, CPF, ou qualquer outra informação"
+                        "A credencial pode ser seu nome de usuário, e-mail, CPF, ou qualquer outra informação "
                         "que deve ser utilizada junto com a senha que deseja guardar",
                     label: "Salvar credencial",
                     value: useCredential,
                     onChange: (isSelected) {
                       setState(() {
+                        credencialEC.text = "";
                         useCredential = isSelected;
                       });
                     },
@@ -241,7 +210,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       child: AppTextField(
                         label: "Credencial",
                         padding: 0,
-                        icon: FontAwesomeIcons.userAlt,
+                        icon: FontAwesomeIcons.user,
                         controller: credencialEC,
                         validator: useCredential
                             ? Validatorless.multiple([
@@ -330,8 +299,10 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                           credencialEC.text = credencialEC.text.trim();
                           if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
                             HashPassMessage.show(
-                              message: "A senha que você está tentando cadastar já foi vazada! Você deseja cadastrá-la mesmo assim?",
-                              title: "Senha vazada",
+                              message: leakObject.status == LeakStatus.LEAKED
+                                  ? "A senha que você está tentando cadastar já foi vazada! Você deseja cadastrá-la mesmo assim?"
+                                  : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja cadastrar sua senha mesmo assim?",
+                              title: leakObject.status == LeakStatus.LEAKED ? "Senha vazada" : "Senha não verificada",
                               type: MessageType.YESNO,
                             ).then((action) {
                               if (action == MessageResponse.YES) insertPassword();

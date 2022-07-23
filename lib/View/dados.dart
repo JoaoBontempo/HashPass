@@ -249,7 +249,8 @@ class _MenuDadosState extends State<MenuDados> {
                         child: Text(
                           "Insira a chave criptográfica que foi gerada ao exportar os dados e pressione o botão 'Importar dados'. "
                           "Selecione o arquivo que contém seus dados para que seja possível a importação. Certifique-se de que "
-                          "você está usando a chave e o arquivo corretos. Após a importação, o arquivo será excluído automaticamente "
+                          "você está usando a chave e o arquivo corretos e que sua chave geral do HashPass é a mesma de quando você exportou os dados. "
+                          "Após a importação, o arquivo será excluído automaticamente "
                           "do seu dispositivo. Será necessário permitir o acesso aos arquivos do dispositivo.",
                           style: Theme.of(context).textTheme.headline1,
                         ),
@@ -257,7 +258,7 @@ class _MenuDadosState extends State<MenuDados> {
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: AppTextField(
-                          icon: FontAwesomeIcons.key,
+                          icon: Icons.vpn_key_outlined,
                           label: "Insira a chave de exportação",
                           padding: 0,
                           controller: chaveEC,

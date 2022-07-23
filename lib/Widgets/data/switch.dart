@@ -9,11 +9,13 @@ class HashPassSwitch extends StatefulWidget {
     required this.label,
     this.labelSize,
     this.labelWeight,
+    this.useState = true,
   }) : super(key: key);
   final Function(bool) onChange;
   final String label;
   final double? labelSize;
   final FontWeight? labelWeight;
+  final bool useState;
   bool value;
 
   @override
@@ -33,9 +35,11 @@ class _HashPassSwitchState extends State<HashPassSwitch> {
         Switch(
           value: widget.value,
           onChanged: (checked) {
-            setState(() {
-              widget.value = checked;
-            });
+            if (widget.useState) {
+              setState(() {
+                widget.value = checked;
+              });
+            }
             widget.onChange(checked);
           },
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/DTO/leakPassDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/senha.dart';
@@ -44,12 +45,10 @@ class CardSenhaState extends State<CardSenha> {
   final credencialEC = TextEditingController();
 
   late HashFunction algoritmoSelecionado = HashCrypt.algoritmos[widget.senha.algoritmo];
-
-  late Icon verifyPassIcon = Util.notLeakedIcon;
+  late PasswordLeakDTO leakObject = PasswordLeakDTO(leakCount: widget.senha.leakCount);
 
   late String basePassword;
   String lastText = "";
-  String isLeakedMessage = 'Sua senha tem grandes chances de não ter sido vazada!';
 
   bool toDelete = true;
   bool isDeleting = false;
@@ -72,15 +71,27 @@ class CardSenhaState extends State<CardSenha> {
     credencialEC.text = widget.senha.credencial;
     senhaEC.text = widget.senha.senhaBase;
     basePassword = widget.senha.senhaBase;
-
-    verifyPassIcon = widget.senha.leakCount == 0 ? Util.notLeakedIcon : Util.leakedIcon;
-    isLeakedMessage = widget.senha.leakCount == 0
-        ? 'Sua senha tem grandes chances de não ter sido vazada!'
-        : widget.senha.leakCount == 1
-            ? 'Esta senha foi vazada pelo menos uma vez!'
-            : 'Esta senha foi vazada pelo menos ${Util.formatInteger(widget.senha.leakCount)} vezes!';
-
     super.initState();
+  }
+
+  void updatePassword() {
+    Get.dialog(
+      ValidarSenhaGeral(
+        onValidate: (key) async {
+          atualizarParametrosSenha(
+            senhaEC.text,
+            await HashCrypt.cipherString(senhaEC.text, key),
+            credencialEC.text,
+            algoritmoSelecionado.index,
+          );
+          int code = await SenhaDBSource().atualizarSenha(widget.senha);
+          widget.onUpdate(code);
+          setState(() {
+            hasPasswordVerification = false;
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -128,7 +139,7 @@ class CardSenhaState extends State<CardSenha> {
                     Padding(
                       padding: const EdgeInsets.only(left: 20, bottom: 15, right: 20),
                       child: AppTextField(
-                        icon: FontAwesomeIcons.lock,
+                        icon: Icons.lock_outline,
                         label: widget.senha.criptografado ? "Senha base" : "Senha",
                         padding: 0,
                         labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
@@ -167,9 +178,8 @@ class CardSenhaState extends State<CardSenha> {
                                 }
                                 setState(
                                   () {
+                                    leakObject = response;
                                     hasPasswordVerification = true;
-                                    isLeakedMessage = response.message;
-                                    verifyPassIcon = response.leakCount == 0 ? Util.notLeakedIcon : Util.leakedIcon;
                                     isVerifiedPassword = response.leakCount == 0;
                                   },
                                 );
@@ -244,25 +254,8 @@ class CardSenhaState extends State<CardSenha> {
                           ),
                           Visibility(
                             visible: Configuration.instance.updatePassVerify && senhaEC.text.length > 4,
-                            child: Tooltip(
-                              margin: const EdgeInsets.only(left: 20, right: 20),
-                              padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                              triggerMode: TooltipTriggerMode.tap,
-                              height: 20,
-                              showDuration: const Duration(seconds: 5),
-                              message: isLeakedMessage,
-                              child: verifyPassIcon,
-                              textStyle: TextStyle(
-                                color: verifyPassIcon.color == Colors.greenAccent ? Colors.black : Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: verifyPassIcon.color,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          )
+                            child: leakObject.getLeakWidget(size: 16),
+                          ),
                         ],
                       ),
                     )
@@ -352,37 +345,26 @@ class CardSenhaState extends State<CardSenha> {
                       ),
                       IconButton(
                         onPressed: () async {
-                          debugPrint((!isVerifiedPassword).toString());
-                          debugPrint((Configuration.instance.updatePassVerify).toString());
                           Get.focusScope!.unfocus();
-                          if (!isVerifiedPassword && Configuration.instance.updatePassVerify) {
-                            return;
-                          }
                           if (Util.validateForm(formKey)) {
+                            if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
+                              HashPassMessage.show(
+                                message: leakObject.status == LeakStatus.LEAKED
+                                    ? "A senha que você está tentando cadastar já foi vazada! Você deseja cadastrá-la mesmo assim?"
+                                    : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja cadastrar sua senha mesmo assim?",
+                                title: leakObject.status == LeakStatus.LEAKED ? "Senha vazada" : "Senha não verificada",
+                                type: MessageType.YESNO,
+                              ).then((action) {
+                                if (action == MessageResponse.YES) updatePassword();
+                              });
+                              return;
+                            }
                             HashPassMessage.show(
                               title: "Confirmar",
                               message: "Tem certeza que deseja atualizar os dados desta senha?",
                               type: MessageType.YESNO,
                             ).then((action) {
-                              if (action == MessageResponse.YES) {
-                                Get.dialog(
-                                  ValidarSenhaGeral(
-                                    onValidate: (key) async {
-                                      atualizarParametrosSenha(
-                                        senhaEC.text,
-                                        await HashCrypt.cipherString(senhaEC.text, key),
-                                        credencialEC.text,
-                                        algoritmoSelecionado.index,
-                                      );
-                                      int code = await SenhaDBSource().atualizarSenha(widget.senha);
-                                      widget.onUpdate(code);
-                                      setState(() {
-                                        hasPasswordVerification = false;
-                                      });
-                                    },
-                                  ),
-                                );
-                              }
+                              if (action == MessageResponse.YES) updatePassword();
                             });
                           }
                         },

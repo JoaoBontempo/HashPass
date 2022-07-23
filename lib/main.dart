@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Themes/dark.dart';
 import 'package:hashpass/Themes/light.dart';
+import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/View/entrance/chooseConfig.dart';
 import 'package:hashpass/View/entrance/entranceSet.dart';
 import 'package:hashpass/View/entrance/setFirstConfig.dart';

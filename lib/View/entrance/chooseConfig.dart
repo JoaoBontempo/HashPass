@@ -112,7 +112,7 @@ class _FirstConfigurationScreenState extends State<ChooseConfigScreen> {
                       child: const HashPassLabel(
                         text: "O HashPass possui algumas configurações para que sua experiência "
                             "com o app seja personalizada, como temporizador de visualização de senha, "
-                            "verificação de vazamento de senha, validação biométrica, dentre outras opções."
+                            "verificação de vazamento de senha, ícones de ajuda dentre outras opções."
                             "\n\n"
                             "Deseja utilizar as configurações padrão e alterá-las posteriormente ou deseja configurar o app agora?",
                         textAlign: TextAlign.justify,

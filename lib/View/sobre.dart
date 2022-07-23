@@ -63,7 +63,7 @@ class SobreAppPage extends StatelessWidget {
                     ),
                     SocialMediaButton(
                       link: "https://www.linkedin.com/in/jo%C3%A3o-vitor-pedon-bontempo-978077228/",
-                      label: "GitHub",
+                      label: "Linkedin",
                       color: Color(0xFF0073B1),
                       textColor: Colors.white,
                       icon: FaIcon(FontAwesomeIcons.linkedin),

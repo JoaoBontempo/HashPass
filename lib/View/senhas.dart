@@ -108,7 +108,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
                                   onCopy: () {
                                     HashPassSnackBar.show(
                                       message: "Senha copiada!",
-                                      duration: const Duration(seconds: 1),
+                                      duration: const Duration(milliseconds: 2500),
                                     );
                                   },
                                   onUpdate: (code) {

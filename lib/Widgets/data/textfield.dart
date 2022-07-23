@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import '../../Util/util.dart';
 
@@ -12,7 +13,7 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.validator,
     this.onChange,
-    this.padding,
+    this.padding = 0,
     this.keyboardType,
     this.formatter,
     this.fontSize = 15,
@@ -28,6 +29,7 @@ class AppTextField extends StatelessWidget {
     this.prefixIconClick,
     this.placeholder,
     this.icon,
+    this.maxLength,
   }) : super(key: key);
 
   final String label;
@@ -35,7 +37,7 @@ class AppTextField extends StatelessWidget {
   final bool obscureText;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChange;
-  final double? padding;
+  final double padding;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? formatter;
   final double? fontSize;
@@ -51,26 +53,29 @@ class AppTextField extends StatelessWidget {
   final VoidCallback? prefixIconClick;
   final String? placeholder;
   final IconData? icon;
+  final int? maxLength;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(padding!),
+      padding: EdgeInsets.all(padding),
       child: TextFormField(
         textAlign: textAlign,
         style: TextStyle(
           fontSize: fontSize,
-          color: fontColor ?? Theme.of(context).textTheme.bodyText1?.color,
+          color: fontColor ?? Get.theme.textTheme.bodyText1?.color,
         ),
         onSaved: onSave != null ? onSave!(controller!.text) : null,
         controller: controller,
         obscureText: obscureText,
         validator: validator,
         onChanged: onChange,
+        maxLength: maxLength,
         keyboardType: keyboardType,
         inputFormatters: formatter,
         cursorColor: Colors.grey,
         decoration: InputDecoration(
+          counterText: "",
           contentPadding: EdgeInsets.only(bottom: label.isEmpty ? 12 : 5),
           hintText: placeholder,
           label: icon == null

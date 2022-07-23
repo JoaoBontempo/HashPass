@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart' as hashs;
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
@@ -51,6 +52,11 @@ class HashCrypt {
   static Future<PasswordLeakDTO> verifyPassowordLeak(String basePass) async {
     String passwordHash = _applyHashAlgorithm(hashs.sha1, basePass);
     String response = await HTTPRequest.requestPasswordLeak(passwordHash);
+
+    if (response.isEmpty) {
+      return PasswordLeakDTO(leakCount: -1);
+    }
+
     String passwordSubHash = passwordHash.substring(5).toUpperCase();
 
     List<String> leakedPasswords = response.split('\n');
@@ -58,13 +64,10 @@ class HashCrypt {
     for (int index = 0, length = leakedPasswords.length; index < length; index += 1) {
       List<String> passwordInfo = leakedPasswords[index].split(':');
       if (passwordInfo[0] == passwordSubHash) {
-        int leakCount = int.parse(passwordInfo[1]);
-        return leakCount == 1
-            ? PasswordLeakDTO(message: 'Esta senha foi vazada pelo menos uma vez!', leakCount: leakCount)
-            : PasswordLeakDTO(message: 'Esta senha foi vazada pelo menos ${Util.formatInteger(leakCount)} vezes!', leakCount: leakCount);
+        return PasswordLeakDTO(leakCount: int.parse(passwordInfo[1]));
       }
     }
-    return PasswordLeakDTO(message: 'Sua senha tem grandes chances de não ter sido vazada!', leakCount: 0);
+    return PasswordLeakDTO(leakCount: 0);
   }
 
   static List<int> _passwordNumbers = <int>[];

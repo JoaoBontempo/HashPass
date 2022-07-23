@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/route.dart';
+import 'package:hashpass/Widgets/animations/booleanHide.dart';
 import 'package:hashpass/Widgets/configuration/booleanConfig.dart';
 import 'package:hashpass/Widgets/configuration/multiBooleanWidgetConfig.dart';
 import 'package:hashpass/Widgets/configuration/radioConfig.dart';
@@ -51,8 +52,13 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
             child: Column(
               children: [
                 BooleanConfigWidget(
+                  useState: false,
                   isVisible: hasBiometricValidation,
-                  onChange: (checked) => Configuration.setConfigs(biometria: checked),
+                  onChange: (checked) {
+                    setState(() {
+                      Configuration.setConfigs(biometria: checked);
+                    });
+                  },
                   description: "Configura a forma de validação da senha geral do app para biometria ou texto.",
                   label: "Validação biométrica",
                   icon: Icons.fingerprint,
@@ -85,8 +91,9 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                   icon: Icons.timer,
                   value: Configuration.instance.hasTimer,
                 ),
-                Visibility(
-                  visible: Configuration.instance.hasTimer,
+                AnimatedBooleanContainer(
+                  useWidth: false,
+                  show: Configuration.instance.hasTimer,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 50),
                     child: Column(
@@ -105,11 +112,23 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                                   width: MediaQuery.of(context).size.width * .15,
                                   height: 25,
                                   child: AppTextField(
+                                    maxLength: 4,
                                     label: "",
                                     onSave: (value) {
-                                      if (value.isEmpty) return;
+                                      if (value.isEmpty) {
+                                        timerEC.text = "30";
+                                        return;
+                                      }
+
+                                      double timer = double.parse(value);
+
+                                      if (timer == 0) {
+                                        timerEC.text = "30";
+                                        return;
+                                      }
+
                                       Configuration.setConfigs(
-                                        timer: double.parse(value),
+                                        timer: timer,
                                       );
                                     },
                                     controller: timerEC,

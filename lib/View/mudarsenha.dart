@@ -47,7 +47,7 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                   child: Column(
                     children: [
                       AppTextField(
-                        icon: FontAwesomeIcons.lock,
+                        icon: Icons.lock_outline,
                         label: "Nova senha",
                         padding: 0,
                         obscureText: showNewPassword,
@@ -66,7 +66,7 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                       Padding(
                         padding: const EdgeInsets.only(top: 20, bottom: 10),
                         child: AppTextField(
-                          icon: FontAwesomeIcons.lock,
+                          icon: Icons.lock_outline,
                           label: "Confirmar nova senha",
                           padding: 0,
                           obscureText: showConfirmPassword,

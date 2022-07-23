@@ -13,15 +13,15 @@ class Util {
 
   static const String adMobAppID = 'ca-app-pub-2117228224971128~4230023543';
 
-  static const Icon visiblePasswordIcon = Icon(
-    Icons.visibility,
-    color: AppColors.ACCENT_LIGHT_2,
-  );
+  static Icon get visiblePasswordIcon => Icon(
+        Icons.visibility,
+        color: Colors.grey.shade400,
+      );
 
-  static const Icon notVisiblePasswordIcon = Icon(
-    Icons.visibility_off,
-    color: AppColors.ACCENT_LIGHT_2,
-  );
+  static Icon get notVisiblePasswordIcon => Icon(
+        Icons.visibility_off,
+        color: Colors.grey.shade400,
+      );
 
   static const Icon leakedIcon = Icon(
     Icons.warning,

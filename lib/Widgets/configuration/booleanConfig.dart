@@ -12,6 +12,7 @@ class BooleanConfigWidget extends StatefulWidget {
     required this.label,
     required this.icon,
     this.value,
+    this.useState = true,
   }) : super(key: key);
   final bool isVisible;
   final Function(bool)? onChange;
@@ -19,6 +20,7 @@ class BooleanConfigWidget extends StatefulWidget {
   final String label;
   final IconData icon;
   final bool onlyHeader;
+  final bool useState;
   bool? value;
 
   @override
@@ -55,12 +57,10 @@ class _BooleanConfigWidgetState extends State<BooleanConfigWidget> {
                   Visibility(
                     visible: !widget.onlyHeader,
                     child: HashPassSwitch(
+                      useState: widget.useState,
                       labelWeight: FontWeight.bold,
                       onChange: (value) {
-                        setState(() {
-                          widget.value = value;
-                          widget.onChange!(value);
-                        });
+                        widget.onChange!(value);
                       },
                       value: widget.value ?? false,
                       label: widget.label,
