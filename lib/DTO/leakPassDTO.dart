@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hashpass/Themes/theme.dart';
 
 import '../Util/util.dart';
 
@@ -35,7 +36,7 @@ class PasswordLeakDTO {
     return leakCount == -1
         ? Icon(
             Icons.warning,
-            color: Colors.yellowAccent,
+            color: HashPassTheme.isDarkMode ? Colors.yellowAccent : Colors.yellow.shade700,
             size: size,
           )
         : leakCount == 0

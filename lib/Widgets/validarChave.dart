@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
+import 'package:hashpass/Util/util.dart';
 import 'package:local_auth/auth_strings.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:validatorless/validatorless.dart';
@@ -73,6 +73,25 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
     super.initState();
   }
 
+  void validateTextKey() async {
+    senhaEC.text = senhaEC.text.trim();
+    if (Util.validateForm(formKey)) {
+      bool chaveValida = await HashCrypt.validarChaveInserida(senhaEC.text);
+      if (chaveValida) {
+        Get.back();
+        widget.onValidate(senhaEC.text);
+      } else {
+        setState(() {
+          tentativas--;
+          if (tentativas == 0) {
+            exit(0);
+          }
+          chaveInvalida = !chaveValida;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Configuration.instance.isBiometria && !widget.onlyText
@@ -85,7 +104,8 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                 Form(
                   key: formKey,
                   child: AppTextField(
-                    icon: FontAwesomeIcons.lock,
+                    onKeyboardAction: (text) => validateTextKey(),
+                    icon: Icons.lock_outlined,
                     label: widget.lastKeyLabel ? "Informe sua senha antiga:" : "Senha do aplicativo:",
                     padding: 10,
                     controller: senhaEC,
@@ -109,28 +129,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
               ],
             ),
             actions: [
-              TextButton(
-                child: const Text("Validar"),
-                onPressed: () async {
-                  senhaEC.text = senhaEC.text.trim();
-                  final formValido = formKey.currentState?.validate() ?? false;
-                  if (formValido) {
-                    bool chaveValida = await HashCrypt.validarChaveInserida(senhaEC.text);
-                    if (chaveValida) {
-                      Get.back();
-                      widget.onValidate(senhaEC.text);
-                    } else {
-                      setState(() {
-                        tentativas--;
-                        if (tentativas == 0) {
-                          exit(0);
-                        }
-                        chaveInvalida = !chaveValida;
-                      });
-                    }
-                  }
-                },
-              ),
+              TextButton(child: const Text("Validar"), onPressed: () => validateTextKey()),
             ],
           );
   }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Themes/theme.dart';
+import 'package:hashpass/Util/http.dart';
 import 'package:hashpass/View/configuracoes.dart';
 import 'package:hashpass/View/dados.dart';
 import 'package:hashpass/View/mudarsenha.dart';
 import 'package:hashpass/View/passwordLeak.dart';
 import 'package:hashpass/View/sobre.dart';
+import 'package:hashpass/Widgets/interface/messageBox.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -45,9 +47,13 @@ class AppDrawer extends StatelessWidget {
           HashPassDrawerButton(
             icon: Icons.security,
             title: "Verificação de vazamento",
-            onTap: () {
-              Get.back();
-              Get.to(const PasswordLeakPage());
+            onTap: () async {
+              if (await HTTPRequest.checkUserConnection()) {
+                Get.back();
+                Get.to(const PasswordLeakPage());
+              } else {
+                HashPassMessage.show(message: "Não é possível utilizar a verificação de vazamento sem conexão com a internet.");
+              }
             },
           ),
           HashPassDrawerButton(

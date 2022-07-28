@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/Model/senha.dart';
-import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Widgets/cardSenha.dart';
 
 class Util {
+  static const String APP_VERSION = "1.1.0";
+  static const int SQL_VERSION = 3;
+
   static UnderlineInputBorder bordaPadrao(Color cor) {
     return UnderlineInputBorder(
         borderSide: BorderSide(

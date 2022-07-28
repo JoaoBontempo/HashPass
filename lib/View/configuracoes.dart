@@ -112,7 +112,7 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                                   width: MediaQuery.of(context).size.width * .15,
                                   height: 25,
                                   child: AppTextField(
-                                    maxLength: 4,
+                                    maxLength: 3,
                                     label: "",
                                     onSave: (value) {
                                       if (value.isEmpty) {

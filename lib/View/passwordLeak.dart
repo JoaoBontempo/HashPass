@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/DTO/leakPassDTO.dart';
 import 'package:hashpass/Util/cryptography.dart';
+import 'package:hashpass/Util/http.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/Widgets/animations/booleanHide.dart';
 import 'package:hashpass/Widgets/data/button.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
+import 'package:hashpass/Widgets/interface/messageBox.dart';
 import 'package:hashpass/Widgets/leakPassMessage.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:validatorless/validatorless.dart';
@@ -19,6 +21,7 @@ class PasswordLeakPage extends StatefulWidget {
 
 class _PasswordLeakPageState extends State<PasswordLeakPage> {
   final passwordEC = TextEditingController();
+  late LeakStatus lastStatus;
   bool showMessage = false;
   late PasswordLeakDTO passwordInfo;
   String lastPass = '';
@@ -63,8 +66,8 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 25, bottom: 25),
-                  child: Visibility(
-                    visible: showMessage,
+                  child: AnimatedBooleanContainer(
+                    show: showMessage,
                     child: PasswordLeakMessage(
                       passwordInfo: passwordInfo,
                     ),
@@ -76,11 +79,25 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                   height: 35,
                   onPressed: () async {
                     if (Util.validateForm(formKey)) {
-                      if (lastPass == passwordEC.text) {
+                      if (!await HTTPRequest.checkUserConnection()) {
+                        HashPassMessage.show(
+                          message: "Não foi possível verificar sua conexão de internet",
+                          title: "Ocorreu um erro",
+                        );
+
+                        setState(() {
+                          showMessage = false;
+                        });
+                        return;
+                      }
+                      if (lastPass == passwordEC.text && lastStatus != LeakStatus.FAILURE) {
                         return;
                       }
                       lastPass = passwordEC.text;
+
                       PasswordLeakDTO response = await HashCrypt.verifyPassowordLeak(passwordEC.text);
+                      lastStatus = response.status;
+
                       setState(() {
                         showMessage = true;
                         passwordInfo = response;

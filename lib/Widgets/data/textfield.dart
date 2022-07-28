@@ -30,6 +30,7 @@ class AppTextField extends StatelessWidget {
     this.placeholder,
     this.icon,
     this.maxLength,
+    this.onKeyboardAction,
   }) : super(key: key);
 
   final String label;
@@ -51,6 +52,7 @@ class AppTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final VoidCallback? suffixIconClick;
   final VoidCallback? prefixIconClick;
+  final Function(String)? onKeyboardAction;
   final String? placeholder;
   final IconData? icon;
   final int? maxLength;
@@ -73,6 +75,7 @@ class AppTextField extends StatelessWidget {
         maxLength: maxLength,
         keyboardType: keyboardType,
         inputFormatters: formatter,
+        onFieldSubmitted: (text) => onKeyboardAction != null ? onKeyboardAction!(text) : () {},
         cursorColor: Colors.grey,
         decoration: InputDecoration(
           counterText: "",

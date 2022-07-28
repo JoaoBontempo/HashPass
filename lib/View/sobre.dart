@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Themes/theme.dart';
+import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,7 +36,7 @@ class SobreAppPage extends StatelessWidget {
               const Align(
                 alignment: Alignment.centerLeft,
                 child: HashPassLabel(
-                  text: "Versão: 1.1.0",
+                  text: "Versão: " + Util.APP_VERSION,
                   paddingLeft: 20,
                   paddingBottom: 15,
                   size: 13,

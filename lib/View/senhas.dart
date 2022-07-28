@@ -5,6 +5,7 @@ import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/View/cadastroSenha.dart';
 import 'package:hashpass/Widgets/cardSenha.dart';
 import 'package:hashpass/Widgets/animations/hideonscroll.dart';
+import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/snackbar.dart';
 import 'package:hashpass/Widgets/searchtext.dart';
 import '../Util/util.dart';
@@ -39,6 +40,21 @@ class _MenuSenhasState extends State<MenuSenhas> {
     )..load();
   }
 
+  void newPasswordScreen() {
+    Get.focusScope!.unfocus();
+    Get.to(
+      NovaSenhaPage(
+        onCadastro: (senha) {
+          setState(() {
+            HashPassSnackBar.show(message: "Senha cadastrada com sucesso!");
+            Util.senhas.add(senha);
+            passwords = Util.senhas;
+          });
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,20 +62,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
         padding: const EdgeInsets.only(bottom: 50),
         child: FloatingActionButton(
           child: const Icon(Icons.add),
-          onPressed: () {
-            Get.focusScope!.unfocus();
-            Get.to(
-              NovaSenhaPage(
-                onCadastro: (senha) {
-                  setState(() {
-                    HashPassSnackBar.show(message: "Senha cadastrada com sucesso!");
-                    Util.senhas.add(senha);
-                    passwords = Util.senhas;
-                  });
-                },
-              ),
-            );
-          },
+          onPressed: () => newPasswordScreen(),
         ),
       ),
       body: Util.senhas.isNotEmpty
@@ -140,8 +143,20 @@ class _MenuSenhasState extends State<MenuSenhas> {
                 ],
               ),
             )
-          : const Center(
-              child: Text("Nenhuma senha foi cadastrada!"),
+          : SizedBox(
+              width: Get.size.width,
+              height: Get.size.height,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text("Nenhuma senha foi cadastrada!"),
+                  TextButton(
+                    onPressed: () => newPasswordScreen(),
+                    child: const HashPassLabel(text: "CADASTRAR UMA NOVA SENHA"),
+                  )
+                ],
+              ),
             ),
       bottomSheet: Container(
         width: Get.width,

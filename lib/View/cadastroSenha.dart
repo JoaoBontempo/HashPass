@@ -121,6 +121,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: AppTextField(
+                      maxLength: 50,
                       icon: Icons.edit_outlined,
                       label: "Título",
                       padding: 0,
@@ -136,6 +137,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: AppTextField(
+                          maxLength: 225,
                           icon: Icons.lock_outline,
                           label: "Senha",
                           padding: 0,
@@ -208,6 +210,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 20),
                       child: AppTextField(
+                        maxLength: 70,
                         label: "Credencial",
                         padding: 0,
                         icon: FontAwesomeIcons.user,

@@ -160,7 +160,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                   top: 10,
                   left: 15,
                   right: 5,
-                  bottom: 20,
+                  bottom: 25,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -168,10 +168,13 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        HashPassLabel(
-                          text: widget.senha.titulo,
-                          fontWeight: FontWeight.bold,
-                          size: 19,
+                        Expanded(
+                          child: HashPassLabel(
+                            overflow: TextOverflow.clip,
+                            text: widget.senha.titulo,
+                            fontWeight: FontWeight.bold,
+                            size: 19,
+                          ),
                         ),
                         IconButton(
                           onPressed: () => closeModal(),
@@ -202,14 +205,20 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                               Visibility(
                                 visible: Configuration.instance.hasTimer,
                                 child: SizedBox(
-                                  width: MediaQuery.of(context).size.width * .6,
+                                  width: Get.size.width * .6,
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      LinearProgressIndicator(
-                                        value: tempo,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Get.theme.toggleableActiveColor),
-                                        backgroundColor: AppColors.ACCENT_LIGHT.withOpacity(0.3),
+                                      TweenAnimationBuilder<double>(
+                                        tween: Tween(begin: 0.0, end: 1.0),
+                                        builder: (context, value, _) => LinearProgressIndicator(
+                                          value: value,
+                                          valueColor: AlwaysStoppedAnimation<Color>(Get.theme.toggleableActiveColor),
+                                          backgroundColor: AppColors.ACCENT_LIGHT.withOpacity(0.3),
+                                        ),
+                                        duration: Duration(
+                                          seconds: Configuration.instance.showPasswordTime.toInt(),
+                                        ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.only(top: 5),
@@ -219,8 +228,8 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
                                               Icon(
-                                                Icons.timer,
-                                                color: Theme.of(context).hintColor,
+                                                Icons.timer_outlined,
+                                                color: Get.theme.hintColor,
                                                 size: 12,
                                               ),
                                               Padding(

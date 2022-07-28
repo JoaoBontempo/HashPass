@@ -23,5 +23,3 @@ const String CREATE_TABLE_SENHA = '''
       $PASSWORD_LEAK_COUNT INTEGER
     )
   ''';
-
-const int DB_VERSION = 3;

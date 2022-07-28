@@ -105,19 +105,21 @@ class CardSenhaState extends State<CardSenha> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: HashPassLabel(
-                text: widget.senha.titulo,
-                color: Get.theme.highlightColor,
-                fontWeight: FontWeight.bold,
-              ),
+            HashPassLabel(
+              paddingTop: 10,
+              paddingLeft: 20,
+              paddingRight: 20,
+              paddingBottom: 10,
+              text: widget.senha.titulo,
+              color: Get.theme.highlightColor,
+              fontWeight: FontWeight.bold,
             ),
             Visibility(
               visible: widget.senha.credencial.isNotEmpty,
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
                 child: AppTextField(
+                  maxLength: 70,
                   icon: FontAwesomeIcons.user,
                   label: "Credencial",
                   padding: 0,
@@ -139,6 +141,7 @@ class CardSenhaState extends State<CardSenha> {
                     Padding(
                       padding: const EdgeInsets.only(left: 20, bottom: 15, right: 20),
                       child: AppTextField(
+                        maxLength: 225,
                         icon: Icons.lock_outline,
                         label: widget.senha.criptografado ? "Senha base" : "Senha",
                         padding: 0,
@@ -350,8 +353,8 @@ class CardSenhaState extends State<CardSenha> {
                             if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
                               HashPassMessage.show(
                                 message: leakObject.status == LeakStatus.LEAKED
-                                    ? "A senha que você está tentando cadastar já foi vazada! Você deseja cadastrá-la mesmo assim?"
-                                    : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja cadastrar sua senha mesmo assim?",
+                                    ? "A senha que você está tentando salvar já foi vazada! Você deseja salvá-la mesmo assim?"
+                                    : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja salvar sua senha mesmo assim?",
                                 title: leakObject.status == LeakStatus.LEAKED ? "Senha vazada" : "Senha não verificada",
                                 type: MessageType.YESNO,
                               ).then((action) {

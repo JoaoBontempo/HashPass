@@ -43,7 +43,7 @@ class _SetEntrancePageState extends State<SetEntrancePage> {
                   color: Get.theme.hintColor,
                 ),
                 HashPassTheme.getLogo(
-                  width: Get.width * 0.75,
+                  width: Get.width * 0.5,
                 ),
                 AnimatedOpacity(
                   opacity: buttonOpacity,

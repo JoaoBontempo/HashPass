@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' show utf8;
 
@@ -9,7 +7,7 @@ const HEADERS = {"content-type": "application/json; charset=utf-8"};
 
 class HTTPRequest {
   static Future<String> requestPasswordLeak(String hash) async {
-    if (await _checkUserConnection()) {
+    if (await checkUserConnection()) {
       http.Response response = await http.get(
         Uri.parse('https://api.pwnedpasswords.com/range/' + hash.substring(0, 5)),
       );
@@ -28,7 +26,7 @@ class HTTPRequest {
     return utf8.decode(response.bodyBytes);
   }
 
-  static Future<bool> _checkUserConnection() async {
+  static Future<bool> checkUserConnection() async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {

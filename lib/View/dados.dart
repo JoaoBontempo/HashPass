@@ -132,7 +132,7 @@ class _MenuDadosState extends State<MenuDados> {
             SenhaDBSource().inserirSenha(senha);
             Util.senhas.add(senha);
           }
-          arquivo.delete();
+          await arquivo.delete();
           Get.to(const IndexPage());
           HashPassSnackBar.show(message: "Dados importados com sucesso!");
         } on Exception catch (erro) {
@@ -182,9 +182,9 @@ class _MenuDadosState extends State<MenuDados> {
                           ),
                           HashPassLabel(
                             paddingTop: 20,
-                            text: 'Um arquivo com suas senhas criptografadas com uma chave aleatória será gerado. '
+                            text: 'Será gerado um arquivo contendo suas senhas, criptografado com uma chave gerada aleatoriamente.'
                                 'Você poderá exportar este arquivo para o lugar de sua preferência e copiar a chave aleatória que foi gerada. '
-                                'A chave será necessária para decifrar o conteúdo do arquivo criptografado do arquivo.',
+                                'A chave será necessária para decifrar o conteúdo do arquivo criptografado do arquivo na importação de dados.',
                             style: Get.theme.textTheme.headline1,
                           ),
                           const HashPassLabel(

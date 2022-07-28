@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 import '../Util/util.dart';
 
@@ -40,8 +41,6 @@ class AppSearchText extends StatefulWidget {
 }
 
 class _AppSearchTextState extends State<AppSearchText> {
-  String searchText = '';
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -62,12 +61,7 @@ class _AppSearchTextState extends State<AppSearchText> {
         controller: widget.controller,
         obscureText: widget.obscureText,
         validator: widget.validator,
-        onChanged: (text) {
-          setState(() {
-            searchText = text;
-          });
-          widget.onChange(text);
-        },
+        onChanged: (text) => widget.onChange(text),
         keyboardType: widget.keyboardType,
         inputFormatters: widget.formatter,
         cursorColor: Colors.grey,
@@ -84,7 +78,7 @@ class _AppSearchTextState extends State<AppSearchText> {
               color: Colors.grey,
             ),
           ),
-          suffixIcon: searchText.isNotEmpty
+          suffixIcon: widget.controller.text.isNotEmpty
               ? GestureDetector(
                   child: const Icon(
                     Icons.close,
@@ -93,10 +87,8 @@ class _AppSearchTextState extends State<AppSearchText> {
                   onTap: () {
                     widget.controller.clear();
                     widget.onChange('');
-                    FocusScope.of(context).unfocus();
-                    setState(() {
-                      searchText = '';
-                    });
+                    Get.focusScope!.unfocus();
+                    widget.controller.text = '';
                   },
                 )
               : null,

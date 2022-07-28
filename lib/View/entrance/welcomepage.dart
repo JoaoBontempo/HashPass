@@ -63,7 +63,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                   Form(
                     key: formKey,
                     child: AppTextField(
-                      icon: FontAwesomeIcons.lock,
+                      icon: Icons.lock_outline,
                       label: "Informe uma senha geral",
                       padding: 20,
                       validator: Validatorless.multiple([

@@ -24,8 +24,9 @@ class LightAppTheme {
         cardTheme: CardTheme(
           color: AppColors.SECONDARY_LIGHT.withOpacity(0.9),
         ),
-        textSelectionTheme: const TextSelectionThemeData(
-          selectionHandleColor: AppColors.ACCENT_LIGHT_2,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionHandleColor: AppColors.SECONDARY_LIGHT.withOpacity(0.9),
+          cursorColor: AppColors.SECONDARY_LIGHT.withOpacity(0.9),
         ),
         shadowColor: AppColors.ACCENT_LIGHT_2,
         scaffoldBackgroundColor: Colors.grey.shade100,
