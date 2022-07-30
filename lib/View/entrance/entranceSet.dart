@@ -51,6 +51,7 @@ class _SetEntrancePageState extends State<SetEntrancePage> {
                   child: TextButton(
                     onPressed: () {
                       Configuration.setConfigs(entrance: true);
+                      Configuration.setDatabaseVersion();
                       HashPassRoute.to("/index", context);
                     },
                     child: const HashPassLabel(

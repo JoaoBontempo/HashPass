@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/senha.dart';
-import 'package:hashpass/View/cadastroSenha.dart';
-import 'package:hashpass/Widgets/cardSenha.dart';
+import 'package:hashpass/View/passwordRegister.dart';
+import 'package:hashpass/Widgets/cards/passwordCard.dart';
 import 'package:hashpass/Widgets/animations/hideonscroll.dart';
+import 'package:hashpass/Widgets/cards/simplePasswordCard.dart';
+import 'package:hashpass/Widgets/configuration/cardStyle.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/snackbar.dart';
 import 'package:hashpass/Widgets/searchtext.dart';
@@ -43,7 +46,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
   void newPasswordScreen() {
     Get.focusScope!.unfocus();
     Get.to(
-      NovaSenhaPage(
+      NewPasswordPage(
         onCadastro: (senha) {
           setState(() {
             HashPassSnackBar.show(message: "Senha cadastrada com sucesso!");
@@ -54,6 +57,36 @@ class _MenuSenhasState extends State<MenuSenhas> {
       ),
     );
   }
+
+  void onPasswordDelete(int code, int index) {
+    if (code == 1) {
+      setState(() {
+        Util.senhas.removeWhere((_password) => _password.id == passwords[index].id);
+        passwords = Util.senhas;
+        filterController.text = '';
+      });
+    }
+    HashPassSnackBar.show(
+      message: code == 1 ? "Senha excluída com sucesso!" : "Ocorreu um erro ao excluir a senha, tente novamente",
+      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+    );
+  }
+
+  void onPasswordSimpleUpdate(int code) {
+    HashPassSnackBar.show(
+      message: code == 1 ? "Informações atualizadas com sucesso!" : "Ocorreu um erro ao atualizar as informações, tente novamente",
+      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+    );
+  }
+
+  void onPasswordCopy() {
+    HashPassSnackBar.show(
+      message: "Senha copiada!",
+      duration: const Duration(milliseconds: 2500),
+    );
+  }
+
+  void onPasswordCompleteUpdate() {}
 
   @override
   Widget build(BuildContext context) {
@@ -99,44 +132,21 @@ class _MenuSenhasState extends State<MenuSenhas> {
                             scrollDirection: Axis.vertical,
                             itemCount: passwords.length,
                             itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 20,
-                                  top: 12,
-                                  bottom: 12,
-                                  right: 20,
-                                ),
-                                child: CardSenha(
-                                  senha: passwords[index],
-                                  onCopy: () {
-                                    HashPassSnackBar.show(
-                                      message: "Senha copiada!",
-                                      duration: const Duration(milliseconds: 2500),
-                                    );
-                                  },
-                                  onUpdate: (code) {
-                                    HashPassSnackBar.show(
-                                      message: code == 1
-                                          ? "Informações atualizadas com sucesso!"
-                                          : "Ocorreu um erro ao atualizar as informações, tente novamente",
-                                      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
-                                    );
-                                  },
-                                  onDelete: (code) {
-                                    if (code == 1) {
-                                      setState(() {
-                                        Util.senhas.removeWhere((_password) => _password.id == passwords[index].id);
-                                        passwords = Util.senhas;
-                                        filterController.text = '';
-                                      });
-                                    }
-                                    HashPassSnackBar.show(
-                                      message: code == 1 ? "Senha excluída com sucesso!" : "Ocorreu um erro ao excluir a senha, tente novamente",
-                                      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
-                                    );
-                                  },
-                                ),
-                              );
+                              switch (Configuration.instance.cardStyle.style) {
+                                case CardStyle.DEFAULT:
+                                  return PasswordCard(
+                                    senha: passwords[index],
+                                    onCopy: () => onPasswordCopy(),
+                                    onDelete: (code) => onPasswordDelete(code, index),
+                                    onUpdate: (code) => onPasswordSimpleUpdate(code),
+                                  );
+                                case CardStyle.SIMPLE:
+                                  return SimpleCardPassword(
+                                    password: passwords[index],
+                                    onCopy: () => onPasswordCopy(),
+                                    onDelete: (code) => onPasswordDelete(code, index),
+                                  );
+                              }
                             },
                           ),
                         ),

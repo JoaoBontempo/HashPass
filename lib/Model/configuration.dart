@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/Database/sql.dart';
+import 'package:hashpass/Widgets/configuration/cardStyle.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/cryptography.dart';
@@ -12,6 +14,7 @@ class Configuration {
 
   bool hasEntrance;
   HashPassTheme theme;
+  HashPassCardStyle cardStyle;
   double showPasswordTime;
   bool isBiometria;
   bool hasTimer;
@@ -28,6 +31,7 @@ class Configuration {
     required this.insertPassVerify,
     required this.updatePassVerify,
     required this.showHelpTooltips,
+    required this.cardStyle,
   });
 
   static void printConfigs() {
@@ -44,15 +48,16 @@ class Configuration {
 
   static void setDefaultConfig() {
     setConfigs(
-      theme: HashPassTheme(mode: ThemeMode.system),
       timer: 30,
-      biometria: false,
       hasTimer: true,
       insertVerify: true,
       updateVerify: true,
       tooltips: true,
-      entrance: false,
     );
+  }
+
+  static void setDatabaseVersion({int version = HashPassDB.SQL_VERSION}) {
+    configs.setInt("sqlv", version);
   }
 
   static void setConfigs({
@@ -64,6 +69,7 @@ class Configuration {
     bool? updateVerify,
     bool? tooltips,
     bool? entrance,
+    HashPassCardStyle? cardStyle,
   }) async {
     if (theme != null) {
       Get.changeThemeMode(theme.mode);
@@ -89,6 +95,7 @@ class Configuration {
     if (updateVerify != null) configs.setBool("updateVerify", updateVerify);
     if (tooltips != null) configs.setBool("tooltips", tooltips);
     if (entrance != null) configs.setBool("hasEntrance", entrance);
+    if (cardStyle != null) configs.setInt("cardStyle", cardStyle.style.index);
     getConfigs();
   }
 
@@ -108,6 +115,10 @@ class Configuration {
       insertPassVerify: configs.getBool("insertVerify") ?? true,
       updatePassVerify: configs.getBool("updateVerify") ?? true,
       showHelpTooltips: configs.getBool("tooltips") ?? true,
+      cardStyle: HashPassCardStyle.values.firstWhere(
+        (cardStyle) => cardStyle.style.index == (configs.getInt("cardStyle") ?? CardStyle.DEFAULT),
+        orElse: () => HashPassCardStyle(style: CardStyle.DEFAULT),
+      ),
     );
     return instance;
   }

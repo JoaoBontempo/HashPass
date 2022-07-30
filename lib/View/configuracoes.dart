@@ -5,6 +5,7 @@ import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/route.dart';
 import 'package:hashpass/Widgets/animations/booleanHide.dart';
 import 'package:hashpass/Widgets/configuration/booleanConfig.dart';
+import 'package:hashpass/Widgets/configuration/cardStyle.dart';
 import 'package:hashpass/Widgets/configuration/multiBooleanWidgetConfig.dart';
 import 'package:hashpass/Widgets/configuration/radioConfig.dart';
 import 'package:hashpass/Widgets/configuration/secondaryBooleanConfig.dart';
@@ -191,6 +192,21 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                   label: "Habilitar ajuda",
                   icon: Icons.help,
                   value: Configuration.instance.showHelpTooltips,
+                ),
+                const HashPassConfigDivider(),
+                HashPassRadioConfig<HashPassCardStyle>(
+                  label: "Estilo de card",
+                  description: "Determina o estilo dos cards aplicativo ao listar suas senhas. "
+                      "O estilo simples será um card mais minimalista e o padrão será um card mais completo.",
+                  group: Configuration.instance.cardStyle,
+                  values: HashPassCardStyle.values,
+                  onSelect: (selectedStyle) {
+                    setState(() {
+                      Configuration.instance.cardStyle = selectedStyle;
+                    });
+                    Configuration.setConfigs(cardStyle: selectedStyle);
+                  },
+                  icon: Icons.subtitles,
                 ),
               ],
             ),

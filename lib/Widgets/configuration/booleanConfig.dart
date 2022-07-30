@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hashpass/Widgets/data/switch.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 
@@ -72,7 +73,7 @@ class _BooleanConfigWidgetState extends State<BooleanConfigWidget> {
                 paddingLeft: 50,
                 paddingRight: 10,
                 text: widget.description,
-                style: Theme.of(context).textTheme.headline1,
+                style: Get.textTheme.headline1,
                 fontWeight: FontWeight.bold,
               ),
             ],

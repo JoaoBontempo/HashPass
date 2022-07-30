@@ -23,15 +23,15 @@ import 'package:hashpass/Widgets/interface/messageBox.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:validatorless/validatorless.dart';
 
-class NovaSenhaPage extends StatefulWidget {
-  const NovaSenhaPage({Key? key, required this.onCadastro}) : super(key: key);
+class NewPasswordPage extends StatefulWidget {
+  const NewPasswordPage({Key? key, required this.onCadastro}) : super(key: key);
   final Function(Senha) onCadastro;
 
   @override
-  State<NovaSenhaPage> createState() => _NovaSenhaPageState();
+  State<NewPasswordPage> createState() => _NewPasswordPageState();
 }
 
-class _NovaSenhaPageState extends State<NovaSenhaPage> {
+class _NewPasswordPageState extends State<NewPasswordPage> {
   List<HashFunction> algoritmos = HashCrypt.algoritmos;
   late HashFunction? algoritmoSelecionado;
   bool isAvancado = false;

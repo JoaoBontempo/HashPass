@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:hashpass/Database/database.dart';
+import 'package:hashpass/Database/sql.dart';
 import 'package:hashpass/Util/util.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -13,7 +14,7 @@ class SenhaDBSource {
       onCreate: (db, version) async {
         await db.execute(CREATE_TABLE_SENHA);
       },
-      version: Util.SQL_VERSION,
+      version: HashPassDB.SQL_VERSION,
     );
   }
 

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
@@ -132,7 +131,6 @@ class _MenuDadosState extends State<MenuDados> {
             SenhaDBSource().inserirSenha(senha);
             Util.senhas.add(senha);
           }
-          await arquivo.delete();
           Get.to(const IndexPage());
           HashPassSnackBar.show(message: "Dados importados com sucesso!");
         } on Exception catch (erro) {
@@ -159,7 +157,7 @@ class _MenuDadosState extends State<MenuDados> {
         title: const Text("Exportar/importar dados"),
       ),
       body: SingleChildScrollView(
-        reverse: true,
+        reverse: false,
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,8 +248,7 @@ class _MenuDadosState extends State<MenuDados> {
                           "Insira a chave criptográfica que foi gerada ao exportar os dados e pressione o botão 'Importar dados'. "
                           "Selecione o arquivo que contém seus dados para que seja possível a importação. Certifique-se de que "
                           "você está usando a chave e o arquivo corretos e que sua chave geral do HashPass é a mesma de quando você exportou os dados. "
-                          "Após a importação, o arquivo será excluído automaticamente "
-                          "do seu dispositivo. Será necessário permitir o acesso aos arquivos do dispositivo.",
+                          "Será necessário permitir o acesso aos arquivos do dispositivo.",
                           style: Theme.of(context).textTheme.headline1,
                         ),
                       ),
