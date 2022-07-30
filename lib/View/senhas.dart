@@ -47,7 +47,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
     Get.focusScope!.unfocus();
     Get.to(
       NewPasswordPage(
-        onCadastro: (senha) {
+        onRegister: (senha) {
           setState(() {
             HashPassSnackBar.show(message: "Senha cadastrada com sucesso!");
             Util.senhas.add(senha);
@@ -72,11 +72,13 @@ class _MenuSenhasState extends State<MenuSenhas> {
     );
   }
 
-  void onPasswordSimpleUpdate(int code) {
-    HashPassSnackBar.show(
-      message: code == 1 ? "Informações atualizadas com sucesso!" : "Ocorreu um erro ao atualizar as informações, tente novamente",
-      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
-    );
+  void onPasswordUpdate(int code) {
+    setState(() {
+      HashPassSnackBar.show(
+        message: code == 1 ? "Informações atualizadas com sucesso!" : "Ocorreu um erro ao atualizar as informações, tente novamente",
+        type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+      );
+    });
   }
 
   void onPasswordCopy() {
@@ -85,8 +87,6 @@ class _MenuSenhasState extends State<MenuSenhas> {
       duration: const Duration(milliseconds: 2500),
     );
   }
-
-  void onPasswordCompleteUpdate() {}
 
   @override
   Widget build(BuildContext context) {
@@ -138,13 +138,14 @@ class _MenuSenhasState extends State<MenuSenhas> {
                                     senha: passwords[index],
                                     onCopy: () => onPasswordCopy(),
                                     onDelete: (code) => onPasswordDelete(code, index),
-                                    onUpdate: (code) => onPasswordSimpleUpdate(code),
+                                    onUpdate: (code) => onPasswordUpdate(code),
                                   );
                                 case CardStyle.SIMPLE:
                                   return SimpleCardPassword(
                                     password: passwords[index],
                                     onCopy: () => onPasswordCopy(),
                                     onDelete: (code) => onPasswordDelete(code, index),
+                                    onUpdate: (code) => onPasswordUpdate(code),
                                   );
                               }
                             },

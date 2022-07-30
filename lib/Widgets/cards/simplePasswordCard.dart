@@ -6,14 +6,16 @@ import 'package:hashpass/Widgets/cards/cardFunctions.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 
 class SimpleCardPassword extends StatelessWidget {
-  const SimpleCardPassword({
+  SimpleCardPassword({
     Key? key,
     required this.password,
     required this.onDelete,
     required this.onCopy,
+    required this.onUpdate,
   }) : super(key: key);
-  final Senha password;
+  Senha password;
   final Function(int) onDelete;
+  final Function(int) onUpdate;
   final VoidCallback onCopy;
 
   @override
@@ -95,7 +97,15 @@ class SimpleCardPassword extends StatelessWidget {
                         IconButton(
                           padding: const EdgeInsets.only(right: 10),
                           constraints: const BoxConstraints(),
-                          onPressed: () {},
+                          onPressed: () => PasswordCardFunctions.toUpdatePassword(
+                            password,
+                            (_updatedPassword, code) {
+                              onUpdate(code);
+                              if (code == 1) {
+                                password = _updatedPassword;
+                              }
+                            },
+                          ),
                           icon: const Icon(
                             Icons.edit,
                             size: 20,

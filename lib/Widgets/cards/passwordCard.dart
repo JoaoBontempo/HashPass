@@ -20,14 +20,14 @@ import '../../Model/hashFunction.dart';
 import '../../Util/cryptography.dart';
 
 class PasswordCard extends StatefulWidget {
-  const PasswordCard({
+  PasswordCard({
     Key? key,
     required this.senha,
     required this.onDelete,
     required this.onUpdate,
     required this.onCopy,
   }) : super(key: key);
-  final Senha senha;
+  Senha senha;
   final Function(int) onDelete;
   final Function(int) onUpdate;
   final VoidCallback onCopy;
@@ -144,7 +144,17 @@ class PasswordCardState extends State<PasswordCard> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => PasswordCardFunctions.toUpdatePassword(
+                      widget.senha,
+                      (_updatedPassword, code) {
+                        widget.onUpdate(code);
+                        if (code == 1) {
+                          setState(() {
+                            widget.senha = _updatedPassword;
+                          });
+                        }
+                      },
+                    ),
                     icon: const Icon(Icons.edit),
                     color: Get.theme.highlightColor,
                   ),

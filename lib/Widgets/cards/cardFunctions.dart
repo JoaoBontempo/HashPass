@@ -4,31 +4,50 @@ import 'package:get/get.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Util/cryptography.dart';
+import 'package:hashpass/View/passwordRegister.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:hashpass/Widgets/visualizarSenha.dart';
 
 class PasswordCardFunctions {
   static void copyPassword(Senha password, VoidCallback onCopy) {
+    getBasePassword(
+      password,
+      (basePassword) => {
+        Clipboard.setData(ClipboardData(text: basePassword)).then((value) => onCopy()),
+      },
+    );
+  }
+
+  static void toUpdatePassword(Senha password, Function(Senha, int) onUpdate) {
+    getBasePassword(
+      password,
+      (basePassword) => Get.to(
+        NewPasswordPage(
+          password: password,
+          basePassword: basePassword,
+          onUpdate: (_password, code) {
+            onUpdate(_password, code);
+            Get.back();
+          },
+        ),
+      ),
+      getRealBase: true,
+    );
+  }
+
+  static void getBasePassword(Senha password, Function(String) onGet, {bool getRealBase = false}) async {
     ValidarSenhaGeral.show(
-      onValidate: (key) {
-        if (password.criptografado) {
-          HashCrypt.applyAlgorithms(
+      onValidate: (key) async {
+        if (password.criptografado && !getRealBase) {
+          onGet(await HashCrypt.applyAlgorithms(
             password.algoritmo,
             password.senhaBase,
             password.avancado,
             key,
-          ).then((value) {
-            Clipboard.setData(ClipboardData(text: value)).then((value) => onCopy());
-            return;
-          });
+          ));
         } else {
-          HashCrypt.decipherString(password.senhaBase, key).then(
-            (value) {
-              Clipboard.setData(ClipboardData(text: value)).then((value) => onCopy());
-              return;
-            },
-          );
+          onGet(await HashCrypt.decipherString(password.senhaBase, key) ?? "Ocorreu um erro ao recuperar sua senha");
         }
       },
     );

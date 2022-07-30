@@ -24,8 +24,17 @@ import 'package:hashpass/Widgets/validarChave.dart';
 import 'package:validatorless/validatorless.dart';
 
 class NewPasswordPage extends StatefulWidget {
-  const NewPasswordPage({Key? key, required this.onCadastro}) : super(key: key);
-  final Function(Senha) onCadastro;
+  const NewPasswordPage({
+    Key? key,
+    this.onRegister,
+    this.onUpdate,
+    this.password,
+    this.basePassword,
+  }) : super(key: key);
+  final Senha? password;
+  final String? basePassword;
+  final Function(Senha)? onRegister;
+  final Function(Senha, int)? onUpdate;
 
   @override
   State<NewPasswordPage> createState() => _NewPasswordPageState();
@@ -57,9 +66,32 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
         );
         senha = await SenhaDBSource().inserirSenha(senha);
         HashPassRoute.to("/index", context);
-        widget.onCadastro(senha);
+        widget.onRegister!(senha);
       },
     );
+  }
+
+  void updatePassword() {
+    ValidarSenhaGeral.show(
+      onValidate: (key) async {
+        widget.password!.credencial = credencialEC.text;
+        widget.password!.avancado = isAvancado;
+        widget.password!.algoritmo = algoritmoSelecionado == null ? 0 : algoritmoSelecionado!.index;
+        widget.password!.criptografado = isCriptografado;
+        widget.password!.leakCount = leakObject.leakCount;
+        widget.password!.senhaBase = await HashCrypt.cipherString(senhaEC.text, key);
+
+        widget.onUpdate!(widget.password!, await SenhaDBSource().atualizarSenha(widget.password!));
+      },
+    );
+  }
+
+  void screenAction() {
+    if (isRegister) {
+      insertPassword();
+    } else {
+      updatePassword();
+    }
   }
 
   late Icon verifyPassIcon;
@@ -75,6 +107,18 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   @override
   void initState() {
     algoritmoSelecionado = algoritmos[0];
+
+    if (!isRegister) {
+      senhaEC.text = widget.basePassword!;
+      tituloEC.text = widget.password!.titulo;
+      credencialEC.text = widget.password!.credencial;
+      if (widget.password!.criptografado) algoritmoSelecionado = algoritmos.firstWhere((hashFunc) => hashFunc.index == widget.password!.algoritmo);
+      useCredential = widget.password!.credencial.isNotEmpty;
+      isAvancado = widget.password!.avancado;
+      leakObject = PasswordLeakDTO(leakCount: widget.password!.leakCount);
+      hasPasswordVerification = true;
+    }
+
     super.initState();
   }
 
@@ -84,6 +128,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     });
   }
 
+  bool get isRegister => widget.password == null;
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -91,14 +137,14 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
         FocusManager.instance.primaryFocus?.unfocus();
         return await HashPassMessage.show(
               title: "Confirmar",
-              message: "Tem certeza que deseja cancelar o cadastro da senha?",
+              message: "Tem certeza que deseja cancelar ${isRegister ? 'o cadastro' : 'a edição'} da senha?",
               type: MessageType.YESNO,
             ) ==
             MessageResponse.YES;
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Nova senha"),
+          title: Text(isRegister ? "Nova senha" : "Alterar senha"),
         ),
         body: SingleChildScrollView(
           reverse: false,
@@ -110,25 +156,30 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.all(20),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
                     child: HashPassLabel(
-                      text: "Cadastrar nova senha",
+                      text: isRegister ? "Cadastrar nova senha" : widget.password!.titulo,
                       textAlign: TextAlign.center,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: AppTextField(
-                      maxLength: 50,
-                      icon: Icons.edit_outlined,
-                      label: "Título",
-                      padding: 0,
-                      controller: tituloEC,
-                      validator: Validatorless.multiple([
-                        Validatorless.required("O título é obrigatório"),
-                      ]),
+                  Visibility(
+                    visible: isRegister,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: AppTextField(
+                        maxLength: 50,
+                        icon: Icons.edit_outlined,
+                        label: "Título",
+                        padding: 0,
+                        controller: tituloEC,
+                        validator: isRegister
+                            ? Validatorless.multiple([
+                                Validatorless.required("O título é obrigatório"),
+                              ])
+                            : Validatorless.min(0, ''),
+                      ),
                     ),
                   ),
                   Column(
@@ -292,7 +343,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20, bottom: 25),
                     child: AppButton(
-                      label: "Cadastrar senha",
+                      label: isRegister ? "Cadastrar senha" : "Salvar",
                       width: Get.size.width * .5,
                       height: 35,
                       onPressed: () async {
@@ -303,16 +354,17 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
                             HashPassMessage.show(
                               message: leakObject.status == LeakStatus.LEAKED
-                                  ? "A senha que você está tentando cadastar já foi vazada! Você deseja cadastrá-la mesmo assim?"
-                                  : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja cadastrar sua senha mesmo assim?",
+                                  ? "A senha que você está tentando ${isRegister ? 'cadastrar' : 'salvar'} já foi vazada! Você deseja ${isRegister ? 'cadastrá-la' : 'salvá-la'}"
+                                  : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja ${isRegister ? 'cadastrar' : 'salvar'} sua senha?",
                               title: leakObject.status == LeakStatus.LEAKED ? "Senha vazada" : "Senha não verificada",
                               type: MessageType.YESNO,
                             ).then((action) {
-                              if (action == MessageResponse.YES) insertPassword();
+                              if (action == MessageResponse.YES) screenAction();
                             });
                             return;
                           }
-                          insertPassword();
+
+                          screenAction();
                         }
                       },
                     ),
