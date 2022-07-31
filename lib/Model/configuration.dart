@@ -53,6 +53,7 @@ class Configuration {
       insertVerify: true,
       updateVerify: true,
       tooltips: true,
+      cardStyle: HashPassCardStyle(style: CardStyle.DEFAULT),
     );
   }
 

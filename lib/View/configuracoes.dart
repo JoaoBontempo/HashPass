@@ -9,6 +9,7 @@ import 'package:hashpass/Widgets/configuration/cardStyle.dart';
 import 'package:hashpass/Widgets/configuration/multiBooleanWidgetConfig.dart';
 import 'package:hashpass/Widgets/configuration/radioConfig.dart';
 import 'package:hashpass/Widgets/configuration/secondaryBooleanConfig.dart';
+import 'package:hashpass/Widgets/interface/messageBox.dart';
 import 'package:local_auth/local_auth.dart';
 import '../Widgets/data/textfield.dart';
 
@@ -201,6 +202,11 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                   group: Configuration.instance.cardStyle,
                   values: HashPassCardStyle.values,
                   onSelect: (selectedStyle) {
+                    if (selectedStyle.style == CardStyle.SIMPLE) {
+                      HashPassMessage.show(
+                          message: "Toque uma vez no card para visualizar sua senha. Pressione o card por alguns segundos para copiar a senha.",
+                          title: "Card simples");
+                    }
                     setState(() {
                       Configuration.instance.cardStyle = selectedStyle;
                     });

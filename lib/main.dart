@@ -12,6 +12,7 @@ import 'package:hashpass/View/index.dart';
 import 'package:hashpass/View/senhas.dart';
 import 'package:hashpass/View/splashpage.dart';
 import 'package:hashpass/View/entrance/welcomepage.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import 'Model/configuration.dart';
 
@@ -35,23 +36,27 @@ class HashPassApp extends StatefulWidget {
 class _HashPassAppState extends State<HashPassApp> {
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      supportedLocales: const [Locale('pt', 'BR')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      title: 'Hash Pass',
-      themeMode: Configuration.instance.theme.mode,
-      theme: LightAppTheme(context).defaultTheme,
-      darkTheme: DarkAppTheme(context).defaultTheme,
-      initialRoute: "/",
-      routes: {
-        "/": (_) => const HashPasshSplashPage(),
-        "/welcome": (_) => const AppWelcomePage(),
-        "/chooseConfig": (_) => const ChooseConfigScreen(),
-        "/firstConfig": (_) => const FirstConfigScreen(),
-        "/setEntrance": (_) => const SetEntrancePage(),
-        "/index": (_) => const IndexPage(),
-        "/senhas": (_) => const MenuSenhas(),
-      },
+    return ShowCaseWidget(
+      builder: Builder(
+        builder: (context) => GetMaterialApp(
+          supportedLocales: const [Locale('pt', 'BR')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          title: 'Hash Pass',
+          themeMode: Configuration.instance.theme.mode,
+          theme: LightAppTheme(context).defaultTheme,
+          darkTheme: DarkAppTheme(context).defaultTheme,
+          initialRoute: "/",
+          routes: {
+            "/": (_) => const HashPasshSplashPage(),
+            "/welcome": (_) => const AppWelcomePage(),
+            "/chooseConfig": (_) => const ChooseConfigScreen(),
+            "/firstConfig": (_) => const FirstConfigScreen(),
+            "/setEntrance": (_) => const SetEntrancePage(),
+            "/index": (_) => const IndexPage(),
+            "/senhas": (_) => const MenuSenhas(),
+          },
+        ),
+      ),
     );
   }
 }

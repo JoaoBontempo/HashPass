@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/senha.dart';
+import 'package:hashpass/Util/appContext.dart';
 import 'package:hashpass/View/passwordRegister.dart';
 import 'package:hashpass/Widgets/cards/passwordCard.dart';
 import 'package:hashpass/Widgets/animations/hideonscroll.dart';
@@ -11,6 +12,7 @@ import 'package:hashpass/Widgets/configuration/cardStyle.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/snackbar.dart';
 import 'package:hashpass/Widgets/searchtext.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../Util/util.dart';
 
 class MenuSenhas extends StatefulWidget {
@@ -21,6 +23,9 @@ class MenuSenhas extends StatefulWidget {
 }
 
 class _MenuSenhasState extends State<MenuSenhas> {
+  GlobalKey key = GlobalKey();
+  GlobalKey floatingButtonKey = GlobalKey();
+
   final filterController = TextEditingController();
   late ScrollController scroller;
   late BannerAd bannerAd;
@@ -90,12 +95,17 @@ class _MenuSenhasState extends State<MenuSenhas> {
 
   @override
   Widget build(BuildContext context) {
+    HashPassContext.context = context;
     return Scaffold(
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 50),
-        child: FloatingActionButton(
-          child: const Icon(Icons.add),
-          onPressed: () => newPasswordScreen(),
+        child: Showcase(
+          key: floatingButtonKey,
+          description: "Toque aqui para cadastrar uma nova senha",
+          child: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () => newPasswordScreen(),
+          ),
         ),
       ),
       body: Util.senhas.isNotEmpty
@@ -106,18 +116,22 @@ class _MenuSenhasState extends State<MenuSenhas> {
                   AnimatedHide(
                     height: 60,
                     controller: scroller,
-                    child: AppSearchText(
-                      placeholder: "Título, credencial, e-mail, usuário...",
-                      controller: filterController,
-                      onChange: (filter) {
-                        Util.isInFilter = filter.isNotEmpty;
-                        setState(() {
-                          passwords = Util.senhas.where((password) {
-                            String query = filter.toLowerCase();
-                            return password.titulo.toLowerCase().contains(query) || password.credencial.toLowerCase().contains(query);
-                          }).toList();
-                        });
-                      },
+                    child: Showcase(
+                      key: key,
+                      description: "Utilize este campo para filtrar suas senhas cadastradas por título ou por credencial",
+                      child: AppSearchText(
+                        placeholder: "Pesquisar título, credencial...",
+                        controller: filterController,
+                        onChange: (filter) {
+                          Util.isInFilter = filter.isNotEmpty;
+                          setState(() {
+                            passwords = Util.senhas.where((password) {
+                              String query = filter.toLowerCase();
+                              return password.titulo.toLowerCase().contains(query) || password.credencial.toLowerCase().contains(query);
+                            }).toList();
+                          });
+                        },
+                      ),
                     ),
                   ),
                   passwords.isEmpty
@@ -132,9 +146,14 @@ class _MenuSenhasState extends State<MenuSenhas> {
                             scrollDirection: Axis.vertical,
                             itemCount: passwords.length,
                             itemBuilder: (context, index) {
+                              if (index == 0) {
+                                HashPassContext.keys = [];
+                                HashPassContext.keys.addAll([key, floatingButtonKey]);
+                              }
                               switch (Configuration.instance.cardStyle.style) {
                                 case CardStyle.DEFAULT:
                                   return PasswordCard(
+                                    isExample: index == 0,
                                     senha: passwords[index],
                                     onCopy: () => onPasswordCopy(),
                                     onDelete: (code) => onPasswordDelete(code, index),
@@ -142,6 +161,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
                                   );
                                 case CardStyle.SIMPLE:
                                   return SimpleCardPassword(
+                                    isExample: index == 0,
                                     password: passwords[index],
                                     onCopy: () => onPasswordCopy(),
                                     onDelete: (code) => onPasswordDelete(code, index),

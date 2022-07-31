@@ -57,6 +57,7 @@ dependencies:
   sqflite: ^2.0.2
   path: ^1.8.0
   local_auth: ^1.1.11
+  showcaseview: ^1.1.7
 
 dev_dependencies:
   flutter_test:

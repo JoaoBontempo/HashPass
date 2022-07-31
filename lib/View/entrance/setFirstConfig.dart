@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Util/route.dart';
-import 'package:hashpass/View/configuracoes.dart';
-import 'package:hashpass/Widgets/animations/booleanHide.dart';
+import 'package:hashpass/Widgets/animations/animatedOpacityList.dart';
 import 'package:hashpass/Widgets/configuration/booleanConfig.dart';
+import 'package:hashpass/Widgets/configuration/cardStyle.dart';
+import 'package:hashpass/Widgets/configuration/radioConfig.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
-import 'package:local_auth/local_auth.dart';
 
 class FirstConfigScreen extends StatefulWidget {
   const FirstConfigScreen({Key? key}) : super(key: key);
@@ -16,25 +16,6 @@ class FirstConfigScreen extends StatefulWidget {
 }
 
 class _FirstConfigScreenState extends State<FirstConfigScreen> {
-  bool hasBiometricValidation = false, showContinueButton = false;
-  double firstOpacity = 0, secondOpacity = 0, thirdOpacity = 0;
-
-  @override
-  void initState() {
-    final LocalAuthentication auth = LocalAuthentication();
-    auth.isDeviceSupported().then((value) {
-      setState(() {
-        hasBiometricValidation = value;
-      });
-    });
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => setState(() {
-        firstOpacity = 1;
-      }),
-    );
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,13 +48,8 @@ class _FirstConfigScreenState extends State<FirstConfigScreen> {
                 ),
               ),
             ),
-            AnimatedOpacity(
-              opacity: firstOpacity,
-              onEnd: () => setState(() {
-                secondOpacity = 1;
-              }),
-              duration: const Duration(milliseconds: 750),
-              child: Padding(
+            AnimatedOpacitytList(widgets: [
+              Padding(
                 padding: const EdgeInsets.only(top: 25),
                 child: BooleanConfigWidget(
                   description: "Ativar/desativar o temporizador de senha. Se ativado, suas senhas ficarão "
@@ -84,38 +60,35 @@ class _FirstConfigScreenState extends State<FirstConfigScreen> {
                   value: Configuration.instance.hasTimer,
                 ),
               ),
-            ),
-            AnimatedOpacity(
-              opacity: secondOpacity,
-              duration: const Duration(milliseconds: 750),
-              onEnd: () => setState(() {
-                thirdOpacity = 1;
-              }),
-              child: BooleanConfigWidget(
+              BooleanConfigWidget(
                 description: "Ativar/desativar a verificação de vazamento de senha ao cadastrar e ao atualizar uma senha.",
                 label: "Verificação de vazamento",
                 icon: Icons.security,
                 onChange: (checked) => Configuration.setConfigs(insertVerify: checked, updateVerify: checked),
                 value: Configuration.instance.insertPassVerify && Configuration.instance.updatePassVerify,
               ),
-            ),
-            AnimatedOpacity(
-              opacity: thirdOpacity,
-              duration: const Duration(milliseconds: 750),
-              onEnd: () => setState(() {
-                showContinueButton = true;
-              }),
-              child: BooleanConfigWidget(
+              BooleanConfigWidget(
                 onChange: (checked) => Configuration.setConfigs(tooltips: checked),
                 description: "Habilita ou desabilita ícones (?) para informações e explicações de ajuda em relação a como o aplicativo funciona.",
                 label: "Habilitar ajuda",
                 icon: Icons.help,
                 value: Configuration.instance.showHelpTooltips,
               ),
-            ),
-            AnimatedBooleanContainer(
-              show: showContinueButton,
-              child: Padding(
+              HashPassRadioConfig<HashPassCardStyle>(
+                label: "Estilo de card",
+                description: "Determina o estilo dos cards aplicativo ao listar suas senhas. "
+                    "O estilo simples será um card mais minimalista e o padrão será um card mais completo.",
+                group: Configuration.instance.cardStyle,
+                values: HashPassCardStyle.values,
+                onSelect: (selectedStyle) {
+                  setState(() {
+                    Configuration.instance.cardStyle = selectedStyle;
+                  });
+                  Configuration.setConfigs(cardStyle: selectedStyle);
+                },
+                icon: Icons.subtitles,
+              ),
+              Padding(
                 padding: const EdgeInsets.only(top: 25),
                 child: Align(
                   alignment: Alignment.centerRight,
@@ -128,7 +101,7 @@ class _FirstConfigScreenState extends State<FirstConfigScreen> {
                   ),
                 ),
               ),
-            ),
+            ], duration: 850),
           ],
         ),
       ),

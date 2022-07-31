@@ -61,7 +61,7 @@ class PasswordLeakDTO {
   Color get _textColor => leakCount > 0 ? Colors.white : Colors.black;
 
   String get message => leakCount == -1
-      ? "Não foi possível verificar sua senha. Verifique sua conexão de internet."
+      ? "Não foi possível verificar sua senha. Verifique sua conexão de internet ou tente novamente."
       : leakCount == 0
           ? 'Sua senha tem grandes chances de não ter sido vazada!'
           : leakCount == 1

@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hashpass/Model/configuration.dart';
+import 'package:hashpass/Util/appContext.dart';
 import 'package:hashpass/View/senhas.dart';
 import 'package:hashpass/Widgets/drawer.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -42,6 +45,19 @@ class _IndexPageState extends State<IndexPage> {
         drawer: const AppDrawer(),
         appBar: AppBar(
           title: const Text("Minhas senhas"),
+          actions: Configuration.instance.showHelpTooltips
+              ? <Widget>[
+                  IconButton(
+                    icon: const Icon(
+                      Icons.help,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      ShowCaseWidget.of(HashPassContext.context!).startShowCase(HashPassContext.keys);
+                    },
+                  )
+                ]
+              : null,
         ),
         body: const MenuSenhas(),
       ),

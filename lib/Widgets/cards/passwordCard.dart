@@ -7,6 +7,7 @@ import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Themes/theme.dart';
+import 'package:hashpass/Util/appContext.dart';
 import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/cards/cardFunctions.dart';
 import 'package:hashpass/Widgets/data/checkBox.dart';
@@ -15,6 +16,7 @@ import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
 import 'package:hashpass/Widgets/validarChave.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:validatorless/validatorless.dart';
 import '../../Model/hashFunction.dart';
 import '../../Util/cryptography.dart';
@@ -26,11 +28,13 @@ class PasswordCard extends StatefulWidget {
     required this.onDelete,
     required this.onUpdate,
     required this.onCopy,
+    this.isExample = false,
   }) : super(key: key);
   Senha senha;
   final Function(int) onDelete;
   final Function(int) onUpdate;
   final VoidCallback onCopy;
+  final bool isExample;
 
   @override
   PasswordCardState createState() => PasswordCardState();
@@ -39,6 +43,11 @@ class PasswordCard extends StatefulWidget {
 }
 
 class PasswordCardState extends State<PasswordCard> {
+  final GlobalKey _cardKey = GlobalKey();
+  final GlobalKey _saveKey = GlobalKey();
+  final GlobalKey _editKey = GlobalKey();
+  final GlobalKey _removeKey = GlobalKey();
+
   final formKey = GlobalKey<FormState>();
   final senhaEC = TextEditingController();
   final credencialEC = TextEditingController();
@@ -72,13 +81,12 @@ class PasswordCardState extends State<PasswordCard> {
     basePassword = widget.senha.senhaBase;
 
     if (widget.senha.leakCount == -1) {
-      HashCrypt.verifyPassowordLeak(widget.senha.senhaBase).then(
+      HashCrypt.verifyPassowordLeak(basePassword).then(
         (response) {
-          if (isDeleting) {
-            return;
-          }
           setState(
             () {
+              widget.senha.leakCount = response.leakCount;
+              SenhaDBSource().atualizarSenha(widget.senha);
               leakObject = response;
               hasPasswordVerification = true;
               isVerifiedPassword = response.leakCount == 0;
@@ -113,6 +121,10 @@ class PasswordCardState extends State<PasswordCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isExample) {
+      HashPassContext.keys.addAll([_cardKey, _saveKey, _editKey, _removeKey]);
+    }
+
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
@@ -120,270 +132,288 @@ class PasswordCardState extends State<PasswordCard> {
         bottom: 12,
         right: 20,
       ),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: HashPassLabel(
-                      overflow: TextOverflow.fade,
-                      paddingTop: 10,
-                      paddingLeft: 20,
-                      paddingRight: 20,
-                      paddingBottom: 10,
-                      text: widget.senha.titulo,
-                      color: Get.theme.highlightColor,
-                      fontWeight: FontWeight.bold,
+      child: Showcase(
+        key: _cardKey,
+        description:
+            "Você pode editar algumas informações no próprio card, como a credencial e a senha. Para senhas criptografadas, é possível alterar o algoritmo e o tipo de criptografia.",
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: HashPassLabel(
+                        overflow: TextOverflow.fade,
+                        paddingTop: 10,
+                        paddingLeft: 20,
+                        paddingRight: 20,
+                        paddingBottom: 10,
+                        text: widget.senha.titulo,
+                        color: Get.theme.highlightColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () => PasswordCardFunctions.toUpdatePassword(
-                      widget.senha,
-                      (_updatedPassword, code) {
-                        widget.onUpdate(code);
-                        if (code == 1) {
-                          setState(() {
-                            widget.senha = _updatedPassword;
-                          });
-                        }
-                      },
-                    ),
-                    icon: const Icon(Icons.edit),
-                    color: Get.theme.highlightColor,
-                  ),
-                ],
-              ),
-              Visibility(
-                visible: widget.senha.credencial.isNotEmpty,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
-                  child: AppTextField(
-                    maxLength: 70,
-                    icon: FontAwesomeIcons.user,
-                    label: "Credencial",
-                    padding: 0,
-                    controller: credencialEC,
-                    dark: true,
-                    fontColor: Colors.grey.shade300,
-                    borderColor: Get.theme.highlightColor,
-                    labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
-                    validator:
-                        widget.senha.credencial.isNotEmpty ? Validatorless.required("A credencial não pode estar vazia.") : Validatorless.min(0, ''),
-                  ),
-                ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, bottom: 15, right: 20),
-                        child: AppTextField(
-                          maxLength: 225,
-                          icon: Icons.lock_outline,
-                          label: widget.senha.criptografado ? "Senha base" : "Senha",
-                          padding: 0,
-                          labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
-                          validator: Validatorless.multiple(
-                            [
-                              Validatorless.required("A senha não pode estar vazia."),
-                              Validatorless.min(4, 'A senha é curta demais!'),
-                            ],
-                          ),
-                          controller: senhaEC,
-                          dark: true,
-                          obscureText: true,
-                          borderColor: Get.theme.highlightColor,
-                          fontColor: Colors.grey.shade300,
-                          onChange: (text) {
+                    IconButton(
+                      onPressed: () => PasswordCardFunctions.toUpdatePassword(
+                        widget.senha,
+                        (_updatedPassword, code) {
+                          widget.onUpdate(code);
+                          if (code == 1) {
                             setState(() {
-                              toDelete = true;
-                              if (text.isEmpty) {
-                                hasPasswordVerification = false;
-                              }
+                              widget.senha = _updatedPassword;
                             });
-                            if (text.isEmpty || text.length < 4) {
-                              isDeleting = true;
-                              setState(() {
-                                hasPasswordVerification = false;
-                              });
-                              return;
-                            } else {
-                              isDeleting = false;
-                            }
-                            if (Configuration.instance.updatePassVerify) {
-                              HashCrypt.verifyPassowordLeak(text).then(
-                                (response) {
-                                  if (isDeleting) {
-                                    return;
-                                  }
-                                  setState(
-                                    () {
-                                      leakObject = response;
-                                      hasPasswordVerification = true;
-                                      isVerifiedPassword = response.leakCount == 0;
-                                    },
-                                  );
-                                },
-                              );
-                            }
-                          },
-                          suffixIcon: toDelete
-                              ? const Icon(
-                                  Icons.close,
-                                  color: Colors.redAccent,
-                                )
-                              : Icon(
-                                  Icons.history,
-                                  color: Get.theme.highlightColor,
-                                ),
-                          suffixIconClick: () {
-                            if (toDelete) {
-                              setState(() {
-                                lastText = senhaEC.text;
-                                toDelete = false;
-                                senhaEC.text = "";
-                                hasPasswordVerification = false;
-                              });
-                            } else {
-                              setState(() {
-                                toDelete = true;
-                                senhaEC.text = lastText;
-                                if (lastText.length > 4 || lastText.isNotEmpty) {
-                                  hasPasswordVerification = true;
-                                }
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                PasswordCardFunctions.copyPassword(
-                                  widget.senha,
-                                  () => widget.onCopy(),
-                                );
-                                Get.back();
-                              },
-                              child: HashPassLabel(
-                                text: "Copiar senha",
-                                size: 11,
-                                color: Colors.grey.shade200,
-                              ),
-                            ),
-                            Visibility(
-                              visible: Configuration.instance.updatePassVerify && senhaEC.text.length > 4,
-                              child: leakObject.getLeakWidget(size: 16),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              Visibility(
-                visible: widget.senha.criptografado,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 5, top: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      HashPassDropDown<HashFunction>(
-                        itens: HashCrypt.algoritmos,
-                        onChange: (function) {
-                          setState(() {
-                            algoritmoSelecionado = HashCrypt.algoritmos.firstWhere(
-                              (algoritmo) => algoritmo.index == function.index,
-                            );
-                          });
+                          }
                         },
-                        hintText: "Função hash",
-                        selectedItem: algoritmoSelecionado,
                       ),
-                      HashPassCheckBox(
-                        onChange: (isSelected) => widget.senha.avancado = isSelected,
-                        value: widget.senha.avancado,
-                        label: "Avançado",
-                        labelSize: 14,
-                        labelColor: Colors.grey.shade200,
-                        backgroundColor: Get.theme.highlightColor,
-                        checkColor: HashPassTheme.isDarkMode ? AppColors.SECONDARY_DARK : AppColors.SECONDARY_LIGHT,
+                      icon: Showcase(
+                        key: _editKey,
+                        description: "Toque aqui para editar as informações da sua senha",
+                        child: const Icon(Icons.edit),
                       ),
-                    ],
+                      color: Get.theme.highlightColor,
+                    ),
+                  ],
+                ),
+                Visibility(
+                  visible: widget.senha.credencial.isNotEmpty,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
+                    child: AppTextField(
+                      maxLength: 70,
+                      icon: FontAwesomeIcons.user,
+                      label: "Credencial",
+                      padding: 0,
+                      controller: credencialEC,
+                      dark: true,
+                      fontColor: Colors.grey.shade300,
+                      borderColor: Get.theme.highlightColor,
+                      labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                      validator: widget.senha.credencial.isNotEmpty
+                          ? Validatorless.required("A credencial não pode estar vazia.")
+                          : Validatorless.min(0, ''),
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10, top: 8, bottom: 15, left: 12),
-                child: Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: () => PasswordCardFunctions.showPassword(widget.senha),
-                      child: HashPassLabel(
-                        text: "VISUALIZAR SENHA",
-                        size: 12,
-                        color: Get.theme.highlightColor,
-                      ),
-                    ),
-                    Row(
+                    Column(
                       children: [
-                        IconButton(
-                          onPressed: () {
-                            Get.focusScope!.unfocus();
-                            PasswordCardFunctions.deletePassword(widget.senha, (code) => widget.onDelete(code));
-                          },
-                          icon: const Icon(Icons.delete),
-                          color: Colors.redAccent,
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            Get.focusScope!.unfocus();
-                            if (Util.validateForm(formKey)) {
-                              if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
-                                HashPassMessage.show(
-                                  message: leakObject.status == LeakStatus.LEAKED
-                                      ? "A senha que você está tentando salvar já foi vazada! Você deseja salvá-la mesmo assim?"
-                                      : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja salvar sua senha mesmo assim?",
-                                  title: leakObject.status == LeakStatus.LEAKED ? "Senha vazada" : "Senha não verificada",
-                                  type: MessageType.YESNO,
-                                ).then((action) {
-                                  if (action == MessageResponse.YES) updatePassword();
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, bottom: 15, right: 20),
+                          child: AppTextField(
+                            maxLength: 225,
+                            icon: Icons.lock_outline,
+                            label: widget.senha.criptografado ? "Senha base" : "Senha",
+                            padding: 0,
+                            labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                            validator: Validatorless.multiple(
+                              [
+                                Validatorless.required("A senha não pode estar vazia."),
+                                Validatorless.min(4, 'A senha é curta demais!'),
+                              ],
+                            ),
+                            controller: senhaEC,
+                            dark: true,
+                            obscureText: true,
+                            borderColor: Get.theme.highlightColor,
+                            fontColor: Colors.grey.shade300,
+                            onChange: (text) {
+                              setState(() {
+                                toDelete = true;
+                                if (text.isEmpty) {
+                                  hasPasswordVerification = false;
+                                }
+                              });
+                              if (text.isEmpty || text.length < 4) {
+                                isDeleting = true;
+                                setState(() {
+                                  hasPasswordVerification = false;
                                 });
                                 return;
+                              } else {
+                                isDeleting = false;
                               }
-                              HashPassMessage.show(
-                                title: "Confirmar",
-                                message: "Tem certeza que deseja atualizar os dados desta senha?",
-                                type: MessageType.YESNO,
-                              ).then((action) {
-                                if (action == MessageResponse.YES) updatePassword();
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.save),
-                          color: Get.theme.highlightColor,
+                              if (Configuration.instance.updatePassVerify) {
+                                HashCrypt.verifyPassowordLeak(text).then(
+                                  (response) {
+                                    if (isDeleting) {
+                                      return;
+                                    }
+                                    setState(
+                                      () {
+                                        leakObject = response;
+                                        hasPasswordVerification = true;
+                                        isVerifiedPassword = response.leakCount == 0;
+                                      },
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                            suffixIcon: toDelete
+                                ? const Icon(
+                                    Icons.close,
+                                    color: Colors.redAccent,
+                                  )
+                                : Icon(
+                                    Icons.history,
+                                    color: Get.theme.highlightColor,
+                                  ),
+                            suffixIconClick: () {
+                              if (toDelete) {
+                                setState(() {
+                                  lastText = senhaEC.text;
+                                  toDelete = false;
+                                  senhaEC.text = "";
+                                  hasPasswordVerification = false;
+                                });
+                              } else {
+                                setState(() {
+                                  toDelete = true;
+                                  senhaEC.text = lastText;
+                                  if (lastText.length > 4 || lastText.isNotEmpty) {
+                                    hasPasswordVerification = true;
+                                  }
+                                });
+                              }
+                            },
+                          ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  PasswordCardFunctions.copyPassword(
+                                    widget.senha,
+                                    () => widget.onCopy(),
+                                  );
+                                  Get.back();
+                                },
+                                child: HashPassLabel(
+                                  text: "Copiar senha",
+                                  size: 11,
+                                  color: Colors.grey.shade200,
+                                ),
+                              ),
+                              Visibility(
+                                visible: Configuration.instance.updatePassVerify && senhaEC.text.length > 4,
+                                child: leakObject.getLeakWidget(size: 16),
+                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ],
                 ),
-              )
-            ],
+                Visibility(
+                  visible: widget.senha.criptografado,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 5, top: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        HashPassDropDown<HashFunction>(
+                          itens: HashCrypt.algoritmos,
+                          onChange: (function) {
+                            setState(() {
+                              algoritmoSelecionado = HashCrypt.algoritmos.firstWhere(
+                                (algoritmo) => algoritmo.index == function.index,
+                              );
+                            });
+                          },
+                          hintText: "Função hash",
+                          selectedItem: algoritmoSelecionado,
+                        ),
+                        HashPassCheckBox(
+                          onChange: (isSelected) => widget.senha.avancado = isSelected,
+                          value: widget.senha.avancado,
+                          label: "Avançado",
+                          labelSize: 14,
+                          labelColor: Colors.grey.shade200,
+                          backgroundColor: Get.theme.highlightColor,
+                          checkColor: HashPassTheme.isDarkMode ? AppColors.SECONDARY_DARK : AppColors.SECONDARY_LIGHT,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 10, top: 8, bottom: 15, left: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => PasswordCardFunctions.showPassword(widget.senha),
+                        child: HashPassLabel(
+                          text: "VISUALIZAR SENHA",
+                          size: 12,
+                          color: Get.theme.highlightColor,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Get.focusScope!.unfocus();
+                              PasswordCardFunctions.deletePassword(widget.senha, (code) => widget.onDelete(code));
+                            },
+                            icon: Showcase(
+                              key: _removeKey,
+                              description: "Toque aqui para excluir a senha",
+                              child: const Icon(Icons.delete),
+                            ),
+                            color: Colors.redAccent,
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              Get.focusScope!.unfocus();
+                              if (Util.validateForm(formKey)) {
+                                if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
+                                  HashPassMessage.show(
+                                    message: leakObject.status == LeakStatus.LEAKED
+                                        ? "A senha que você está tentando salvar já foi vazada! Você deseja salvá-la mesmo assim?"
+                                        : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja salvar sua senha mesmo assim?",
+                                    title: leakObject.status == LeakStatus.LEAKED ? "Senha vazada" : "Senha não verificada",
+                                    type: MessageType.YESNO,
+                                  ).then((action) {
+                                    if (action == MessageResponse.YES) updatePassword();
+                                  });
+                                  return;
+                                }
+                                HashPassMessage.show(
+                                  title: "Confirmar",
+                                  message: "Tem certeza que deseja atualizar os dados desta senha?",
+                                  type: MessageType.YESNO,
+                                ).then((action) {
+                                  if (action == MessageResponse.YES) updatePassword();
+                                });
+                              }
+                            },
+                            icon: Showcase(
+                              key: _saveKey,
+                              description: "Toque aqui para salvar as informações da sua senha",
+                              child: const Icon(Icons.save),
+                            ),
+                            color: Get.theme.highlightColor,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

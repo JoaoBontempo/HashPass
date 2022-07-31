@@ -115,6 +115,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       if (widget.password!.criptografado) algoritmoSelecionado = algoritmos.firstWhere((hashFunc) => hashFunc.index == widget.password!.algoritmo);
       useCredential = widget.password!.credencial.isNotEmpty;
       isAvancado = widget.password!.avancado;
+      isCriptografado = widget.password!.criptografado;
       leakObject = PasswordLeakDTO(leakCount: widget.password!.leakCount);
       hasPasswordVerification = true;
     }

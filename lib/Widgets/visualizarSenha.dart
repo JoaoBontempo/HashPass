@@ -192,6 +192,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                           text: senha,
                           size: 15,
                           paddingRight: 15,
+                          paddingTop: 10,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(
