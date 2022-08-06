@@ -46,7 +46,7 @@ class _MenuDadosState extends State<MenuDados> {
 
   void dataExport() async {
     ValidarSenhaGeral.show(onValidate: (key) async {
-      DataExportDTO exportDTO = await HashCrypt.exportarDados();
+      DataExportDTO exportDTO = await HashCrypt.exportData(key);
       String filePath = '${Directory.systemTemp.path}/hashpass.txt';
       final File file = File(filePath);
       await file.writeAsString(exportDTO.fileContent);
@@ -117,36 +117,43 @@ class _MenuDadosState extends State<MenuDados> {
   void dataImport() async {
     FilePickerResult? file;
     if (Util.validateForm(formKey)) {
-      try {
-        file = await getFile(type: FileType.custom, types: ['txt']);
-      } catch (erro) {
-        file = await getFile();
-      }
-      if (file != null) {
+      ValidarSenhaGeral.show(onValidate: (appKey) async {
         try {
-          File arquivo = File(file.files.first.path!);
-          List<String> fileLines = await arquivo.readAsLines();
-          List<Senha> senhas = await HashCrypt.importPasswords(fileLines.join(','), chaveEC.text);
-          for (Senha senha in senhas) {
-            SenhaDBSource().inserirSenha(senha);
-            Util.senhas.add(senha);
+          file = await getFile(type: FileType.custom, types: ['txt']);
+        } catch (erro) {
+          file = await getFile();
+        }
+        if (file != null) {
+          try {
+            File arquivo = File(file!.files.first.path!);
+            List<String> fileLines = await arquivo.readAsLines();
+            List<Senha> senhas = await HashCrypt.importPasswords(
+              fileLines.join(','),
+              chaveEC.text,
+              appKey,
+            );
+            for (Senha senha in senhas) {
+              SenhaDBSource().inserirSenha(senha);
+              Util.senhas.add(senha);
+            }
+            Get.to(const IndexPage());
+            HashPassSnackBar.show(message: "Dados importados com sucesso!");
+          } on Exception catch (erro) {
+            HashPassMessage.show(
+              message: "Um erro inesperado ocorreu ao importar seus dados. Por favor, tente novamente \n\n"
+                  "* Verifique se a chave inserida está correta"
+                  "\n* Verifique se o arquivo selecionado é o correto para esta chave"
+                  "\n* Verifique se sua chave geral do app é a mesma de quando você exportou os arquivos",
+              title: "Ocorreu um erro",
+            );
           }
-          Get.to(const IndexPage());
-          HashPassSnackBar.show(message: "Dados importados com sucesso!");
-        } on Exception catch (erro) {
-          HashPassMessage.show(
-            message: "Um erro inesperado ocorreu ao importar seus dados. Por favor, tente novamente \n\n"
-                "* Verifique se a chave inserida está correta"
-                "\n* Verifique se o arquivo selecionado é o correto para esta chave",
-            title: "Ocorreu um erro",
+        } else {
+          HashPassSnackBar.show(
+            message: "Importação cancelada. Nenhum arquivo foi selecionado",
+            type: SnackBarType.ERROR,
           );
         }
-      } else {
-        HashPassSnackBar.show(
-          message: "Importação cancelada. Nenhum arquivo foi selecionado",
-          type: SnackBarType.ERROR,
-        );
-      }
+      });
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart' as hashs;
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
@@ -92,7 +93,7 @@ class HashCrypt {
     );
   }
 
-  static Future<DataExportDTO> exportarDados() async {
+  static Future<DataExportDTO> exportData(String appKey) async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -124,12 +125,13 @@ class HashCrypt {
     }
 
     String passwordsFileContent = await cipherString(passwords.map((password) => password.toJson()).toList().toString(), passwordsKey);
-    String fileContent = toBase64(await cipherString("$passwordsKey;${keys.join(';')};$passwordsFileContent", baseFileKey));
+    String fileContent =
+        await cipherString(toBase64(await cipherString("$passwordsKey;${keys.join(';')};$passwordsFileContent", baseFileKey)), appKey);
     return DataExportDTO(fileKey: baseFileKey, fileContent: fileContent);
   }
 
-  static Future<List<Senha>> importPasswords(String fileContent, String key) async {
-    fileContent = await decipherString(fromBase64(fileContent), key) ?? "";
+  static Future<List<Senha>> importPasswords(String fileContent, String key, String appKey) async {
+    fileContent = await decipherString(fromBase64(await decipherString(fileContent, appKey) ?? ""), key) ?? "";
     List<String> values = fileContent.split(';');
     String? passwordsJson = await HashCrypt.decipherString(values[values.length - 1], values[0]);
     List<Senha> senhas = Senha.serializeList(passwordsJson!);

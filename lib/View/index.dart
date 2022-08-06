@@ -62,7 +62,7 @@ class _IndexPageState extends State<IndexPage> {
                           )
                           .then((value) => {
                                 ShowCaseWidget.of(Get.context!).startShowCase(
-                                  HashPassContext.keys!,
+                                  HashPassContext.keys!.where((key) => key.currentState != null).toList(),
                                 )
                               });
                     },
