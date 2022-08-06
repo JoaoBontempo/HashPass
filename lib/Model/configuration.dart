@@ -61,7 +61,7 @@ class Configuration {
     configs.setInt("sqlv", version);
   }
 
-  static void setConfigs({
+  static Future<void> setConfigs({
     HashPassTheme? theme,
     double? timer,
     bool? biometria,
@@ -71,33 +71,39 @@ class Configuration {
     bool? tooltips,
     bool? entrance,
     HashPassCardStyle? cardStyle,
+    Function(bool)? onBiometricChange,
   }) async {
     if (theme != null) {
       Get.changeThemeMode(theme.mode);
-      configs.setInt("theme", theme.mode.index);
+      await configs.setInt("theme", theme.mode.index);
     }
-    if (timer != null) configs.setDouble("timer", timer);
+    if (timer != null) await configs.setDouble("timer", timer);
     if (biometria != null) {
       if (Configuration.instance.isBiometria) {
-        configs.setBool("biometria", biometria);
+        await configs.setBool("biometria", biometria);
+        if (onBiometricChange != null) onBiometricChange(false);
       } else {
         await Get.dialog(
           ValidarSenhaGeral(
             onValidate: (senha) async {
               await HashCrypt.createDefaultKey(senha);
-              configs.setBool("biometria", biometria);
+              await configs.setBool("biometria", biometria);
+              if (onBiometricChange != null) onBiometricChange(true);
+            },
+            onInvalid: () {
+              if (onBiometricChange != null) onBiometricChange(false);
             },
           ),
         );
       }
     }
-    if (hasTimer != null) configs.setBool("hasTimer", hasTimer);
-    if (insertVerify != null) configs.setBool("insertVerify", insertVerify);
-    if (updateVerify != null) configs.setBool("updateVerify", updateVerify);
-    if (tooltips != null) configs.setBool("tooltips", tooltips);
-    if (entrance != null) configs.setBool("hasEntrance", entrance);
-    if (cardStyle != null) configs.setInt("cardStyle", cardStyle.style.index);
-    getConfigs();
+    if (hasTimer != null) await configs.setBool("hasTimer", hasTimer);
+    if (insertVerify != null) await configs.setBool("insertVerify", insertVerify);
+    if (updateVerify != null) await configs.setBool("updateVerify", updateVerify);
+    if (tooltips != null) await configs.setBool("tooltips", tooltips);
+    if (entrance != null) await configs.setBool("hasEntrance", entrance);
+    if (cardStyle != null) await configs.setInt("cardStyle", cardStyle.style.index);
+    await getConfigs();
   }
 
   static Future<Configuration> getConfigs() async {

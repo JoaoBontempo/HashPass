@@ -72,11 +72,6 @@ class SobreAppPage extends StatelessWidget {
                   ],
                 ),
               ),
-              HashPassLabel(
-                text: "@HashPass - Todos os direitos reservados",
-                paddingBottom: 25,
-                style: Get.theme.textTheme.bodyText1,
-              ),
             ],
           )
         ],

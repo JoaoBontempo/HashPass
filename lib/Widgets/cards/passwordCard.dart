@@ -82,6 +82,7 @@ class PasswordCardState extends State<PasswordCard> {
     credencialEC.text = widget.senha.credencial;
     senhaEC.text = widget.senha.senhaBase;
     basePassword = widget.senha.senhaBase;
+    isVerifiedPassword = widget.senha.leakCount == 0;
 
     if (widget.senha.leakCount == -1) {
       HashCrypt.verifyPassowordLeak(basePassword).then(
@@ -299,11 +300,10 @@ class PasswordCardState extends State<PasswordCard> {
                                     widget.senha,
                                     () => widget.onCopy(),
                                   );
-                                  Get.back();
                                 },
                                 child: HashPassLabel(
                                   text: "Copiar senha",
-                                  size: 11,
+                                  size: 12,
                                   color: Get.theme.colorScheme.tertiary,
                                 ),
                               ),
@@ -381,7 +381,7 @@ class PasswordCardState extends State<PasswordCard> {
                             onPressed: () async {
                               Get.focusScope!.unfocus();
                               if (Util.validateForm(formKey)) {
-                                if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
+                                if (Configuration.instance.updatePassVerify && !isVerifiedPassword) {
                                   HashPassMessage.show(
                                     message: leakObject.status == LeakStatus.LEAKED
                                         ? "A senha que você está tentando salvar já foi vazada! Você deseja salvá-la mesmo assim?"

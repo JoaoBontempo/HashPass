@@ -29,9 +29,11 @@ class ValidarSenhaGeral extends StatefulWidget {
     Key? key,
     this.onlyText = false,
     this.lastKeyLabel = false,
+    this.onInvalid,
     required this.onValidate,
   }) : super(key: key);
   final Function(String) onValidate;
+  final Function? onInvalid;
   final bool onlyText;
   final bool lastKeyLabel;
   @override
@@ -66,6 +68,8 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                 widget.onValidate(HashCrypt.recuperarBaseChaveGeral());
               }
             });
+          } else if (widget.onInvalid != null) {
+            widget.onInvalid!();
           }
         },
       );

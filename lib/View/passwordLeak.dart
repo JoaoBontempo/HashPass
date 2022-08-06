@@ -95,7 +95,7 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                       }
                       lastPass = passwordEC.text;
 
-                      PasswordLeakDTO response = await HashCrypt.verifyPassowordLeak(passwordEC.text);
+                      PasswordLeakDTO response = await HashCrypt.verifyPassowordLeak(passwordEC.text.trim());
                       lastStatus = response.status;
 
                       setState(() {

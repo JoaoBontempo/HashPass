@@ -23,6 +23,7 @@ class MenuConfiguracoes extends StatefulWidget {
 class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
   double timer = Configuration.instance.showPasswordTime;
   bool hasBiometricValidation = false;
+  late bool isBiometric = Configuration.instance.isBiometria;
   final timerEC = TextEditingController();
 
   @override
@@ -56,15 +57,22 @@ class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
                 BooleanConfigWidget(
                   useState: false,
                   isVisible: hasBiometricValidation,
-                  onChange: (checked) {
-                    setState(() {
-                      Configuration.setConfigs(biometria: checked);
-                    });
+                  onChange: (checked) async {
+                    Configuration.setConfigs(
+                      biometria: checked,
+                      onBiometricChange: (isBiometricConfig) {
+                        setState(
+                          () {
+                            isBiometric = isBiometricConfig;
+                          },
+                        );
+                      },
+                    );
                   },
                   description: "Configura a forma de validação da senha geral do app para biometria ou texto.",
                   label: "Validação biométrica",
                   icon: Icons.fingerprint,
-                  value: Configuration.instance.isBiometria,
+                  value: isBiometric,
                 ),
                 const HashPassConfigDivider(),
                 HashPassRadioConfig<HashPassTheme>(

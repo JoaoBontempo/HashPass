@@ -60,11 +60,13 @@ class _IndexPageState extends State<IndexPage> {
                             duration: const Duration(milliseconds: 750),
                             curve: Curves.linear,
                           )
-                          .then((value) => {
-                                ShowCaseWidget.of(Get.context!).startShowCase(
-                                  HashPassContext.keys!.where((key) => key.currentState != null).toList(),
-                                )
-                              });
+                          .then(
+                            (value) => {
+                              ShowCaseWidget.of(Get.context!).startShowCase(
+                                HashPassContext.keys!.where((key) => key.currentState != null).toList(),
+                              )
+                            },
+                          );
                     },
                   )
                 ]
