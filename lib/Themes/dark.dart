@@ -85,6 +85,7 @@ class DarkAppTheme {
         ),
         colorScheme: ColorScheme.fromSwatch().copyWith(
           secondary: AppColors.ACCENT_DARK,
+          tertiary: Colors.grey.shade300,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(

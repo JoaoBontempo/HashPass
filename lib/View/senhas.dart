@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/Model/configuration.dart';
@@ -23,17 +25,24 @@ class MenuSenhas extends StatefulWidget {
 }
 
 class _MenuSenhasState extends State<MenuSenhas> {
-  GlobalKey key = GlobalKey();
-  GlobalKey floatingButtonKey = GlobalKey();
-
+  final GlobalKey key = GlobalKey();
+  final GlobalKey floatingButtonKey = GlobalKey();
+  final GlobalKey cardKey = GlobalKey();
+  final GlobalKey saveKey = GlobalKey();
+  final GlobalKey editKey = GlobalKey();
+  final GlobalKey removeKey = GlobalKey();
   final filterController = TextEditingController();
-  late ScrollController scroller;
+  late final ScrollController scroller;
   late BannerAd bannerAd;
   late List<Senha> passwords = Util.senhas;
+  bool showSearchField = true;
 
   @override
   void initState() {
     scroller = ScrollController();
+    scroller.addListener(scrollListener);
+    HashPassContext.scroller = scroller;
+    HashPassContext.keys = [floatingButtonKey, key, cardKey, editKey, removeKey, saveKey];
     super.initState();
     bannerAd = BannerAd(
       size: AdSize.banner,
@@ -46,6 +55,40 @@ class _MenuSenhasState extends State<MenuSenhas> {
       ),
       request: const AdRequest(),
     )..load();
+  }
+
+  @override
+  void dispose() {
+    scroller.removeListener(scrollListener);
+    super.dispose();
+  }
+
+  void scrollListener() {
+    if (Util.isInFilter || Util.isDeleting) {
+      _showSearchField(true);
+      return;
+    }
+    if (Util.senhas.isEmpty) {
+      _showSearchField(false);
+      return;
+    }
+    final scrollDirection = scroller.position.userScrollDirection;
+    if (scroller.offset == 0) {
+      _showSearchField(true);
+      return;
+    }
+
+    if (scrollDirection == ScrollDirection.forward) {
+      _showSearchField(true);
+    } else if (scrollDirection == ScrollDirection.reverse) {
+      _showSearchField(false);
+    }
+  }
+
+  void _showSearchField(bool show) {
+    setState(() {
+      showSearchField = show;
+    });
   }
 
   void newPasswordScreen() {
@@ -63,9 +106,10 @@ class _MenuSenhasState extends State<MenuSenhas> {
     );
   }
 
-  void onPasswordDelete(int code, int index) {
+  void onPasswordDelete(int code, int index) async {
     if (code == 1) {
       setState(() {
+        showSearchField = true;
         Util.senhas.removeWhere((_password) => _password.id == passwords[index].id);
         passwords = Util.senhas;
         filterController.text = '';
@@ -78,12 +122,10 @@ class _MenuSenhasState extends State<MenuSenhas> {
   }
 
   void onPasswordUpdate(int code) {
-    setState(() {
-      HashPassSnackBar.show(
-        message: code == 1 ? "Informações atualizadas com sucesso!" : "Ocorreu um erro ao atualizar as informações, tente novamente",
-        type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
-      );
-    });
+    HashPassSnackBar.show(
+      message: code == 1 ? "Informações atualizadas com sucesso!" : "Ocorreu um erro ao atualizar as informações, tente novamente",
+      type: code == 1 ? SnackBarType.SUCCESS : SnackBarType.ERROR,
+    );
   }
 
   void onPasswordCopy() {
@@ -95,7 +137,6 @@ class _MenuSenhasState extends State<MenuSenhas> {
 
   @override
   Widget build(BuildContext context) {
-    HashPassContext.context = context;
     return Scaffold(
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 50),
@@ -114,6 +155,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
               child: Column(
                 children: [
                   AnimatedHide(
+                    isVisible: showSearchField,
                     height: 60,
                     controller: scroller,
                     child: Showcase(
@@ -140,20 +182,21 @@ class _MenuSenhasState extends State<MenuSenhas> {
                         )
                       : Expanded(
                           child: ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
                             key: Key(passwords.toString()),
                             padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 100),
                             controller: scroller,
                             scrollDirection: Axis.vertical,
                             itemCount: passwords.length,
                             itemBuilder: (context, index) {
-                              if (index == 0) {
-                                HashPassContext.keys = [];
-                                HashPassContext.keys.addAll([key, floatingButtonKey]);
-                              }
                               switch (Configuration.instance.cardStyle.style) {
                                 case CardStyle.DEFAULT:
                                   return PasswordCard(
                                     isExample: index == 0,
+                                    cardKey: cardKey,
+                                    editKey: editKey,
+                                    removeKey: removeKey,
+                                    saveKey: saveKey,
                                     senha: passwords[index],
                                     onCopy: () => onPasswordCopy(),
                                     onDelete: (code) => onPasswordDelete(code, index),
@@ -161,6 +204,9 @@ class _MenuSenhasState extends State<MenuSenhas> {
                                   );
                                 case CardStyle.SIMPLE:
                                   return SimpleCardPassword(
+                                    cardKey: cardKey,
+                                    editKey: editKey,
+                                    removeKey: removeKey,
                                     isExample: index == 0,
                                     password: passwords[index],
                                     onCopy: () => onPasswordCopy(),

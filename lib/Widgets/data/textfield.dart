@@ -31,6 +31,7 @@ class AppTextField extends StatelessWidget {
     this.icon,
     this.maxLength,
     this.onKeyboardAction,
+    this.iconColor,
   }) : super(key: key);
 
   final String label;
@@ -56,6 +57,7 @@ class AppTextField extends StatelessWidget {
   final String? placeholder;
   final IconData? icon;
   final int? maxLength;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +93,7 @@ class AppTextField extends StatelessWidget {
                   children: [
                     FaIcon(
                       icon ?? Icons.abc,
-                      color: Colors.grey,
+                      color: iconColor ?? Colors.grey,
                       size: 18,
                     ),
                     HashPassLabel(

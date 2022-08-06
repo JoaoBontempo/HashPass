@@ -117,7 +117,7 @@ class Configuration {
       updatePassVerify: configs.getBool("updateVerify") ?? true,
       showHelpTooltips: configs.getBool("tooltips") ?? true,
       cardStyle: HashPassCardStyle.values.firstWhere(
-        (cardStyle) => cardStyle.style.index == (configs.getInt("cardStyle") ?? CardStyle.DEFAULT),
+        (cardStyle) => cardStyle.style.index == (configs.getInt("cardStyle") ?? CardStyle.DEFAULT.index),
         orElse: () => HashPassCardStyle(style: CardStyle.DEFAULT),
       ),
     );

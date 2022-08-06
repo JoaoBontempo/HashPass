@@ -67,5 +67,7 @@ class Util {
     return formKey.currentState?.validate() ?? false;
   }
 
+  static bool isDeleting = false;
+
   static List<Senha> senhas = <Senha>[];
 }

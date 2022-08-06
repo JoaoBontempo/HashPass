@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Util/appContext.dart';
 import 'package:hashpass/View/senhas.dart';
@@ -53,7 +54,17 @@ class _IndexPageState extends State<IndexPage> {
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      ShowCaseWidget.of(HashPassContext.context!).startShowCase(HashPassContext.keys);
+                      HashPassContext.scroller!
+                          .animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 750),
+                            curve: Curves.linear,
+                          )
+                          .then((value) => {
+                                ShowCaseWidget.of(Get.context!).startShowCase(
+                                  HashPassContext.keys!,
+                                )
+                              });
                     },
                   )
                 ]

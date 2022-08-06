@@ -76,6 +76,7 @@ class LightAppTheme {
         ),
         colorScheme: ColorScheme.fromSwatch().copyWith(
           secondary: AppColors.ACCENT_LIGHT,
+          tertiary: Colors.grey.shade100,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(

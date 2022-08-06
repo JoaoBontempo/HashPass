@@ -11,10 +11,12 @@ class AnimatedHide extends StatefulWidget {
     required this.controller,
     this.duration = const Duration(milliseconds: 500),
     this.height = 50,
+    required this.isVisible,
   }) : super(key: key);
   final Widget child;
   final ScrollController controller;
   final Duration duration;
+  final bool isVisible;
   final double height;
 
   @override
@@ -22,70 +24,16 @@ class AnimatedHide extends StatefulWidget {
 }
 
 class AnimatedHideState extends State<AnimatedHide> {
-  bool isVisible = true;
   bool canHide = false;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(scrollListener);
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeListener(scrollListener);
-    super.dispose();
-  }
-
-  void scrollListener() {
-    if (Util.isInFilter) {
-      showWidget();
-      return;
-    }
-    if (Util.senhas.isEmpty) {
-      hide();
-      return;
-    }
-    final scrollDirection = widget.controller.position.userScrollDirection;
-    if (scrollDirection == ScrollDirection.forward) {
-      showWidget();
-    } else if (scrollDirection == ScrollDirection.reverse) {
-      hide();
-    }
-  }
-
-  void showWidget() {
-    if (!isVisible) {
-      setState(
-        () {
-          canHide = false;
-          isVisible = true;
-        },
-      );
-    }
-  }
-
-  void hide() {
-    if (isVisible) {
-      setState(
-        () {
-          canHide = false;
-          isVisible = false;
-        },
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      height: isVisible ? widget.height : 0,
-      width: isVisible ? Get.size.width : 0,
+      height: widget.isVisible ? widget.height : 0,
+      width: widget.isVisible ? Get.size.width : 0,
       onEnd: () {
         setState(() {
-          if (!isVisible) {
-            canHide = true;
-          }
+          canHide = !widget.isVisible;
         });
       },
       duration: widget.duration,

@@ -80,7 +80,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
         widget.password!.criptografado = isCriptografado;
         widget.password!.leakCount = leakObject.leakCount;
         widget.password!.senhaBase = await HashCrypt.cipherString(senhaEC.text, key);
-
         widget.onUpdate!(widget.password!, await SenhaDBSource().atualizarSenha(widget.password!));
       },
     );
@@ -118,6 +117,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       isCriptografado = widget.password!.criptografado;
       leakObject = PasswordLeakDTO(leakCount: widget.password!.leakCount);
       hasPasswordVerification = true;
+      isVerifiedPassword = widget.password!.leakCount == 0;
     }
 
     super.initState();
@@ -226,7 +226,11 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                               },
                             );
                           },
-                          suffixIcon: hasPasswordVerification && Configuration.instance.insertPassVerify ? leakObject.getLeakWidget() : null,
+                          suffixIcon: hasPasswordVerification &&
+                                  ((Configuration.instance.insertPassVerify && isRegister) ||
+                                      (Configuration.instance.updatePassVerify && !isRegister))
+                              ? leakObject.getLeakWidget()
+                              : null,
                         ),
                       ),
                       GestureDetector(
@@ -352,7 +356,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           tituloEC.text = tituloEC.text.trim();
                           senhaEC.text = senhaEC.text.trim();
                           credencialEC.text = credencialEC.text.trim();
-                          if (Configuration.instance.insertPassVerify && !isVerifiedPassword) {
+                          if (((Configuration.instance.insertPassVerify && isRegister) || (Configuration.instance.updatePassVerify && !isRegister)) &&
+                              !isVerifiedPassword) {
                             HashPassMessage.show(
                               message: leakObject.status == LeakStatus.LEAKED
                                   ? "A senha que você está tentando ${isRegister ? 'cadastrar' : 'salvar'} já foi vazada! Você deseja ${isRegister ? 'cadastrá-la' : 'salvá-la'}"
@@ -364,7 +369,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                             });
                             return;
                           }
-
                           screenAction();
                         }
                       },

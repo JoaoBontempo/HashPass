@@ -29,12 +29,20 @@ class PasswordCard extends StatefulWidget {
     required this.onUpdate,
     required this.onCopy,
     this.isExample = false,
+    required this.cardKey,
+    required this.saveKey,
+    required this.editKey,
+    required this.removeKey,
   }) : super(key: key);
   Senha senha;
   final Function(int) onDelete;
   final Function(int) onUpdate;
   final VoidCallback onCopy;
   final bool isExample;
+  final GlobalKey cardKey;
+  final GlobalKey saveKey;
+  final GlobalKey editKey;
+  final GlobalKey removeKey;
 
   @override
   PasswordCardState createState() => PasswordCardState();
@@ -43,11 +51,6 @@ class PasswordCard extends StatefulWidget {
 }
 
 class PasswordCardState extends State<PasswordCard> {
-  final GlobalKey _cardKey = GlobalKey();
-  final GlobalKey _saveKey = GlobalKey();
-  final GlobalKey _editKey = GlobalKey();
-  final GlobalKey _removeKey = GlobalKey();
-
   final formKey = GlobalKey<FormState>();
   final senhaEC = TextEditingController();
   final credencialEC = TextEditingController();
@@ -121,10 +124,6 @@ class PasswordCardState extends State<PasswordCard> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isExample) {
-      HashPassContext.keys.addAll([_cardKey, _saveKey, _editKey, _removeKey]);
-    }
-
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
@@ -133,7 +132,7 @@ class PasswordCardState extends State<PasswordCard> {
         right: 20,
       ),
       child: Showcase(
-        key: _cardKey,
+        key: widget.isExample ? widget.cardKey : GlobalKey(),
         description:
             "Você pode editar algumas informações no próprio card, como a credencial e a senha. Para senhas criptografadas, é possível alterar o algoritmo e o tipo de criptografia.",
         child: Card(
@@ -172,7 +171,7 @@ class PasswordCardState extends State<PasswordCard> {
                         },
                       ),
                       icon: Showcase(
-                        key: _editKey,
+                        key: widget.isExample ? widget.editKey : GlobalKey(),
                         description: "Toque aqui para editar as informações da sua senha",
                         child: const Icon(Icons.edit),
                       ),
@@ -187,13 +186,14 @@ class PasswordCardState extends State<PasswordCard> {
                     child: AppTextField(
                       maxLength: 70,
                       icon: FontAwesomeIcons.user,
+                      iconColor: Get.theme.colorScheme.tertiary,
                       label: "Credencial",
                       padding: 0,
                       controller: credencialEC,
                       dark: true,
-                      fontColor: Colors.grey.shade300,
+                      fontColor: Get.theme.colorScheme.tertiary,
                       borderColor: Get.theme.highlightColor,
-                      labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                      labelStyle: TextStyle(color: Get.theme.colorScheme.tertiary, fontSize: 17),
                       validator: widget.senha.credencial.isNotEmpty
                           ? Validatorless.required("A credencial não pode estar vazia.")
                           : Validatorless.min(0, ''),
@@ -210,9 +210,10 @@ class PasswordCardState extends State<PasswordCard> {
                           child: AppTextField(
                             maxLength: 225,
                             icon: Icons.lock_outline,
+                            iconColor: Get.theme.colorScheme.tertiary,
                             label: widget.senha.criptografado ? "Senha base" : "Senha",
                             padding: 0,
-                            labelStyle: TextStyle(color: Colors.grey.shade300, fontSize: 17),
+                            labelStyle: TextStyle(color: Get.theme.colorScheme.tertiary, fontSize: 17),
                             validator: Validatorless.multiple(
                               [
                                 Validatorless.required("A senha não pode estar vazia."),
@@ -223,7 +224,7 @@ class PasswordCardState extends State<PasswordCard> {
                             dark: true,
                             obscureText: true,
                             borderColor: Get.theme.highlightColor,
-                            fontColor: Colors.grey.shade300,
+                            fontColor: Get.theme.colorScheme.tertiary,
                             onChange: (text) {
                               setState(() {
                                 toDelete = true;
@@ -248,6 +249,7 @@ class PasswordCardState extends State<PasswordCard> {
                                     }
                                     setState(
                                       () {
+                                        widget.senha.leakCount = response.leakCount;
                                         leakObject = response;
                                         hasPasswordVerification = true;
                                         isVerifiedPassword = response.leakCount == 0;
@@ -302,7 +304,7 @@ class PasswordCardState extends State<PasswordCard> {
                                 child: HashPassLabel(
                                   text: "Copiar senha",
                                   size: 11,
-                                  color: Colors.grey.shade200,
+                                  color: Get.theme.colorScheme.tertiary,
                                 ),
                               ),
                               Visibility(
@@ -340,7 +342,7 @@ class PasswordCardState extends State<PasswordCard> {
                           value: widget.senha.avancado,
                           label: "Avançado",
                           labelSize: 14,
-                          labelColor: Colors.grey.shade200,
+                          labelColor: Get.theme.colorScheme.tertiary,
                           backgroundColor: Get.theme.highlightColor,
                           checkColor: HashPassTheme.isDarkMode ? AppColors.SECONDARY_DARK : AppColors.SECONDARY_LIGHT,
                         ),
@@ -369,7 +371,7 @@ class PasswordCardState extends State<PasswordCard> {
                               PasswordCardFunctions.deletePassword(widget.senha, (code) => widget.onDelete(code));
                             },
                             icon: Showcase(
-                              key: _removeKey,
+                              key: widget.isExample ? widget.removeKey : GlobalKey(),
                               description: "Toque aqui para excluir a senha",
                               child: const Icon(Icons.delete),
                             ),
@@ -401,7 +403,7 @@ class PasswordCardState extends State<PasswordCard> {
                               }
                             },
                             icon: Showcase(
-                              key: _saveKey,
+                              key: widget.isExample ? widget.saveKey : GlobalKey(),
                               description: "Toque aqui para salvar as informações da sua senha",
                               child: const Icon(Icons.save),
                             ),
