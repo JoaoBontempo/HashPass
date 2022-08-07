@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-
-import '../../Util/util.dart';
 
 class AnimatedHide extends StatefulWidget {
   const AnimatedHide({

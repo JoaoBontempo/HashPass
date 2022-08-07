@@ -106,11 +106,13 @@ class _MenuDadosState extends State<MenuDados> {
               title: "Erro desconhecido ao abrir o arquivo",
             );
           }
+          return null;
         },
       );
       return file;
-    } catch (erro) {
-      throw erro;
+    } catch (_) {
+      HashPassMessage.show(message: "Ocorreu um erro inesperado ao abrir o gerenciador de arquivos.", title: "Ocorreu um erro.");
+      return null;
     }
   }
 
@@ -138,7 +140,7 @@ class _MenuDadosState extends State<MenuDados> {
             }
             Get.to(const IndexPage());
             HashPassSnackBar.show(message: "Dados importados com sucesso!");
-          } on Exception catch (erro) {
+          } on Exception catch (_) {
             HashPassMessage.show(
               message: "Um erro inesperado ocorreu ao importar seus dados. Por favor, tente novamente \n\n"
                   "* Verifique se a chave inserida está correta"

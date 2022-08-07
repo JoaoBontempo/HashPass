@@ -189,7 +189,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: AppTextField(
-                          maxLength: 225,
+                          maxLength: 150,
                           icon: Icons.lock_outline,
                           label: "Senha",
                           padding: 0,
@@ -198,7 +198,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           validator: Validatorless.multiple(
                             [
                               Validatorless.required("A senha é obrigatória"),
-                              Validatorless.min(4, 'A senha é pequena demais'),
+                              Validatorless.min(4, 'A senha deve ter no mínimo 4 caracteres'),
                             ],
                           ),
                           onChange: (password) {
@@ -360,8 +360,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                               !isVerifiedPassword) {
                             HashPassMessage.show(
                               message: leakObject.status == LeakStatus.LEAKED
-                                  ? "A senha que você está tentando ${isRegister ? 'cadastrar' : 'salvar'} já foi vazada! Você deseja ${isRegister ? 'cadastrá-la' : 'salvá-la'}"
-                                  : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja ${isRegister ? 'cadastrar' : 'salvar'} sua senha?",
+                                  ? "A senha que você está tentando ${isRegister ? 'cadastrar' : 'salvar'} já foi vazada! Você deseja ${isRegister ? 'cadastrá-la' : 'salvá-la'} ?"
+                                  : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja ${isRegister ? 'cadastrá-la' : 'salvá-la'} ?",
                               title: leakObject.status == LeakStatus.LEAKED ? "Senha vazada" : "Senha não verificada",
                               type: MessageType.YESNO,
                             ).then((action) {

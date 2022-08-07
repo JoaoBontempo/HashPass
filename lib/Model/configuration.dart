@@ -34,13 +34,6 @@ class Configuration {
     required this.cardStyle,
   });
 
-  static void printConfigs() {
-    debugPrint('Theme: ${Configuration.instance.theme} theme | Timer: ${Configuration.instance.showPasswordTime} | '
-        'Biometria: ${Configuration.instance.isBiometria} | hasTimer: ${Configuration.instance.hasTimer}'
-        ' | Insert pass verify: ${Configuration.instance.insertPassVerify} | Update pass verify: ${Configuration.instance.updatePassVerify} | '
-        'Tooltips: ${Configuration.instance.showHelpTooltips} | Entrance: ${Configuration.instance.hasEntrance}');
-  }
-
   static Future<bool> adicionarPrimeiraChave(String chaveGeral) async {
     bool chaveAdicionada = await HashCrypt.createDefaultKey(chaveGeral);
     return chaveAdicionada;

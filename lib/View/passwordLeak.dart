@@ -55,10 +55,14 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                 ),
                 AppTextField(
                   icon: Icons.lock_outline,
+                  maxLength: 100,
                   label: 'Digite a senha ',
                   obscureText: true,
                   controller: passwordEC,
-                  validator: Validatorless.required('Nenhuma senha foi informada'),
+                  validator: Validatorless.multiple([
+                    Validatorless.required('Nenhuma senha foi informada'),
+                    Validatorless.min(4, "A senha informada deve ter no mínimo 4 caracteres")
+                  ]),
                   padding: 0,
                   onChange: (text) => setState(() {
                     showMessage = false;

@@ -7,7 +7,6 @@ import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Themes/theme.dart';
-import 'package:hashpass/Util/appContext.dart';
 import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/cards/cardFunctions.dart';
 import 'package:hashpass/Widgets/data/checkBox.dart';

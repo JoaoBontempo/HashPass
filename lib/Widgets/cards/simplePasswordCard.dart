@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/senha.dart';
+import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Widgets/cards/cardFunctions.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -32,6 +34,19 @@ class SimpleCardPassword extends StatefulWidget {
 }
 
 class _SimpleCardPasswordState extends State<SimpleCardPassword> {
+  @override
+  void initState() {
+    if (widget.password.leakCount == -1) {
+      HashCrypt.verifyPassowordLeak(widget.password.senhaBase).then(
+        (response) {
+          widget.password.leakCount = response.leakCount;
+          SenhaDBSource().atualizarSenha(widget.password);
+        },
+      );
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

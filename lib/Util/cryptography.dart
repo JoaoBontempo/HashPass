@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart' as hashs;
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
@@ -101,11 +100,8 @@ class HashCrypt {
 
     String baseFileKey = "";
     String dispositivo = "";
-    String sistema = "";
-
     if (Platform.isAndroid) {
       dispositivo = androidInfo.manufacturer! + androidInfo.model!;
-      sistema = androidInfo.version.release!;
       baseFileKey = _applyHashAlgorithm(
         hashs.sha256,
         dispositivo + androidInfo.id! + androidInfo.androidId! + _generatePasswordKey(),
@@ -296,7 +292,7 @@ class HashCrypt {
       await adicionarHashValidacao(base);
       Util.senhas = await SenhaDBSource().getTodasSenhas();
       return true;
-    } on Exception catch (erro) {
+    } on Exception catch (_) {
       return false;
     }
   }

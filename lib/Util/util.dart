@@ -46,7 +46,6 @@ class Util {
         dotAmount += 1;
       }
       int firstDotIndex = numberStr.length - 3 * dotAmount;
-      debugPrint('DotAmount: $dotAmount | FirstDot: $firstDotIndex | Number: $number');
       for (int index = 0, indexCount = 0; index < numberStr.length; index++, indexCount++) {
         if (index == firstDotIndex) {
           numberFormat += '.';

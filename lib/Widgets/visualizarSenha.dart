@@ -130,8 +130,10 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
         const Duration(seconds: 1),
         (timer) {
           if (cont > 0) {
-            tempo += 1 / tempoTotal;
-            cont = cont - 1;
+            setState(() {
+              tempo += 1 / tempoTotal;
+              cont = cont - 1;
+            });
           }
           if (tempo >= 0.99) {
             Navigator.of(context, rootNavigator: true).pop();

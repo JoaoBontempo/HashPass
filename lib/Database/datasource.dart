@@ -25,7 +25,6 @@ class SenhaDBSource {
 
   Future<int> atualizarSenha(Senha senha) async {
     final Database db = await _getDatabase();
-    debugPrint("Senha atualizada: ${senha.toString()}");
     return await db.update(
       SENHA_TABLE_NAME,
       senha.toMap(),
@@ -63,7 +62,6 @@ class SenhaDBSource {
 
       return senha;
     } on Exception catch (erro) {
-      debugPrint(erro.toString());
       return erro;
     }
   }
@@ -77,9 +75,7 @@ class SenhaDBSource {
       return List.generate(senhas.length, (i) {
         return Senha.fromMap(senhas[i]);
       });
-    } catch (erro) {
-      debugPrint('GET ERROR');
-      debugPrint(erro.toString());
+    } catch (_) {
       return List.empty();
     }
   }
