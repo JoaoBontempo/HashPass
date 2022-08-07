@@ -45,7 +45,7 @@ class _MenuSenhasState extends State<MenuSenhas> {
     super.initState();
     bannerAd = BannerAd(
       size: AdSize.banner,
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111', //Util.adMobAppID,
+      adUnitId: Util.adBannerID,
       listener: BannerAdListener(
         onAdLoaded: (ad) {},
         onAdFailedToLoad: (ad, error) {

@@ -6,6 +6,7 @@ import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Util/ads.dart';
 import 'package:hashpass/Util/cryptography.dart';
+import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/data/copyButton.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 
@@ -47,7 +48,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
         case 1:
           bannerAd = BannerAd(
             size: AdSize.mediumRectangle,
-            adUnitId: 'ca-app-pub-3940256099942544/6300978111', //Util.adMobAppID,
+            adUnitId: Util.adBannerID, //Util.adMobAppID,
             listener: BannerAdListener(onAdLoaded: (ad) {
               setState(() {
                 isBannerLoaded = true;
@@ -64,7 +65,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
           break;
         case 2:
           InterstitialAd.load(
-            adUnitId: 'ca-app-pub-3940256099942544/1033173712',
+            adUnitId: Util.adVideoID,
             request: const AdRequest(),
             adLoadCallback: InterstitialAdLoadCallback(
               onAdLoaded: videoAdLoaded,

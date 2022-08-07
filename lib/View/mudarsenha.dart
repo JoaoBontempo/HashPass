@@ -49,12 +49,14 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                         icon: Icons.lock_outline,
                         label: "Nova senha",
                         padding: 0,
+                        maxLength: 50,
                         obscureText: showNewPassword,
                         controller: newPasswordEC,
                         validator: Validatorless.multiple(
                           [
                             Validatorless.required("Nenhuma senha foi informada"),
-                            Validatorless.compare(newPasswordTrim, "A senha não pode conter espaços!")
+                            Validatorless.compare(newPasswordTrim, "A senha não pode conter espaços!"),
+                            Validatorless.min(4, "A senha deve ter no mínimo 4 caracteres!"),
                           ],
                         ),
                         suffixIcon: showNewPassword ? Util.visiblePasswordIcon : Util.notVisiblePasswordIcon,
@@ -68,6 +70,7 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                           icon: Icons.lock_outline,
                           label: "Confirmar nova senha",
                           padding: 0,
+                          maxLength: 50,
                           obscureText: showConfirmPassword,
                           validator: Validatorless.multiple(
                             [

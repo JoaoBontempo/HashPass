@@ -110,12 +110,11 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                   child: AppTextField(
                     onKeyboardAction: (text) => validateTextKey(),
                     icon: Icons.lock_outlined,
+                    maxLength: 50,
                     label: widget.lastKeyLabel ? "Informe sua senha antiga:" : "Senha do aplicativo:",
                     padding: 10,
                     controller: senhaEC,
-                    validator: Validatorless.multiple([
-                      Validatorless.required("A senha não foi informada!"),
-                    ]),
+                    validator: Validatorless.required("A senha não foi informada!"),
                   ),
                 ),
                 Visibility(

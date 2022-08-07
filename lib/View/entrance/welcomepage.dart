@@ -64,10 +64,12 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                     child: AppTextField(
                       icon: Icons.lock_outline,
                       label: "Informe uma senha geral",
+                      maxLength: 50,
                       padding: 20,
                       validator: Validatorless.multiple([
                         Validatorless.required("Este campo não pode estar vazio"),
-                        Validatorless.compare(passwordTrimCompare, "A senha não pode conter espaços")
+                        Validatorless.compare(passwordTrimCompare, "A senha não pode conter espaços"),
+                        Validatorless.min(4, "A senha deve ter no mínimo 4 caracteres!"),
                       ]),
                       controller: senhaEC,
                     ),

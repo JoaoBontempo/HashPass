@@ -12,6 +12,8 @@ class Util {
   }
 
   static const String adMobAppID = 'ca-app-pub-2117228224971128~4230023543';
+  static const String adBannerID = 'ca-app-pub-2117228224971128/9690427305';
+  static const String adVideoID = 'ca-app-pub-2117228224971128/8210053549';
 
   static Icon get visiblePasswordIcon => Icon(
         Icons.visibility,
