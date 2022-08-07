@@ -54,8 +54,6 @@ class PasswordCardState extends State<PasswordCard> {
   final formKey = GlobalKey<FormState>();
   final senhaEC = TextEditingController();
   final credencialEC = TextEditingController();
-
-  late HashFunction algoritmoSelecionado = HashCrypt.algoritmos[widget.senha.algoritmo];
   late PasswordLeakDTO leakObject = PasswordLeakDTO(leakCount: widget.senha.leakCount);
 
   late String basePassword;
@@ -67,8 +65,7 @@ class PasswordCardState extends State<PasswordCard> {
   bool isVerifiedPassword = true;
   bool hidePassword = true;
 
-  void atualizarParametrosSenha(String lastPassword, String newPassword, String credential, int algorithm) {
-    widget.senha.algoritmo = algorithm;
+  void atualizarParametrosSenha(String lastPassword, String newPassword, String credential) {
     widget.senha.credencial = credential;
     if (lastPassword != basePassword) {
       widget.senha.senhaBase = newPassword;
@@ -111,7 +108,6 @@ class PasswordCardState extends State<PasswordCard> {
             senhaEC.text,
             await HashCrypt.cipherString(senhaEC.text, key),
             credencialEC.text,
-            algoritmoSelecionado.index,
           );
           int code = await SenhaDBSource().atualizarSenha(widget.senha);
           widget.onUpdate(code);
@@ -167,6 +163,7 @@ class PasswordCardState extends State<PasswordCard> {
                           if (code == 1) {
                             setState(() {
                               widget.senha = _updatedPassword;
+                              credencialEC.text = _updatedPassword.credencial;
                             });
                           }
                         },
@@ -329,13 +326,11 @@ class PasswordCardState extends State<PasswordCard> {
                           itens: HashCrypt.algoritmos,
                           onChange: (function) {
                             setState(() {
-                              algoritmoSelecionado = HashCrypt.algoritmos.firstWhere(
-                                (algoritmo) => algoritmo.index == function.index,
-                              );
+                              widget.senha.algoritmo = function.index;
                             });
                           },
                           hintText: "Função hash",
-                          selectedItem: algoritmoSelecionado,
+                          selectedItem: widget.senha.hashFunction,
                         ),
                         HashPassCheckBox(
                           onChange: (isSelected) => widget.senha.avancado = isSelected,

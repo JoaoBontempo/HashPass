@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:hashpass/Model/hashFunction.dart';
+import 'package:hashpass/Util/cryptography.dart';
+
 class Senha {
   int? id;
   String titulo;
@@ -53,6 +56,8 @@ class Senha {
   String toJson() => json.encode(toMap());
 
   factory Senha.fromJson(String source) => Senha.fromMap(json.decode(source));
+
+  HashFunction get hashFunction => HashCrypt.algoritmos.firstWhere((function) => function.index == algoritmo);
 
   @override
   String toString() {

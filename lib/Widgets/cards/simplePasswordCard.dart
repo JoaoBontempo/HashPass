@@ -6,7 +6,7 @@ import 'package:hashpass/Widgets/cards/cardFunctions.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-class SimpleCardPassword extends StatelessWidget {
+class SimpleCardPassword extends StatefulWidget {
   SimpleCardPassword({
     Key? key,
     required this.password,
@@ -28,10 +28,15 @@ class SimpleCardPassword extends StatelessWidget {
   final GlobalKey editKey;
 
   @override
+  State<SimpleCardPassword> createState() => _SimpleCardPasswordState();
+}
+
+class _SimpleCardPasswordState extends State<SimpleCardPassword> {
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () => PasswordCardFunctions.copyPassword(password, () => onCopy()),
-      onTap: () => PasswordCardFunctions.showPassword(password),
+      onLongPress: () => PasswordCardFunctions.copyPassword(widget.password, () => widget.onCopy()),
+      onTap: () => PasswordCardFunctions.showPassword(widget.password),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 20,
@@ -40,7 +45,7 @@ class SimpleCardPassword extends StatelessWidget {
           right: 20,
         ),
         child: Showcase(
-          key: isExample ? cardKey : GlobalKey(),
+          key: widget.isExample ? widget.cardKey : GlobalKey(),
           description: "Toque uma vez para visualizar a senha. Segure para copiar a senha.",
           child: Card(
             shape: RoundedRectangleBorder(
@@ -61,12 +66,12 @@ class SimpleCardPassword extends StatelessWidget {
                         HashPassLabel(
                           textAlign: TextAlign.left,
                           overflow: TextOverflow.clip,
-                          text: password.titulo,
+                          text: widget.password.titulo,
                           color: Get.theme.highlightColor,
                           fontWeight: FontWeight.bold,
                         ),
                         Visibility(
-                          visible: password.credencial.isNotEmpty,
+                          visible: widget.password.credencial.isNotEmpty,
                           child: Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: Row(
@@ -82,7 +87,7 @@ class SimpleCardPassword extends StatelessWidget {
                                     paddingTop: 1.5,
                                     overflow: TextOverflow.fade,
                                     size: 12,
-                                    text: password.credencial,
+                                    text: widget.password.credencial,
                                     color: Get.theme.colorScheme.tertiary,
                                   ),
                                 ),
@@ -100,11 +105,11 @@ class SimpleCardPassword extends StatelessWidget {
                           IconButton(
                             onPressed: () {
                               Get.focusScope!.unfocus();
-                              PasswordCardFunctions.deletePassword(password, (code) => onDelete(code));
+                              PasswordCardFunctions.deletePassword(widget.password, (code) => widget.onDelete(code));
                             },
                             padding: EdgeInsets.zero,
                             icon: Showcase(
-                              key: isExample ? removeKey : GlobalKey(),
+                              key: widget.isExample ? widget.removeKey : GlobalKey(),
                               description: "Toque aqui para excluir a senha",
                               child: const Icon(
                                 Icons.delete,
@@ -117,16 +122,18 @@ class SimpleCardPassword extends StatelessWidget {
                             padding: const EdgeInsets.only(right: 10),
                             constraints: const BoxConstraints(),
                             onPressed: () => PasswordCardFunctions.toUpdatePassword(
-                              password,
+                              widget.password,
                               (_updatedPassword, code) {
-                                onUpdate(code);
+                                widget.onUpdate(code);
                                 if (code == 1) {
-                                  password = _updatedPassword;
+                                  setState(() {
+                                    widget.password = _updatedPassword;
+                                  });
                                 }
                               },
                             ),
                             icon: Showcase(
-                              key: isExample ? editKey : GlobalKey(),
+                              key: widget.isExample ? widget.editKey : GlobalKey(),
                               description: "Toque aqui para editar as informações da senha",
                               child: const Icon(
                                 Icons.edit,

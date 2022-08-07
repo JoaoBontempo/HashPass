@@ -42,41 +42,43 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
 
   @override
   void initState() {
-    switch (AdsHelper.getAdType()) {
-      case 1:
-        bannerAd = BannerAd(
-          size: AdSize.mediumRectangle,
-          adUnitId: 'ca-app-pub-3940256099942544/6300978111', //Util.adMobAppID,
-          listener: BannerAdListener(onAdLoaded: (ad) {
-            setState(() {
-              isBannerLoaded = true;
+    AdsHelper.getAdType().then((adType) {
+      switch (adType) {
+        case 1:
+          bannerAd = BannerAd(
+            size: AdSize.mediumRectangle,
+            adUnitId: 'ca-app-pub-3940256099942544/6300978111', //Util.adMobAppID,
+            listener: BannerAdListener(onAdLoaded: (ad) {
+              setState(() {
+                isBannerLoaded = true;
+              });
+            }, onAdFailedToLoad: (ad, error) {
+              debugPrint("Erro ao carregar o banner: ${error.message}");
+              isBannerLoaded = false;
+              ad.dispose();
+            }),
+            request: const AdRequest(),
+          )..load().then((value) {
+              _initPasswordDialog();
             });
-          }, onAdFailedToLoad: (ad, error) {
-            debugPrint("Erro ao carregar o banner: ${error.message}");
-            isBannerLoaded = false;
-            ad.dispose();
-          }),
-          request: const AdRequest(),
-        )..load().then((value) {
-            _initPasswordDialog();
-          });
-        break;
-      case 2:
-        InterstitialAd.load(
-          adUnitId: 'ca-app-pub-3940256099942544/1033173712',
-          request: const AdRequest(),
-          adLoadCallback: InterstitialAdLoadCallback(
-            onAdLoaded: videoAdLoaded,
-            onAdFailedToLoad: (error) {
-              debugPrint("Erro ao renderizar ad: $error");
-            },
-          ),
-        );
-        break;
-      case 3:
-        _initPasswordDialog();
-        break;
-    }
+          break;
+        case 2:
+          InterstitialAd.load(
+            adUnitId: 'ca-app-pub-3940256099942544/1033173712',
+            request: const AdRequest(),
+            adLoadCallback: InterstitialAdLoadCallback(
+              onAdLoaded: videoAdLoaded,
+              onAdFailedToLoad: (error) {
+                debugPrint("Erro ao renderizar ad: $error");
+              },
+            ),
+          );
+          break;
+        case 3:
+          _initPasswordDialog();
+          break;
+      }
+    });
     super.initState();
   }
 
@@ -127,12 +129,10 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
       time = Timer.periodic(
         const Duration(seconds: 1),
         (timer) {
-          setState(() {
-            if (cont > 0) {
-              tempo += 1 / tempoTotal;
-              cont = cont - 1;
-            }
-          });
+          if (cont > 0) {
+            tempo += 1 / tempoTotal;
+            cont = cont - 1;
+          }
           if (tempo >= 0.99) {
             Navigator.of(context, rootNavigator: true).pop();
             time.cancel();

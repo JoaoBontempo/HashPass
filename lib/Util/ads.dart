@@ -1,7 +1,13 @@
 import 'dart:math';
 
+import 'package:hashpass/Util/http.dart';
+
 class AdsHelper {
-  static int getAdType() {
+  static Future<int> getAdType() async {
+    if (!await HTTPRequest.checkUserConnection()) {
+      return 1;
+    }
+
     final _random = Random();
     int number = 1 + _random.nextInt(10 - 1);
     switch (number) {
