@@ -1,4 +1,4 @@
-package com.example.hashpass
+package com.hashpass
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
