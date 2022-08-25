@@ -13,7 +13,7 @@ if (flutterRoot == null) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '3'
+    flutterVersionCode = '4'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
@@ -64,7 +64,7 @@ android {
     defaultConfig {
         applicationId "com.hashpass"
         minSdkVersion 19
-        versionCode 3
+        versionCode 4
         versionName "1.1.0"
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()

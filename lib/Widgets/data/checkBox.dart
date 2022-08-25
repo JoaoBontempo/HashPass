@@ -6,13 +6,14 @@ class HashPassCheckBox extends StatefulWidget {
     Key? key,
     required this.onChange,
     required this.value,
-    required this.label,
+    this.label = "",
     this.labelSize,
     this.fontWeight,
     this.labelColor,
     this.scale = 1,
     this.checkColor,
     this.backgroundColor,
+    this.customLabel,
   }) : super(key: key);
   final Function(bool) onChange;
   final String label;
@@ -22,6 +23,7 @@ class HashPassCheckBox extends StatefulWidget {
   final double scale;
   final Color? backgroundColor;
   final Color? checkColor;
+  final Widget? customLabel;
   bool value;
 
   @override
@@ -42,12 +44,13 @@ class _HashPassCheckBoxState extends State<HashPassCheckBox> {
       onTap: () => _changeValue(!widget.value),
       child: Row(
         children: [
-          HashPassLabel(
-            text: widget.label,
-            color: widget.labelColor,
-            fontWeight: widget.fontWeight,
-            size: widget.labelSize,
-          ),
+          widget.customLabel ??
+              HashPassLabel(
+                text: widget.label,
+                color: widget.labelColor,
+                fontWeight: widget.fontWeight,
+                size: widget.labelSize,
+              ),
           Transform.scale(
             scale: widget.scale,
             child: Checkbox(
