@@ -4,6 +4,7 @@ import 'package:hashpass/DTO/leakPassDTO.dart';
 import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Util/http.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/Util/validator.dart';
 import 'package:hashpass/Widgets/animations/booleanHide.dart';
 import 'package:hashpass/Widgets/data/button.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
@@ -60,7 +61,7 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                   obscureText: true,
                   controller: passwordEC,
                   validator: Validatorless.multiple([
-                    Validatorless.required('Nenhuma senha foi informada'),
+                    HashPassValidator.empty("Nenhuma senha foi informada"),
                     Validatorless.min(4, "A senha informada deve ter no mínimo 4 caracteres")
                   ]),
                   padding: 0,

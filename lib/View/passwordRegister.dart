@@ -11,6 +11,7 @@ import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Util/route.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/Util/validator.dart';
 import 'package:hashpass/View/configuracoes.dart';
 import 'package:hashpass/Widgets/animations/booleanHide.dart';
 import 'package:hashpass/Widgets/data/button.dart';
@@ -177,7 +178,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                         controller: tituloEC,
                         validator: isRegister
                             ? Validatorless.multiple([
-                                Validatorless.required("O título é obrigatório"),
+                                HashPassValidator.empty("O título é obrigatório"),
                               ])
                             : Validatorless.min(0, ''),
                       ),
@@ -197,12 +198,12 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           controller: senhaEC,
                           validator: Validatorless.multiple(
                             [
-                              Validatorless.required("A senha é obrigatória"),
+                              HashPassValidator.empty("A senha é obrigatória!"),
                               Validatorless.min(4, 'A senha deve ter no mínimo 4 caracteres'),
                             ],
                           ),
                           onChange: (password) {
-                            if (password.isEmpty || password.length < 4) {
+                            if (password.isEmpty || password.trim() == '' || password.length < 4) {
                               isDeleting = true;
                               setState(() {
                                 hasPasswordVerification = false;
@@ -273,7 +274,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                         controller: credencialEC,
                         validator: useCredential
                             ? Validatorless.multiple([
-                                Validatorless.required("A credencial é obrigatória"),
+                                HashPassValidator.empty("A credencial é obrigatória"),
                               ])
                             : Validatorless.min(0, ''),
                       ),

@@ -6,6 +6,7 @@ import 'package:hashpass/DTO/dataExportDTO.dart';
 import 'package:hashpass/Database/datasource.dart';
 import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Util/cryptography.dart';
+import 'package:hashpass/Util/validator.dart';
 import 'package:hashpass/View/index.dart';
 import 'package:hashpass/Widgets/data/copyButton.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
@@ -268,7 +269,7 @@ class _MenuDadosState extends State<MenuDados> {
                           label: "Insira a chave de exportação",
                           padding: 0,
                           controller: chaveEC,
-                          validator: Validatorless.required("A chave é obrigatória!"),
+                          validator: HashPassValidator.empty("Este campo não pode estar vazio"),
                         ),
                       ),
                       Padding(

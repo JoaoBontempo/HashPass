@@ -4,6 +4,7 @@ import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Util/route.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/Util/validator.dart';
 import 'package:hashpass/Widgets/animations/animatedOpacityList.dart';
 import 'package:hashpass/Widgets/data/button.dart';
 import 'package:hashpass/Widgets/data/checkBox.dart';
@@ -70,7 +71,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                       maxLength: 50,
                       padding: 20,
                       validator: Validatorless.multiple([
-                        Validatorless.required("Este campo não pode estar vazio"),
+                        HashPassValidator.empty("Este campo não pode estar vazio"),
                         Validatorless.compare(passwordTrimCompare, "A senha não pode conter espaços"),
                         Validatorless.min(4, "A senha deve ter no mínimo 4 caracteres!"),
                       ]),

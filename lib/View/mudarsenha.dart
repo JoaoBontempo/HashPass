@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hashpass/Util/cryptography.dart';
 import 'package:hashpass/Util/route.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/Util/validator.dart';
 import 'package:hashpass/Widgets/data/button.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
@@ -54,7 +55,7 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                         controller: newPasswordEC,
                         validator: Validatorless.multiple(
                           [
-                            Validatorless.required("Nenhuma senha foi informada"),
+                            HashPassValidator.empty("Nenhuma senha foi informada"),
                             Validatorless.compare(newPasswordTrim, "A senha não pode conter espaços!"),
                             Validatorless.min(4, "A senha deve ter no mínimo 4 caracteres!"),
                           ],
@@ -74,7 +75,7 @@ class _MudarSenhaPageState extends State<MudarSenhaPage> {
                           obscureText: showConfirmPassword,
                           validator: Validatorless.multiple(
                             [
-                              Validatorless.required("Confirme sua senha"),
+                              HashPassValidator.empty("Confirme sua senha"),
                               Validatorless.compare(newPasswordEC, "As senhas informadas não são iguais"),
                             ],
                           ),

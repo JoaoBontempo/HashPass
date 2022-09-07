@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/Model/configuration.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/Util/validator.dart';
 import 'package:local_auth/auth_strings.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:validatorless/validatorless.dart';
@@ -114,7 +115,7 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                     label: widget.lastKeyLabel ? "Informe sua senha antiga:" : "Senha do aplicativo:",
                     padding: 10,
                     controller: senhaEC,
-                    validator: Validatorless.required("A senha não foi informada!"),
+                    validator: HashPassValidator.empty("A senha não foi informada!"),
                   ),
                 ),
                 Visibility(
