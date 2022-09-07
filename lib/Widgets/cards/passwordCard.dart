@@ -80,7 +80,6 @@ class PasswordCardState extends State<PasswordCard> {
     senhaEC.text = widget.senha.senhaBase;
     basePassword = widget.senha.senhaBase;
     isVerifiedPassword = widget.senha.leakCount == 0;
-    hasPasswordVerification = isVerifiedPassword;
 
     if (widget.senha.leakCount == -1) {
       HashCrypt.verifyPassowordLeak(basePassword).then(
@@ -92,7 +91,6 @@ class PasswordCardState extends State<PasswordCard> {
               leakObject = response;
               hasPasswordVerification = true;
               isVerifiedPassword = response.leakCount == 0;
-              hasPasswordVerification = isVerifiedPassword;
             },
           );
         },
@@ -307,7 +305,7 @@ class PasswordCardState extends State<PasswordCard> {
                                 ),
                               ),
                               Visibility(
-                                visible: Configuration.instance.updatePassVerify && hasPasswordVerification,
+                                visible: Configuration.instance.updatePassVerify && senhaEC.text.trim().length > 4,
                                 child: leakObject.getLeakWidget(size: 16),
                               ),
                             ],
