@@ -8,6 +8,7 @@ import 'package:hashpass/Model/senha.dart';
 import 'package:hashpass/Themes/colors.dart';
 import 'package:hashpass/Themes/theme.dart';
 import 'package:hashpass/Util/util.dart';
+import 'package:hashpass/Util/validator.dart';
 import 'package:hashpass/Widgets/cards/cardFunctions.dart';
 import 'package:hashpass/Widgets/data/checkBox.dart';
 import 'package:hashpass/Widgets/data/dropDown.dart';
@@ -79,6 +80,7 @@ class PasswordCardState extends State<PasswordCard> {
     senhaEC.text = widget.senha.senhaBase;
     basePassword = widget.senha.senhaBase;
     isVerifiedPassword = widget.senha.leakCount == 0;
+    hasPasswordVerification = isVerifiedPassword;
 
     if (widget.senha.leakCount == -1) {
       HashCrypt.verifyPassowordLeak(basePassword).then(
@@ -90,6 +92,7 @@ class PasswordCardState extends State<PasswordCard> {
               leakObject = response;
               hasPasswordVerification = true;
               isVerifiedPassword = response.leakCount == 0;
+              hasPasswordVerification = isVerifiedPassword;
             },
           );
         },
@@ -192,7 +195,7 @@ class PasswordCardState extends State<PasswordCard> {
                       borderColor: Get.theme.highlightColor,
                       labelStyle: TextStyle(color: Get.theme.colorScheme.tertiary, fontSize: 17),
                       validator: widget.senha.credencial.isNotEmpty
-                          ? Validatorless.required("A credencial não pode estar vazia.")
+                          ? HashPassValidator.empty("A credencial não pode estar vazia!")
                           : Validatorless.min(0, ''),
                     ),
                   ),
@@ -213,7 +216,7 @@ class PasswordCardState extends State<PasswordCard> {
                             labelStyle: TextStyle(color: Get.theme.colorScheme.tertiary, fontSize: 17),
                             validator: Validatorless.multiple(
                               [
-                                Validatorless.required("A senha não pode estar vazia."),
+                                HashPassValidator.empty("A senha não pode estar vazia!"),
                                 Validatorless.min(4, 'A senha é curta demais!'),
                               ],
                             ),
@@ -225,11 +228,11 @@ class PasswordCardState extends State<PasswordCard> {
                             onChange: (text) {
                               setState(() {
                                 toDelete = true;
-                                if (text.isEmpty) {
+                                if (text.isEmpty || text.trim() == '') {
                                   hasPasswordVerification = false;
                                 }
                               });
-                              if (text.isEmpty || text.length < 4) {
+                              if (text.isEmpty || text.trim() == '' || text.length < 4) {
                                 isDeleting = true;
                                 setState(() {
                                   hasPasswordVerification = false;
@@ -304,7 +307,7 @@ class PasswordCardState extends State<PasswordCard> {
                                 ),
                               ),
                               Visibility(
-                                visible: Configuration.instance.updatePassVerify && senhaEC.text.length > 4,
+                                visible: Configuration.instance.updatePassVerify && hasPasswordVerification,
                                 child: leakObject.getLeakWidget(size: 16),
                               ),
                             ],
