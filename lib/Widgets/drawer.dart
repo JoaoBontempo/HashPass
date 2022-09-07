@@ -8,6 +8,7 @@ import 'package:hashpass/View/mudarsenha.dart';
 import 'package:hashpass/View/passwordLeak.dart';
 import 'package:hashpass/View/sobre.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -63,6 +64,11 @@ class AppDrawer extends StatelessWidget {
               Get.back();
               Get.to(const MenuConfiguracoes());
             },
+          ),
+          HashPassDrawerButton(
+            icon: Icons.library_books,
+            title: "Política de privacidade",
+            onTap: () => launch("https://joaobontempo.github.io/HashPassWebsite/hashpass-website/"),
           ),
           HashPassDrawerButton(
             icon: Icons.info_outline,

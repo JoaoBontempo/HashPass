@@ -6,9 +6,11 @@ import 'package:hashpass/Util/route.dart';
 import 'package:hashpass/Util/util.dart';
 import 'package:hashpass/Widgets/animations/animatedOpacityList.dart';
 import 'package:hashpass/Widgets/data/button.dart';
+import 'package:hashpass/Widgets/data/checkBox.dart';
 import 'package:hashpass/Widgets/data/textfield.dart';
 import 'package:hashpass/Widgets/interface/label.dart';
 import 'package:hashpass/Widgets/interface/messageBox.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:validatorless/validatorless.dart';
 
 class AppWelcomePage extends StatefulWidget {
@@ -22,6 +24,7 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
   final senhaEC = TextEditingController();
   final passwordTrimCompare = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool privacyPolicy = false;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +79,30 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
+                      left: 20,
+                      right: 20,
+                    ),
+                    child: HashPassCheckBox(
+                      onChange: (checked) => setState(() {
+                        privacyPolicy = checked;
+                      }),
+                      value: privacyPolicy,
+                      customLabel: Row(
+                        children: [
+                          const HashPassLabel(
+                            text: "Concordo com os termos da ",
+                            size: 12,
+                          ),
+                          GestureDetector(
+                            child: HashPassLabel(text: "Política de privacidade", color: Get.theme.highlightColor, size: 12),
+                            onTap: () => launch("https://joaobontempo.github.io/HashPassWebsite/hashpass-website/"),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
                       top: 15,
                       bottom: 25,
                     ),
@@ -84,15 +111,23 @@ class _AppWelcomePageState extends State<AppWelcomePage> {
                       width: Get.size.width * .5,
                       height: 35,
                       onPressed: () async {
-                        passwordTrimCompare.text = senhaEC.text.trim();
-                        if (Util.validateForm(formKey)) {
-                          if (await HashCrypt.adicionarHashValidacao(senhaEC.text)) {
-                            HashPassRoute.to("/chooseConfig", context);
-                          } else {
-                            HashPassMessage.show(
-                              message: "Um erro desconhecido ocorreu ao cadastrar sua senha geral. Por favor, tente novamente.",
-                              title: "Ocorreu um erro",
-                            );
+                        if (!privacyPolicy) {
+                          HashPassMessage.show(
+                            title: "Política de privacidade",
+                            message: "Para continuar, é necessário concordar com os termos da política de privacidade do aplicativo.",
+                            type: MessageType.OK,
+                          );
+                        } else {
+                          passwordTrimCompare.text = senhaEC.text.trim();
+                          if (Util.validateForm(formKey)) {
+                            if (await HashCrypt.adicionarHashValidacao(senhaEC.text)) {
+                              HashPassRoute.to("/chooseConfig", context);
+                            } else {
+                              HashPassMessage.show(
+                                message: "Um erro desconhecido ocorreu ao cadastrar sua senha geral. Por favor, tente novamente.",
+                                title: "Ocorreu um erro",
+                              );
+                            }
                           }
                         }
                       },
