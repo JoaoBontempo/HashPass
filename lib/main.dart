@@ -3,24 +3,24 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:hashpass/Themes/dark.dart';
-import 'package:hashpass/Themes/light.dart';
-import 'package:hashpass/View/entrance/chooseConfig.dart';
-import 'package:hashpass/View/entrance/entranceSet.dart';
-import 'package:hashpass/View/entrance/setFirstConfig.dart';
-import 'package:hashpass/View/index.dart';
-import 'package:hashpass/View/senhas.dart';
-import 'package:hashpass/View/splashpage.dart';
-import 'package:hashpass/View/entrance/welcomepage.dart';
+import 'package:hashpass/themes/dark.dart';
+import 'package:hashpass/themes/light.dart';
+import 'package:hashpass/view/entrance/chooseConfig.dart';
+import 'package:hashpass/view/entrance/entranceSet.dart';
+import 'package:hashpass/view/entrance/setFirstConfig.dart';
+import 'package:hashpass/view/index.dart';
+import 'package:hashpass/view/passwords.dart';
+import 'package:hashpass/view/splashpage.dart';
+import 'package:hashpass/view/entrance/welcomepage.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-import 'Model/configuration.dart';
+import 'model/configuration.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   MobileAds.instance.initialize();
-  await Configuration.getConfigs();
+  await Configuration.getHashPassConfiguration();
   runApp(const HashPassApp());
 }
 
@@ -30,7 +30,8 @@ class HashPassApp extends StatefulWidget {
   @override
   State<HashPassApp> createState() => _HashPassAppState();
 
-  static _HashPassAppState? of(BuildContext context) => context.findAncestorStateOfType<_HashPassAppState>();
+  static _HashPassAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_HashPassAppState>();
 }
 
 class _HashPassAppState extends State<HashPassApp> {
@@ -53,7 +54,7 @@ class _HashPassAppState extends State<HashPassApp> {
             "/firstConfig": (_) => const FirstConfigScreen(),
             "/setEntrance": (_) => const SetEntrancePage(),
             "/index": (_) => const IndexPage(),
-            "/senhas": (_) => const MenuSenhas(),
+            "/senhas": (_) => const PasswordsMenu(),
           },
         ),
       ),

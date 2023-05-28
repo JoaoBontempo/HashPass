@@ -1,6 +1,6 @@
 {
-    "name": "hashpass",
-    "short_name": "hashpass",
+    "name": "hashpassfix",
+    "short_name": "hashpassfix",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

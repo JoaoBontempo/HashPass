@@ -13,26 +13,22 @@ if (flutterRoot == null) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '4'
+    flutterVersionCode = '1'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.1.0'
+    flutterVersionName = '1.0'
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 android {
+    namespace "com.hashpass"
     compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -47,49 +43,24 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
-    buildscript {
-        repositories {
-            google()
-            mavenCentral()
-        }
-    }
-
-    allprojects {
-        repositories {
-            google()
-            mavenCentral()
-        }
-    }
-
     defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.hashpass"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 19
-        versionCode 4
-        versionName "1.1.0"
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
 
-      signingConfigs {
-       release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
-       }
-   }
-   buildTypes {
-       release {
-            signingConfig signingConfigs.release
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'),
-                    'proguard-rules.pro'
-       }
-   }
-
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+        }
+    }
 }
 
 flutter {
@@ -98,5 +69,4 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.android.gms:play-services-ads:21.1.0'
 }
