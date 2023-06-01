@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/model/configuration.dart';
 import 'package:hashpass/model/password.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/util/util.dart';

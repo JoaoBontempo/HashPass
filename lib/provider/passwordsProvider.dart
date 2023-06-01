@@ -7,8 +7,10 @@ class PasswordProvider extends ChangeNotifier {
 
   PasswordProvider() {
     Password.findAll().then((passwords) {
+      print(passwords);
       _userPasswords = passwords;
       filteredPasswords = passwords;
+      notifyListeners();
     });
   }
 
@@ -26,6 +28,7 @@ class PasswordProvider extends ChangeNotifier {
 
   void removePassword(Password password) {
     _userPasswords.removeWhere((_password) => _password.id == password.id);
+    notifyListeners();
   }
 
   void filterPasswords(String query) {
@@ -34,5 +37,7 @@ class PasswordProvider extends ChangeNotifier {
       return password.title.toLowerCase().contains(query) ||
           password.credential.toLowerCase().contains(query);
     }).toList();
+
+    notifyListeners();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/model/configuration.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/widgets/animations/animatedOpacityList.dart';
 import 'package:hashpass/widgets/configuration/booleanConfig.dart';

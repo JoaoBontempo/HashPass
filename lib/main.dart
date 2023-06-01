@@ -14,7 +14,7 @@ import 'package:hashpass/view/splashpage.dart';
 import 'package:hashpass/view/entrance/welcomepage.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-import 'model/configuration.dart';
+import 'provider/configurationProvider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

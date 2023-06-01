@@ -63,7 +63,7 @@ class Password extends IEntity {
       Password.fromMap(json.decode(source));
 
   HashAlgorithm get hashFunction => HashAlgorithm.values
-      .firstWhere((function) => function.index == hashAlgorithm);
+      .firstWhere((function) => function.index == hashAlgorithm.index);
 
   @override
   String toString() {

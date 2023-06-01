@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:hashpass/model/configuration.dart';
 import 'package:hashpass/model/password.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordsProvider.dart';
 import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/appContext.dart';
@@ -166,7 +166,7 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                         child: AppSearchText(
                           placeholder: "Pesquisar título, credencial...",
                           controller: filterController,
-                          onChange: (filter) => provider.filterPasswords,
+                          onChange: provider.filterPasswords,
                         ),
                       ),
                     ),

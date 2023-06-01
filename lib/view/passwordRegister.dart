@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/dto/leakPassDTO.dart';
-import 'package:hashpass/model/configuration.dart';
 import 'package:hashpass/model/password.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordsProvider.dart';
 import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/themes/theme.dart';
@@ -52,10 +52,10 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
 
   late PasswordLeakDTO leakObject = PasswordLeakDTO(leakCount: 0);
 
-  void insertPassword() {
+  void insertPassword(PasswordProvider provider) {
     ValidarSenhaGeral.show(
       onValidate: (key) async {
-        Password senha = Password(
+        Password password = Password(
           title: tituloEC.text,
           credential: credencialEC.text,
           basePassword: await HashCrypt.cipherString(senhaEC.text, key),
@@ -64,14 +64,16 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
           useCriptography: isCriptografado,
           leakCount: leakObject.leakCount,
         );
-        senha.save();
-        HashPassRouteManager.to(HashPassRoute.INDEX, context);
-        widget.onRegister!(senha);
+        password.save().then((passwordId) {
+          provider.addPassword(password);
+          HashPassRouteManager.to(HashPassRoute.INDEX, context);
+          widget.onRegister!(password);
+        });
       },
     );
   }
 
-  void updatePassword() {
+  void updatePassword(PasswordProvider provider) {
     ValidarSenhaGeral.show(
       onValidate: (key) async {
         widget.password!.credential = credencialEC.text;
@@ -86,11 +88,11 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     );
   }
 
-  void screenAction() {
+  void savePassword(PasswordProvider provider) {
     if (isRegister) {
-      insertPassword();
+      insertPassword(provider);
     } else {
-      updatePassword();
+      updatePassword(provider);
     }
   }
 
@@ -394,12 +396,13 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                     : "Senha não verificada",
                                 type: MessageType.YESNO,
                               ).then((action) {
-                                if (action == MessageResponse.YES)
-                                  screenAction();
+                                if (action == MessageResponse.YES) {
+                                  savePassword(provider);
+                                }
                               });
                               return;
                             }
-                            screenAction();
+                            savePassword(provider);
                           }
                         },
                       ),

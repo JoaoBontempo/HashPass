@@ -6,8 +6,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 import 'package:hashpass/dto/dataExportDTO.dart';
 import 'package:hashpass/dto/leakPassDTO.dart';
-import 'package:hashpass/model/configuration.dart';
 import 'package:hashpass/model/password.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
 import 'http.dart';
 
 enum HashAlgorithm {
