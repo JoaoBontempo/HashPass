@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/cryptography.dart';

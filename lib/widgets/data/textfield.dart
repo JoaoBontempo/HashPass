@@ -69,7 +69,7 @@ class AppTextField extends StatelessWidget {
           fontSize: fontSize,
           color: fontColor ?? Get.theme.textTheme.bodyText1?.color,
         ),
-        onSaved: onSave != null ? onSave!(controller!.text) : null,
+        onSaved: (_) => onSave?.call(controller!.text),
         controller: controller,
         obscureText: obscureText,
         validator: validator,

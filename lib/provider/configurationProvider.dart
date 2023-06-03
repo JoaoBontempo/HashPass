@@ -21,10 +21,10 @@ enum ConfigurationKeys {
   const ConfigurationKeys(this.key);
 }
 
-class Configuration extends ChangeNotifier {
+class Configuration with ChangeNotifier {
   static late SharedPreferences configs;
   static late Configuration instance;
-  static bool hasInit = false;
+  SharedPreferences preferencesManager;
 
   bool hasEntrance;
   HashPassTheme theme;
@@ -37,6 +37,7 @@ class Configuration extends ChangeNotifier {
   bool showHelpTooltips;
 
   Configuration({
+    required this.preferencesManager,
     required this.hasEntrance,
     required this.theme,
     required this.showPasswordTime,
@@ -48,7 +49,7 @@ class Configuration extends ChangeNotifier {
     required this.cardStyle,
   });
 
-  static void setDefaultConfig() {
+  void setDefaultConfig() {
     setConfigs(
       timer: 30,
       useTimer: true,
@@ -59,11 +60,11 @@ class Configuration extends ChangeNotifier {
     );
   }
 
-  static void setDatabaseVersion() {
-    configs.setInt("sqlv", 1);
+  void setDatabaseVersion() {
+    preferencesManager.setInt("sqlv", 1);
   }
 
-  static Future<void> setConfigs({
+  Future<void> setConfigs({
     HashPassTheme? theme,
     double? timer,
     bool? useBiometricValidation,
@@ -75,48 +76,61 @@ class Configuration extends ChangeNotifier {
     HashPassCardStyle? cardStyle,
     Function(bool)? onBiometricChange,
   }) async {
-    _setTheme(theme);
-    _setBiometricValidation(useBiometricValidation, onBiometricChange);
-
-    _setConfig<double>(ConfigurationKeys.TIMER_VALUE, timer);
-
-    _setConfig<bool>(ConfigurationKeys.USE_TIMER, useTimer);
-    _setConfig<bool>(ConfigurationKeys.USE_TIMER, useTimer);
-    _setConfig<bool>(ConfigurationKeys.VERIFY_PASSWORD_ON_INSERT, insertVerify);
-    _setConfig<bool>(ConfigurationKeys.VERIFY_PASSWORD_ON_UPDATE, updateVerify);
-    _setConfig<bool>(ConfigurationKeys.USE_TOOLTIPS, tooltips);
-    _setConfig<bool>(ConfigurationKeys.APP_ENTRANCE, entrance);
-
-    _setConfig<int>(
+    await _setBiometricValidation(useBiometricValidation, onBiometricChange);
+    await _setTheme(theme);
+    await _setConfig<double>(ConfigurationKeys.TIMER_VALUE, timer);
+    await _setConfig<bool>(ConfigurationKeys.USE_TIMER, useTimer);
+    await _setConfig<bool>(
+        ConfigurationKeys.VERIFY_PASSWORD_ON_INSERT, insertVerify);
+    await _setConfig<bool>(
+        ConfigurationKeys.VERIFY_PASSWORD_ON_UPDATE, updateVerify);
+    await _setConfig<bool>(ConfigurationKeys.USE_TOOLTIPS, tooltips);
+    await _setConfig<bool>(ConfigurationKeys.APP_ENTRANCE, entrance);
+    await _setConfig<int>(
         ConfigurationKeys.PASSWORD_CARD_STYLE, cardStyle?.style.index);
 
-    await getHashPassConfiguration();
+    instance = this;
+
+    this.theme = theme ?? this.theme;
+    hasTimer = useTimer ?? hasTimer;
+    showPasswordTime = timer ?? showPasswordTime;
+    isBiometria = useBiometricValidation ?? isBiometria;
+    insertPassVerify = insertVerify ?? insertPassVerify;
+    updatePassVerify = updateVerify ?? updatePassVerify;
+    showHelpTooltips = tooltips ?? showHelpTooltips;
+    hasEntrance = entrance ?? hasEntrance;
+    this.cardStyle = cardStyle ?? this.cardStyle;
+    notifyListeners();
   }
 
-  static Future<bool> _setTheme(HashPassTheme? theme) async {
+  Future<bool> _setTheme(HashPassTheme? theme) async {
     if (theme != null) {
       Get.changeThemeMode(theme.mode);
-      return configs.setInt(ConfigurationKeys.THEME.key, theme.mode.index);
+      return preferencesManager.setInt(
+          ConfigurationKeys.THEME.key, theme.mode.index);
     }
 
     return Future(() => true);
   }
 
-  static _setBiometricValidation(
+  _setBiometricValidation(
       bool? useBiometricValidation, Function(bool)? onBiometricChange) async {
     if (useBiometricValidation != null) {
-      if (Configuration.instance.isBiometria) {
-        await configs.setBool(ConfigurationKeys.USE_BIOMETRIC_VALIDATION.key,
-            useBiometricValidation);
+      if (isBiometria) {
+        await preferencesManager.setBool(
+          ConfigurationKeys.USE_BIOMETRIC_VALIDATION.key,
+          useBiometricValidation,
+        );
         if (onBiometricChange != null) onBiometricChange(false);
       } else {
         await Get.dialog(
           ValidarSenhaGeral(
             onValidate: (senha) async {
               await HashCrypt.createGeneralKey(senha);
-              await configs.setBool(
-                  ConfigurationKeys.USE_BIOMETRIC_VALIDATION.key,
-                  useBiometricValidation);
+              await preferencesManager.setBool(
+                ConfigurationKeys.USE_BIOMETRIC_VALIDATION.key,
+                useBiometricValidation,
+              );
               if (onBiometricChange != null) onBiometricChange(true);
             },
             onInvalid: () {
@@ -128,18 +142,18 @@ class Configuration extends ChangeNotifier {
     }
   }
 
-  static Future<bool> _setConfig<Type>(
+  Future<bool> _setConfig<ConfigurationType>(
     ConfigurationKeys key,
-    Type? value,
+    ConfigurationType? value,
   ) async {
     if (value != null) {
-      switch (Type.runtimeType) {
+      switch (value.runtimeType) {
         case int:
-          return configs.setInt(key.key, value as int);
+          return preferencesManager.setInt(key.key, value as int);
         case bool:
-          return configs.setBool(key.key, value as bool);
+          return preferencesManager.setBool(key.key, value as bool);
         case double:
-          return configs.setDouble(key.key, value as double);
+          return preferencesManager.setDouble(key.key, value as double);
         default:
           return Future(() => false);
       }
@@ -149,10 +163,11 @@ class Configuration extends ChangeNotifier {
   }
 
   static Future<Configuration> getHashPassConfiguration() async {
-    if (!hasInit) configs = await SharedPreferences.getInstance();
-    hasInit = true;
+    SharedPreferences configs = await SharedPreferences.getInstance();
 
-    instance = Configuration(
+    Configuration.configs = configs;
+    Configuration.instance = Configuration(
+      preferencesManager: configs,
       hasEntrance: configs.getBool(ConfigurationKeys.APP_ENTRANCE.key) ?? false,
       theme: HashPassTheme.values.firstWhere(
         (theme) =>

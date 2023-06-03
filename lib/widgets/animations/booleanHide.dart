@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AnimatedBooleanContainer extends StatelessWidget {
-  const AnimatedBooleanContainer(
-      {Key? key,
-      required this.child,
-      required this.show,
-      this.duration = const Duration(milliseconds: 500),
-      this.behavior = Curves.ease,
-      this.alignment = Alignment.center,
-      this.useHeight = true,
-      this.useWidth = true})
-      : super(key: key);
+  const AnimatedBooleanContainer({
+    Key? key,
+    required this.child,
+    required this.show,
+    this.duration = const Duration(milliseconds: 500),
+    this.behavior = Curves.ease,
+    this.alignment = Alignment.center,
+    this.useHeight = true,
+    this.useWidth = true,
+  }) : super(key: key);
   final Widget child;
   final bool show;
   final Duration duration;

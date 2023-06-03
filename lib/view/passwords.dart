@@ -137,8 +137,8 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PasswordProvider>(
-      builder: (context, provider, widget) => Scaffold(
+    return Consumer2<PasswordProvider, Configuration>(
+      builder: (context, passwordProvider, configuration, widget) => Scaffold(
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 50),
           child: Showcase(
@@ -146,7 +146,7 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
             description: "Toque aqui para cadastrar uma nova senha",
             child: FloatingActionButton(
               child: const Icon(Icons.add),
-              onPressed: () => newPasswordScreen(provider),
+              onPressed: () => newPasswordScreen(passwordProvider),
             ),
           ),
         ),
@@ -166,26 +166,27 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                         child: AppSearchText(
                           placeholder: "Pesquisar título, credencial...",
                           controller: filterController,
-                          onChange: provider.filterPasswords,
+                          onChange: passwordProvider.filterPasswords,
                         ),
                       ),
                     ),
-                    provider.filteredPasswords.isEmpty
+                    passwordProvider.filteredPasswords.isEmpty
                         ? const Center(
                             child: Text("Nenhuma senha encontrada!"),
                           )
                         : Expanded(
                             child: ListView.builder(
                               physics: const AlwaysScrollableScrollPhysics(),
-                              key: Key(provider.filteredPasswords.toString()),
+                              key: Key(passwordProvider.filteredPasswords
+                                  .toString()),
                               padding: const EdgeInsets.only(
                                   bottom: kFloatingActionButtonMargin + 100),
                               controller: scroller,
                               scrollDirection: Axis.vertical,
-                              itemCount: provider.filteredPasswords.length,
+                              itemCount:
+                                  passwordProvider.filteredPasswords.length,
                               itemBuilder: (context, index) {
-                                switch (
-                                    Configuration.instance.cardStyle.style) {
+                                switch (configuration.cardStyle.style) {
                                   case CardStyle.DEFAULT:
                                     return PasswordCard(
                                       isExample: index == 0,
@@ -193,10 +194,11 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                                       editKey: editKey,
                                       removeKey: removeKey,
                                       saveKey: saveKey,
-                                      senha: provider.filteredPasswords[index],
+                                      senha: passwordProvider
+                                          .filteredPasswords[index],
                                       onCopy: () => onPasswordCopy(),
-                                      onDelete: (password) =>
-                                          onPasswordDelete(provider, password),
+                                      onDelete: (password) => onPasswordDelete(
+                                          passwordProvider, password),
                                       onUpdate: (password) =>
                                           onPasswordUpdate(),
                                     );
@@ -206,11 +208,11 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                                       editKey: editKey,
                                       removeKey: removeKey,
                                       isExample: index == 0,
-                                      password:
-                                          provider.filteredPasswords[index],
+                                      password: passwordProvider
+                                          .filteredPasswords[index],
                                       onCopy: () => onPasswordCopy(),
-                                      onDelete: (password) =>
-                                          onPasswordDelete(provider, password),
+                                      onDelete: (password) => onPasswordDelete(
+                                          passwordProvider, password),
                                       onUpdate: (password) =>
                                           onPasswordUpdate(),
                                     );
@@ -230,7 +232,7 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                   children: [
                     const Text("Nenhuma senha foi cadastrada!"),
                     TextButton(
-                      onPressed: () => newPasswordScreen(provider),
+                      onPressed: () => newPasswordScreen(passwordProvider),
                       child:
                           const HashPassLabel(text: "CADASTRAR UMA NOVA SENHA"),
                     )
