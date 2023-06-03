@@ -141,7 +141,10 @@ class HashCrypt {
   }
 
   static Future<List<Password>> importPasswords(
-      String fileContent, String key, String appKey) async {
+    String fileContent,
+    String key,
+    String appKey,
+  ) async {
     fileContent = await decipherString(
             fromBase64(await decipherString(fileContent, appKey) ?? ""), key) ??
         "";

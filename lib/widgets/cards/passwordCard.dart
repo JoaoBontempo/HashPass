@@ -103,7 +103,7 @@ class PasswordCardState extends State<PasswordCard> {
 
   void updatePassword() {
     Get.dialog(
-      ValidarSenhaGeral(
+      AuthAppKey(
         onValidate: (key) async {
           atualizarParametrosSenha(
             senhaEC.text,

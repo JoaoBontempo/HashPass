@@ -45,7 +45,7 @@ class _ImportExportDataPageState extends State<ImportExportDataPage> {
   }
 
   void dataExport() async {
-    ValidarSenhaGeral.show(onValidate: (key) async {
+    AuthAppKey.auth(onValidate: (key) async {
       DataExportDTO exportDTO = await HashCrypt.exportData(key);
       String filePath = '${Directory.systemTemp.path}/hashpass.txt';
       final File file = File(filePath);
@@ -127,7 +127,7 @@ class _ImportExportDataPageState extends State<ImportExportDataPage> {
   void dataImport(PasswordProvider provider) async {
     FilePickerResult? file;
     if (Util.validateForm(formKey)) {
-      ValidarSenhaGeral.show(onValidate: (appKey) async {
+      AuthAppKey.auth(onValidate: (appKey) async {
         try {
           file = await getFile(type: FileType.custom, types: ['txt']);
         } catch (erro) {
@@ -137,14 +137,14 @@ class _ImportExportDataPageState extends State<ImportExportDataPage> {
           try {
             File arquivo = File(file!.files.first.path!);
             List<String> fileLines = await arquivo.readAsLines();
-            List<Password> senhas = await HashCrypt.importPasswords(
+            List<Password> passwords = await HashCrypt.importPasswords(
               fileLines.join(','),
               chaveEC.text,
               appKey,
             );
-            for (Password senha in senhas) {
-              senha.save();
-              provider.addPassword(senha);
+            for (Password password in passwords) {
+              await password.save();
+              provider.addPassword(password);
             }
             Get.to(const IndexPage());
             HashPassSnackBar.show(message: "Dados importados com sucesso!");

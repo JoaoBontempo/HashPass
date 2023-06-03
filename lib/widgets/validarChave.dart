@@ -2,21 +2,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:hashpass/widgets/data/textfield.dart';
 
-import '../util/cryptography.dart';
-
-class ValidarSenhaGeral extends StatefulWidget {
-  static void show({
+class AuthAppKey extends StatefulWidget {
+  static void auth({
     bool lastKeyLabel = false,
     bool onlyText = false,
     required Function(String) onValidate,
   }) {
     Get.dialog(
-      ValidarSenhaGeral(
+      AuthAppKey(
         onValidate: (key) => onValidate(key),
         onlyText: onlyText,
         lastKeyLabel: lastKeyLabel,
@@ -24,7 +23,7 @@ class ValidarSenhaGeral extends StatefulWidget {
     );
   }
 
-  const ValidarSenhaGeral({
+  const AuthAppKey({
     Key? key,
     this.onlyText = false,
     this.lastKeyLabel = false,
@@ -36,15 +35,14 @@ class ValidarSenhaGeral extends StatefulWidget {
   final bool onlyText;
   final bool lastKeyLabel;
   @override
-  _ValidarSenhaGeralState createState() => _ValidarSenhaGeralState();
+  _AuthAppKeyState createState() => _AuthAppKeyState();
 }
 
-class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
-  final senhaEC = TextEditingController();
+class _AuthAppKeyState extends State<AuthAppKey> {
+  final passwordEC = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  bool chaveInvalida = false;
-  int tentativas = 3;
-  late bool aceitaDigital;
+  bool isInvalidKey = false;
+  int attempts = 3;
 
   @override
   void initState() {
@@ -58,15 +56,14 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
           options: const AuthenticationOptions(
             stickyAuth: true,
             useErrorDialogs: true,
-            biometricOnly: true,
           ),
         )
             .then(
-          (biometriaValida) {
+          (isValidBiometric) {
             Get.back();
-            if (biometriaValida) {
-              HashCrypt.isValidGeneralKey(null).then((value) {
-                if (value) {
+            if (isValidBiometric) {
+              HashCrypt.isValidGeneralKey(null).then((isValidKey) {
+                if (isValidKey) {
                   widget.onValidate(HashCrypt.getGeneralKeyBase());
                 }
               });
@@ -83,19 +80,19 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
   }
 
   void validateTextKey() async {
-    senhaEC.text = senhaEC.text.trim();
+    passwordEC.text = passwordEC.text.trim();
     if (Util.validateForm(formKey)) {
-      bool chaveValida = await HashCrypt.isValidGeneralKey(senhaEC.text);
-      if (chaveValida) {
+      bool isValidKey = await HashCrypt.isValidGeneralKey(passwordEC.text);
+      if (isValidKey) {
         Get.back();
-        widget.onValidate(senhaEC.text);
+        widget.onValidate(passwordEC.text);
       } else {
         setState(() {
-          tentativas--;
-          if (tentativas == 0) {
+          attempts--;
+          if (attempts == 0) {
             exit(0);
           }
-          chaveInvalida = !chaveValida;
+          isInvalidKey = !isValidKey;
         });
       }
     }
@@ -120,15 +117,15 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
                         ? "Informe sua senha antiga:"
                         : "Senha do aplicativo:",
                     padding: 10,
-                    controller: senhaEC,
+                    controller: passwordEC,
                     validator:
                         HashPassValidator.empty("A senha não foi informada!"),
                   ),
                 ),
                 Visibility(
-                  visible: chaveInvalida,
+                  visible: isInvalidKey,
                   child: Text(
-                    "Chave inválida! Você possui mais $tentativas tentativas!",
+                    "Chave inválida! Você possui mais $attempts tentativas!",
                     style: const TextStyle(
                       color: Colors.redAccent,
                       fontWeight: FontWeight.bold,

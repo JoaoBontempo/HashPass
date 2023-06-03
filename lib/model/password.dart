@@ -33,12 +33,12 @@ class Password extends IEntity {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'title': title,
-      'credential': credential,
-      'basePassword': basePassword,
-      'isAdvanced': isAdvanced ? 1 : 0,
-      'useCriptography': useCriptography ? 1 : 0,
-      'hashAlgorithm': hashAlgorithm.index,
+      'titulo': title,
+      'credencial': credential,
+      'senhaBase': basePassword,
+      'avancado': isAdvanced ? 1 : 0,
+      'criptografado': useCriptography ? 1 : 0,
+      'algoritmo': hashAlgorithm.index,
       'leakCount': leakCount,
     };
   }
@@ -46,13 +46,13 @@ class Password extends IEntity {
   factory Password.fromMap(Map<String, dynamic> map) {
     return Password(
       id: map['id']?.toInt(),
-      title: map['title'] ?? '',
-      credential: map['credential'] ?? '',
-      basePassword: map['basePassword'] ?? '',
-      isAdvanced: map['isAdvanced'] == 1 ? true : false,
-      hashAlgorithm: HashAlgorithm.values.firstWhere((algorithm) =>
-          algorithm.index == (map['hashAlgorithm']?.toInt() ?? 0)),
-      useCriptography: map['useCriptography'] == 1 ? true : false,
+      title: map['titulo'] ?? '',
+      credential: map['credencial'] ?? '',
+      basePassword: map['senhaBase'] ?? '',
+      isAdvanced: map['avancado'] == 1 ? true : false,
+      hashAlgorithm: HashAlgorithm.values.firstWhere(
+          (algorithm) => algorithm.index == (map['algoritmo']?.toInt() ?? 0)),
+      useCriptography: map['criptografado'] == 1 ? true : false,
       leakCount: map['leakCount']?.toInt() ?? 0,
     );
   }

@@ -124,7 +124,7 @@ class Configuration with ChangeNotifier {
         if (onBiometricChange != null) onBiometricChange(false);
       } else {
         await Get.dialog(
-          ValidarSenhaGeral(
+          AuthAppKey(
             onValidate: (senha) async {
               await HashCrypt.createGeneralKey(senha);
               await preferencesManager.setBool(

@@ -45,7 +45,12 @@ class AppDrawer extends StatelessWidget {
               title: "Exportar/Importar dados",
               onTap: () {
                 Get.back();
-                Get.to(const ImportExportDataPage());
+                Get.to(
+                  ChangeNotifierProvider<PasswordProvider>.value(
+                    value: passwordProvider,
+                    builder: ((context, child) => const ImportExportDataPage()),
+                  ),
+                );
               },
             ),
             HashPassDrawerButton(

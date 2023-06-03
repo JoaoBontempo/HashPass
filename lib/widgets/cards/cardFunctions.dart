@@ -38,7 +38,7 @@ class PasswordCardFunctions {
 
   static void getBasePassword(Password password, Function(String) onGet,
       {bool getRealBase = false}) async {
-    ValidarSenhaGeral.show(
+    AuthAppKey.auth(
       onValidate: (key) async {
         if (password.useCriptography && !getRealBase) {
           onGet(await HashCrypt.applyAlgorithms(
@@ -63,7 +63,7 @@ class PasswordCardFunctions {
       type: MessageType.YESNO,
     ).then((action) {
       if (action == MessageResponse.YES) {
-        ValidarSenhaGeral.show(
+        AuthAppKey.auth(
           onValidate: (key) async {
             if (await password.delete()) onDelete(password);
           },
@@ -73,7 +73,7 @@ class PasswordCardFunctions {
   }
 
   static void showPassword(Password password) {
-    ValidarSenhaGeral.show(
+    AuthAppKey.auth(
       onValidate: (key) {
         Get.dialog(
           VisualizacaoSenhaModal(

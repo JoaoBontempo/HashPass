@@ -21,7 +21,7 @@ enum DBOperation {
 }
 
 class DBUtil {
-  static int dbVersion = 4;
+  static int dbVersion = 3;
   static Database? _dbConnection;
 
   static Future<String> _getSQLVersion(int version, DBAction action) async =>

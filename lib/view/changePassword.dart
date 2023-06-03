@@ -109,7 +109,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     newPasswordTrim.text =
                         newPasswordEC.text.replaceAll(" ", "");
                     if (Util.validateForm(formKey)) {
-                      ValidarSenhaGeral.show(
+                      AuthAppKey.auth(
                         onValidate: (oldKey) async {
                           try {
                             List<Password> passwords =

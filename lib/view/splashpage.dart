@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/themes/theme.dart';
@@ -7,7 +6,6 @@ import 'package:hashpass/util/route.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/validarChave.dart';
-import 'package:local_auth/local_auth.dart';
 
 class HashPasshSplashPage extends StatefulWidget {
   const HashPasshSplashPage({Key? key}) : super(key: key);
@@ -34,7 +32,7 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
   }
 
   void authUser() {
-    ValidarSenhaGeral.show(
+    AuthAppKey.auth(
       onValidate: (password) {
         Password.findAll().then((passwords) {
           Util.senhas.addAll(passwords);

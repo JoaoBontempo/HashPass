@@ -53,7 +53,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   late PasswordLeakDTO leakObject = PasswordLeakDTO(leakCount: 0);
 
   void insertPassword(PasswordProvider provider) {
-    ValidarSenhaGeral.show(
+    AuthAppKey.auth(
       onValidate: (key) async {
         Password password = Password(
           title: tituloEC.text,
@@ -74,7 +74,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   }
 
   void updatePassword(PasswordProvider provider) {
-    ValidarSenhaGeral.show(
+    AuthAppKey.auth(
       onValidate: (key) async {
         widget.password!.credential = credencialEC.text;
         widget.password!.isAdvanced = isAvancado;
