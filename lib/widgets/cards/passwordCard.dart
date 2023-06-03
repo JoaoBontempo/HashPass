@@ -39,7 +39,7 @@ class PasswordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PasswordManagerProvider>(
+    return Consumer<PasswordCardProvider>(
       builder: (context, passwordProvider, _widget) => Padding(
         padding: const EdgeInsets.only(
           left: 20,
@@ -255,7 +255,8 @@ class PasswordCard extends StatelessWidget {
                               color: Colors.redAccent,
                             ),
                             IconButton(
-                              onPressed: passwordProvider.updatePassword,
+                              onPressed: () =>
+                                  passwordProvider.updatePassword(context),
                               icon: Showcase(
                                 key: isExample ? saveKey : GlobalKey(),
                                 description:

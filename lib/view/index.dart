@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
-import 'package:hashpass/provider/passwordsProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/appContext.dart';
 import 'package:hashpass/view/passwords.dart';
 import 'package:hashpass/widgets/drawer.dart';
@@ -33,8 +33,8 @@ class IndexPage extends StatelessWidget {
         });
         return false;
       },
-      child: ChangeNotifierProvider<PasswordProvider>(
-        create: (context) => PasswordProvider(),
+      child: ChangeNotifierProvider<UserPasswordsProvider>(
+        create: (context) => UserPasswordsProvider(),
         builder: (context, widget) => Scaffold(
           onDrawerChanged: (isOn) {
             FocusManager.instance.primaryFocus?.unfocus();

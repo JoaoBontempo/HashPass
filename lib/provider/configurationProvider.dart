@@ -89,8 +89,6 @@ class Configuration with ChangeNotifier {
     await _setConfig<int>(
         ConfigurationKeys.PASSWORD_CARD_STYLE, cardStyle?.style.index);
 
-    instance = this;
-
     this.theme = theme ?? this.theme;
     hasTimer = useTimer ?? hasTimer;
     showPasswordTime = timer ?? showPasswordTime;
@@ -100,6 +98,7 @@ class Configuration with ChangeNotifier {
     showHelpTooltips = tooltips ?? showHelpTooltips;
     hasEntrance = entrance ?? hasEntrance;
     this.cardStyle = cardStyle ?? this.cardStyle;
+    instance = this;
     notifyListeners();
   }
 

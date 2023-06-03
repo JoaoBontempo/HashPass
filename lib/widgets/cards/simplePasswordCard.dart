@@ -27,7 +27,7 @@ class SimpleCardPassword extends StatelessWidget {
   final GlobalKey editKey;
 
   @override
-  Widget build(BuildContext context) => Consumer<PasswordManagerProvider>(
+  Widget build(BuildContext context) => Consumer<PasswordCardProvider>(
         builder: (context, passwordProvider, _widget) {
           return GestureDetector(
             onLongPress: () => passwordProvider.copyPassword(onCopy),

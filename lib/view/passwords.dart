@@ -5,7 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
-import 'package:hashpass/provider/passwordsProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/appContext.dart';
 import 'package:hashpass/view/passwordRegister.dart';
@@ -100,9 +100,9 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
     });
   }
 
-  void newPasswordScreen(PasswordProvider provider) {
+  void newPasswordScreen(UserPasswordsProvider provider) {
     Get.focusScope!.unfocus();
-    Get.to(ChangeNotifierProvider<PasswordProvider>.value(
+    Get.to(ChangeNotifierProvider<UserPasswordsProvider>.value(
       value: provider,
       child: NewPasswordPage(
         onRegister: (password) {
@@ -114,7 +114,8 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
     ));
   }
 
-  void onPasswordDelete(PasswordProvider provider, Password password) async {
+  void onPasswordDelete(
+      UserPasswordsProvider provider, Password password) async {
     provider.removePassword(password);
     setState(() {
       showSearchField = true;
@@ -138,7 +139,7 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<PasswordProvider, Configuration>(
+    return Consumer2<UserPasswordsProvider, Configuration>(
       builder: (context, passwordProvider, configuration, widget) => Scaffold(
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 50),
@@ -190,11 +191,12 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                                 switch (configuration.cardStyle.style) {
                                   case CardStyle.DEFAULT:
                                     return ChangeNotifierProvider<
-                                            PasswordManagerProvider>(
+                                            PasswordCardProvider>(
                                         create: (context) =>
-                                            PasswordManagerProvider(
-                                              password: passwordProvider
+                                            PasswordCardProvider(
+                                              passwordProvider
                                                   .filteredPasswords[index],
+                                              isHelpExample: index == 0,
                                             ),
                                         builder: (context, _widget) =>
                                             PasswordCard(
@@ -213,11 +215,11 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                                             ));
                                   case CardStyle.SIMPLE:
                                     return ChangeNotifierProvider<
-                                        PasswordManagerProvider>(
-                                      create: (context) =>
-                                          PasswordManagerProvider(
-                                        password: passwordProvider
+                                        PasswordCardProvider>(
+                                      create: (context) => PasswordCardProvider(
+                                        passwordProvider
                                             .filteredPasswords[index],
+                                        isHelpExample: index == 0,
                                       ),
                                       builder: (context, _widget) =>
                                           SimpleCardPassword(

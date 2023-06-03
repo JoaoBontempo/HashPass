@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/dto/dataExportDTO.dart';
 import 'package:hashpass/model/password.dart';
-import 'package:hashpass/provider/passwordsProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
@@ -124,7 +124,7 @@ class _ImportExportDataPageState extends State<ImportExportDataPage> {
     }
   }
 
-  void dataImport(PasswordProvider provider) async {
+  void dataImport(UserPasswordsProvider provider) async {
     FilePickerResult? file;
     if (Util.validateForm(formKey)) {
       AuthAppKey.auth(onValidate: (appKey) async {
@@ -170,7 +170,7 @@ class _ImportExportDataPageState extends State<ImportExportDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PasswordProvider>(
+    return Consumer<UserPasswordsProvider>(
         builder: (context, provider, defaultWidget) {
       return Scaffold(
         appBar: AppBar(

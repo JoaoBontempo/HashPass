@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/provider/passwordsProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/http.dart';
 import 'package:hashpass/view/configuration.dart';
@@ -17,7 +17,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PasswordProvider>(
+    return Consumer<UserPasswordsProvider>(
       builder: (context, passwordProvider, widget) => Drawer(
         backgroundColor: Get.theme.primaryColorLight,
         child: ListView(
@@ -46,7 +46,7 @@ class AppDrawer extends StatelessWidget {
               onTap: () {
                 Get.back();
                 Get.to(
-                  ChangeNotifierProvider<PasswordProvider>.value(
+                  ChangeNotifierProvider<UserPasswordsProvider>.value(
                     value: passwordProvider,
                     builder: ((context, child) => const ImportExportDataPage()),
                   ),

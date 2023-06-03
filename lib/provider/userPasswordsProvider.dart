@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:hashpass/model/password.dart';
 
-class PasswordProvider extends ChangeNotifier {
+class UserPasswordsProvider extends ChangeNotifier {
   List<Password> _userPasswords = <Password>[];
   List<Password> filteredPasswords = <Password>[];
 
-  PasswordProvider() {
+  UserPasswordsProvider() {
     Password.findAll().then((passwords) {
       print(passwords);
       _userPasswords = passwords;

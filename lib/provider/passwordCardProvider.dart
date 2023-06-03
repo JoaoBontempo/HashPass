@@ -1,56 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/dto/leakPassDTO.dart';
 import 'package:hashpass/model/password.dart';
-import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/passwordProvider.dart';
+import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
-import 'package:hashpass/util/util.dart';
 import 'package:hashpass/view/passwordRegister.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
-import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:hashpass/widgets/visualizarSenha.dart';
+import 'package:provider/provider.dart';
 
-class PasswordManagerProvider extends ChangeNotifier {
-  final formKey = GlobalKey<FormState>();
-  final passwordController = TextEditingController();
-  final credentialController = TextEditingController();
-  bool enablePasswordDelete = true;
-  bool isDeletingPassword = false;
-  bool hidePassword = true;
+class PasswordCardProvider extends PasswordProvider {
   String lastText = '';
-
-  final Password password;
   final bool isHelpExample;
-  late bool isVerifiedPassword = password.leakCount == 0;
-  late bool passwordHasBeenVerified = password.leakCount != -1;
-  late PasswordLeakDTO leakInformation =
-      PasswordLeakDTO(leakCount: password.leakCount);
 
-  PasswordManagerProvider({
-    required this.password,
+  PasswordCardProvider(
+    super.password, {
     this.isHelpExample = false,
   }) {
     credentialController.text = password.credential;
     passwordController.text = password.basePassword;
 
     if (password.leakCount == -1) {
-      _verifyPasswordLeak(savePassword: true);
+      verifyPasswordLeak(savePassword: true);
     }
-  }
-
-  void _verifyPasswordLeak({bool savePassword = false}) {
-    HashCrypt.verifyPassowordLeak(password.basePassword).then(
-      (response) {
-        password.leakCount = response.leakCount;
-        leakInformation = response;
-        passwordHasBeenVerified = true;
-        isVerifiedPassword = response.leakCount == 0;
-
-        if (savePassword) password.save();
-        notifyListeners();
-      },
-    );
   }
 
   void copyPassword(VoidCallback onCopy) {
@@ -64,16 +37,23 @@ class PasswordManagerProvider extends ChangeNotifier {
 
   void toUpdatePassword(Function(Password, int) onUpdate) {
     getBasePassword(
-      (basePassword) => Get.to(
-        NewPasswordPage(
-          password: password,
-          basePassword: basePassword,
-          onUpdate: (_password, code) {
-            Get.back();
-            notifyListeners();
-          },
-        ),
-      ),
+      (basePassword) {
+        password.basePassword = basePassword;
+        Get.to(
+          ChangeNotifierProvider<PasswordRegisterProvider>(
+              create: (context) => PasswordRegisterProvider(password),
+              builder: (context, widget) {
+                return NewPasswordPage(
+                  password: password,
+                  basePassword: basePassword,
+                  onUpdate: (_password, code) {
+                    Get.back();
+                    notifyListeners();
+                  },
+                );
+              }),
+        );
+      },
       getRealBase: true,
     );
   }
@@ -99,23 +79,6 @@ class PasswordManagerProvider extends ChangeNotifier {
     );
   }
 
-  void deletePassword(Function(Password) onDelete) {
-    HashPassMessage.show(
-      title: "Confirmar exclusão",
-      message:
-          "Você tem certeza que deseja excluir esta senha? Esta ação não poderá ser desfeita.",
-      type: MessageType.YESNO,
-    ).then((action) {
-      if (action == MessageResponse.YES) {
-        AuthAppKey.auth(
-          onValidate: (key) async {
-            if (await password.delete()) onDelete(password);
-          },
-        );
-      }
-    });
-  }
-
   void showPassword() {
     AuthAppKey.auth(
       onValidate: (key) {
@@ -130,7 +93,8 @@ class PasswordManagerProvider extends ChangeNotifier {
     );
   }
 
-  void _savePassword() {
+  @override
+  void savePassword(BuildContext context) {
     AuthAppKey.auth(
       onValidate: (key) async {
         _setPasswordValues(key);
@@ -146,29 +110,9 @@ class PasswordManagerProvider extends ChangeNotifier {
     if (password.basePassword != passwordController.text) {
       String newPassword =
           await HashCrypt.cipherString(passwordController.text, appKey);
-      password.basePassword =
-          await HashCrypt.cipherString(passwordController.text, appKey);
+      password.basePassword = newPassword;
       passwordController.text = newPassword;
     }
-  }
-
-  void setAlgorithm(HashAlgorithm algorithm) {
-    password.hashAlgorithm = algorithm;
-    notifyListeners();
-  }
-
-  void handlePasswordTextFieldChanges(String text) {
-    enablePasswordDelete = !(text.isEmpty || text.trim() == '');
-    if (!enablePasswordDelete || text.length < 4) {
-      isDeletingPassword = true;
-      passwordHasBeenVerified = false;
-      notifyListeners();
-      return;
-    } else {
-      isDeletingPassword = false;
-    }
-
-    if (Configuration.instance.updatePassVerify) _verifyPasswordLeak();
   }
 
   void restorePasswordHistory() {
@@ -186,30 +130,9 @@ class PasswordManagerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updatePassword() {
-    Get.focusScope!.unfocus();
-    if (Util.validateForm(formKey)) {
-      if (Configuration.instance.updatePassVerify && !isVerifiedPassword) {
-        HashPassMessage.show(
-          message: leakInformation.status == LeakStatus.LEAKED
-              ? "A senha que você está tentando salvar já foi vazada! Você deseja salvá-la mesmo assim?"
-              : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja salvar sua senha mesmo assim?",
-          title: leakInformation.status == LeakStatus.LEAKED
-              ? "Senha vazada"
-              : "Senha não verificada",
-          type: MessageType.YESNO,
-        ).then((action) {
-          if (action == MessageResponse.YES) _savePassword();
-        });
-      }
-
-      HashPassMessage.show(
-        title: "Confirmar",
-        message: "Tem certeza que deseja atualizar os dados desta senha?",
-        type: MessageType.YESNO,
-      ).then((action) {
-        if (action == MessageResponse.YES) _savePassword();
-      });
+  void updatePassword(BuildContext context) async {
+    if (await validatePassword()) {
+      savePassword(context);
     }
   }
 }

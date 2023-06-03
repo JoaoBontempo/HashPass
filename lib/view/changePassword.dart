@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/model/password.dart';
-import 'package:hashpass/provider/passwordsProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/util/util.dart';
@@ -31,7 +31,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PasswordProvider>(
+    return Consumer<UserPasswordsProvider>(
       builder: (context, passwordProvider, widget) => Scaffold(
         appBar: AppBar(
           title: const Text("Alterar senha geral"),
