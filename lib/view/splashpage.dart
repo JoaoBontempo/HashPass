@@ -5,7 +5,7 @@ import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/widgets/interface/label.dart';
-import 'package:hashpass/widgets/validarChave.dart';
+import 'package:hashpass/widgets/appKeyValidation.dart';
 
 class HashPasshSplashPage extends StatefulWidget {
   const HashPasshSplashPage({Key? key}) : super(key: key);

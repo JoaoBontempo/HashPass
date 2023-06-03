@@ -15,7 +15,7 @@ import 'package:hashpass/widgets/data/textfield.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
-import 'package:hashpass/widgets/validarChave.dart';
+import 'package:hashpass/widgets/appKeyValidation.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 

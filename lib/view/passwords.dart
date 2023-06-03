@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/passwordCardProvider.dart';
 import 'package:hashpass/provider/passwordsProvider.dart';
 import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/appContext.dart';
@@ -188,33 +189,49 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                               itemBuilder: (context, index) {
                                 switch (configuration.cardStyle.style) {
                                   case CardStyle.DEFAULT:
-                                    return PasswordCard(
-                                      isExample: index == 0,
-                                      cardKey: cardKey,
-                                      editKey: editKey,
-                                      removeKey: removeKey,
-                                      saveKey: saveKey,
-                                      senha: passwordProvider
-                                          .filteredPasswords[index],
-                                      onCopy: () => onPasswordCopy(),
-                                      onDelete: (password) => onPasswordDelete(
-                                          passwordProvider, password),
-                                      onUpdate: (password) =>
-                                          onPasswordUpdate(),
-                                    );
+                                    return ChangeNotifierProvider<
+                                            PasswordManagerProvider>(
+                                        create: (context) =>
+                                            PasswordManagerProvider(
+                                              password: passwordProvider
+                                                  .filteredPasswords[index],
+                                            ),
+                                        builder: (context, _widget) =>
+                                            PasswordCard(
+                                              isExample: index == 0,
+                                              cardKey: cardKey,
+                                              editKey: editKey,
+                                              removeKey: removeKey,
+                                              saveKey: saveKey,
+                                              onCopy: () => onPasswordCopy(),
+                                              onDelete: (password) =>
+                                                  onPasswordDelete(
+                                                      passwordProvider,
+                                                      password),
+                                              onUpdate: (password) =>
+                                                  onPasswordUpdate(),
+                                            ));
                                   case CardStyle.SIMPLE:
-                                    return SimpleCardPassword(
-                                      cardKey: cardKey,
-                                      editKey: editKey,
-                                      removeKey: removeKey,
-                                      isExample: index == 0,
-                                      password: passwordProvider
-                                          .filteredPasswords[index],
-                                      onCopy: () => onPasswordCopy(),
-                                      onDelete: (password) => onPasswordDelete(
-                                          passwordProvider, password),
-                                      onUpdate: (password) =>
-                                          onPasswordUpdate(),
+                                    return ChangeNotifierProvider<
+                                        PasswordManagerProvider>(
+                                      create: (context) =>
+                                          PasswordManagerProvider(
+                                        password: passwordProvider
+                                            .filteredPasswords[index],
+                                      ),
+                                      builder: (context, _widget) =>
+                                          SimpleCardPassword(
+                                        cardKey: cardKey,
+                                        editKey: editKey,
+                                        removeKey: removeKey,
+                                        isExample: index == 0,
+                                        onCopy: () => onPasswordCopy(),
+                                        onDelete: (password) =>
+                                            onPasswordDelete(
+                                                passwordProvider, password),
+                                        onUpdate: (password) =>
+                                            onPasswordUpdate(),
+                                      ),
                                     );
                                 }
                               },
