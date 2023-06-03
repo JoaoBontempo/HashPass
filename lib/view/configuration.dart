@@ -14,14 +14,14 @@ import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 import '../widgets/data/textfield.dart';
 
-class MenuConfiguracoes extends StatefulWidget {
-  const MenuConfiguracoes({Key? key}) : super(key: key);
+class ConfigurationPage extends StatefulWidget {
+  const ConfigurationPage({Key? key}) : super(key: key);
 
   @override
-  _MenuConfiguracoesState createState() => _MenuConfiguracoesState();
+  _ConfigurationPageState createState() => _ConfigurationPageState();
 }
 
-class _MenuConfiguracoesState extends State<MenuConfiguracoes> {
+class _ConfigurationPageState extends State<ConfigurationPage> {
   double timer = Configuration.instance.showPasswordTime;
   bool hasBiometricValidation = false;
   late bool isBiometric = Configuration.instance.isBiometria;

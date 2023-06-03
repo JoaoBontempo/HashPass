@@ -11,7 +11,7 @@ import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
-import 'package:hashpass/view/configuracoes.dart';
+import 'package:hashpass/view/configuration.dart';
 import 'package:hashpass/widgets/animations/booleanHide.dart';
 import 'package:hashpass/widgets/data/button.dart';
 import 'package:hashpass/widgets/data/checkBox.dart';

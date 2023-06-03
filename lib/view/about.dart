@@ -6,8 +6,8 @@ import 'package:hashpass/util/util.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SobreAppPage extends StatelessWidget {
-  const SobreAppPage({Key? key}) : super(key: key);
+class AboutPage extends StatelessWidget {
+  const AboutPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class SobreAppPage extends StatelessWidget {
               const Align(
                 alignment: Alignment.centerLeft,
                 child: HashPassLabel(
-                  text: "Versão: " + Util.APP_VERSION,
+                  text: "Versão: ${Util.APP_VERSION}",
                   paddingLeft: 20,
                   paddingBottom: 15,
                   size: 13,
@@ -53,11 +53,11 @@ class SobreAppPage extends StatelessWidget {
                 "Desenvolvido por: João Vitor Bontempo",
                 style: Theme.of(context).textTheme.bodyText1,
               ),
-              Padding(
-                padding: const EdgeInsets.all(10),
+              const Padding(
+                padding: EdgeInsets.all(10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: const [
+                  children: [
                     SocialMediaButton(
                       link: "https://github.com/JoaoBontempo",
                       label: "GitHub",

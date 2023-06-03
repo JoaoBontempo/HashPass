@@ -45,30 +45,39 @@ class _ValidarSenhaGeralState extends State<ValidarSenhaGeral> {
   bool chaveInvalida = false;
   int tentativas = 3;
   late bool aceitaDigital;
-  final LocalAuthentication auth = LocalAuthentication();
 
   @override
   void initState() {
+    final LocalAuthentication auth = LocalAuthentication();
     if (Configuration.instance.isBiometria && !widget.onlyText) {
-      auth
-          .authenticate(
-        localizedReason:
-            "O desbloqueio é necessário para recuperar a senha do aplicativo",
-      )
-          .then(
-        (biometriaValida) {
-          Get.back();
-          if (biometriaValida) {
-            HashCrypt.isValidGeneralKey(null).then((value) {
-              if (value) {
-                widget.onValidate(HashCrypt.getGeneralKeyBase());
-              }
-            });
-          } else if (widget.onInvalid != null) {
-            widget.onInvalid!();
-          }
-        },
-      );
+      try {
+        auth
+            .authenticate(
+          localizedReason:
+              "O desbloqueio é necessário para recuperar a senha do aplicativo",
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            useErrorDialogs: true,
+            biometricOnly: true,
+          ),
+        )
+            .then(
+          (biometriaValida) {
+            Get.back();
+            if (biometriaValida) {
+              HashCrypt.isValidGeneralKey(null).then((value) {
+                if (value) {
+                  widget.onValidate(HashCrypt.getGeneralKeyBase());
+                }
+              });
+            } else if (widget.onInvalid != null) {
+              widget.onInvalid!();
+            }
+          },
+        );
+      } on Exception catch (error) {
+        print(error);
+      }
     }
     super.initState();
   }

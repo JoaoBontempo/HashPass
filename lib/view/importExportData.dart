@@ -19,14 +19,14 @@ import 'package:hashpass/widgets/validarChave.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-class MenuDados extends StatefulWidget {
-  const MenuDados({Key? key}) : super(key: key);
+class ImportExportDataPage extends StatefulWidget {
+  const ImportExportDataPage({Key? key}) : super(key: key);
 
   @override
-  _MenuDadosState createState() => _MenuDadosState();
+  _ImportExportDataPageState createState() => _ImportExportDataPageState();
 }
 
-class _MenuDadosState extends State<MenuDados> {
+class _ImportExportDataPageState extends State<ImportExportDataPage> {
   bool showExportProgress = false;
   final chaveEC = TextEditingController();
   final formKey = GlobalKey<FormState>();

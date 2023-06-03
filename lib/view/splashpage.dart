@@ -7,6 +7,7 @@ import 'package:hashpass/util/route.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/validarChave.dart';
+import 'package:local_auth/local_auth.dart';
 
 class HashPasshSplashPage extends StatefulWidget {
   const HashPasshSplashPage({Key? key}) : super(key: key);
@@ -33,15 +34,13 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
   }
 
   void authUser() {
-    Get.dialog(
-      ValidarSenhaGeral(
-        onValidate: (senha) {
-          Password.findAll().then((passwords) {
-            Util.senhas.addAll(passwords);
-            HashPassRouteManager.to(HashPassRoute.INDEX, context);
-          });
-        },
-      ),
+    ValidarSenhaGeral.show(
+      onValidate: (password) {
+        Password.findAll().then((passwords) {
+          Util.senhas.addAll(passwords);
+          HashPassRouteManager.to(HashPassRoute.INDEX, context);
+        });
+      },
     );
   }
 

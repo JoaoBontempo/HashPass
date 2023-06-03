@@ -10,19 +10,12 @@ import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-class IndexPage extends StatefulWidget {
+class IndexPage extends StatelessWidget {
   const IndexPage({Key? key}) : super(key: key);
 
   @override
-  _IndexPageState createState() => _IndexPageState();
-}
-
-class _IndexPageState extends State<IndexPage> {
-  int paginaAtual = 0;
-  bool isDrawerOpen = false;
-
-  @override
   Widget build(BuildContext context) {
+    bool isDrawerOpen = false;
     return WillPopScope(
       onWillPop: () async {
         if (isDrawerOpen) {

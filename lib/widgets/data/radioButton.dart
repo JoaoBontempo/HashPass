@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 
-class HashPassRadioButton<T> extends StatefulWidget {
-  HashPassRadioButton({
+class HashPassRadioButton<T> extends StatelessWidget {
+  const HashPassRadioButton({
     Key? key,
     required this.label,
     required this.value,
@@ -10,29 +10,22 @@ class HashPassRadioButton<T> extends StatefulWidget {
     required this.onSelect,
   }) : super(key: key);
   final T value;
-  T group;
+  final T group;
   final String label;
   final Function(T) onSelect;
 
-  @override
-  _HashPassaadioButtonState<T> createState() => _HashPassaadioButtonState<T>();
-}
-
-class _HashPassaadioButtonState<T> extends State<HashPassRadioButton<T>> {
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Radio<dynamic>(
-          value: widget.value,
-          groupValue: widget.group,
-          onChanged: (value) => widget.onSelect(value),
+          value: value,
+          groupValue: group,
+          onChanged: (value) => onSelect(value),
         ),
         GestureDetector(
-          onTap: () {
-            widget.onSelect(widget.value);
-          },
-          child: HashPassLabel(text: widget.label),
+          onTap: () => onSelect(value),
+          child: HashPassLabel(text: label),
         ),
       ],
     );
