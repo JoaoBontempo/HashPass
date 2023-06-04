@@ -7,7 +7,6 @@ class UserPasswordsProvider extends ChangeNotifier {
 
   UserPasswordsProvider() {
     Password.findAll().then((passwords) {
-      print(passwords);
       _userPasswords = passwords;
       filteredPasswords = passwords;
       notifyListeners();
@@ -18,6 +17,7 @@ class UserPasswordsProvider extends ChangeNotifier {
 
   void setPasswords(List<Password> passwords) {
     _userPasswords = passwords;
+    filteredPasswords = passwords;
     notifyListeners();
   }
 

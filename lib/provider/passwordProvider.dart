@@ -28,7 +28,7 @@ abstract class PasswordProvider extends ChangeNotifier {
 
   @protected
   void verifyPasswordLeak({bool savePassword = false}) {
-    HashCrypt.verifyPassowordLeak(password.basePassword).then(
+    HashCrypt.verifyPassowordLeak(passwordController.text).then(
       (response) {
         password.leakCount = response.leakCount;
         leakInformation = response;

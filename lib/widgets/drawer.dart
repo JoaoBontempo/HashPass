@@ -5,7 +5,7 @@ import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/http.dart';
 import 'package:hashpass/view/configuration.dart';
 import 'package:hashpass/view/importExportData.dart';
-import 'package:hashpass/view/changePassword.dart';
+import 'package:hashpass/view/changeAppKey.dart';
 import 'package:hashpass/view/passwordLeak.dart';
 import 'package:hashpass/view/about.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
@@ -37,7 +37,7 @@ class AppDrawer extends StatelessWidget {
               title: "Mudar senha geral",
               onTap: () {
                 Get.back();
-                Get.to(const ChangePasswordPage());
+                Get.to(const ChangeAppKeyPage());
               },
             ),
             HashPassDrawerButton(

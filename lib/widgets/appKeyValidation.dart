@@ -5,6 +5,7 @@ import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
+import 'package:hashpass/widgets/interface/snackbar.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:hashpass/widgets/data/textfield.dart';
 
@@ -73,7 +74,10 @@ class _AuthAppKeyState extends State<AuthAppKey> {
           },
         );
       } on Exception catch (error) {
-        print(error);
+        HashPassSnackBar.show(
+          message: 'Ocorreu um erro: $error',
+          type: SnackBarType.ERROR,
+        );
       }
     }
     super.initState();

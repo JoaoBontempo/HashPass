@@ -55,7 +55,6 @@ class _PasswordVisualizationModalState
                 isBannerLoaded = true;
               });
             }, onAdFailedToLoad: (ad, error) {
-              debugPrint("Erro ao carregar o banner: ${error.message}");
               isBannerLoaded = false;
               ad.dispose();
             }),
@@ -70,9 +69,7 @@ class _PasswordVisualizationModalState
             request: const AdRequest(),
             adLoadCallback: InterstitialAdLoadCallback(
               onAdLoaded: videoAdLoaded,
-              onAdFailedToLoad: (error) {
-                debugPrint("Erro ao renderizar ad: $error");
-              },
+              onAdFailedToLoad: (error) {},
             ),
           );
           break;
@@ -95,7 +92,6 @@ class _PasswordVisualizationModalState
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         ad.dispose();
-        debugPrint("Erro ao renderizar ad: $error");
         _initPasswordDialog();
       },
     );

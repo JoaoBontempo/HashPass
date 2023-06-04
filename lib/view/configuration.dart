@@ -134,7 +134,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                                           timerEC.text = "30";
                                           return;
                                         }
-                                        print('caiu aqui');
                                         configuration.setConfigs(
                                           timer: timer,
                                         );

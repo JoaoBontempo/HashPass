@@ -14,14 +14,14 @@ import 'package:hashpass/widgets/appKeyValidation.dart';
 import 'package:provider/provider.dart';
 import 'package:validatorless/validatorless.dart';
 
-class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({Key? key}) : super(key: key);
+class ChangeAppKeyPage extends StatefulWidget {
+  const ChangeAppKeyPage({Key? key}) : super(key: key);
 
   @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
+  State<ChangeAppKeyPage> createState() => _ChangeAppKeyPageState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
+class _ChangeAppKeyPageState extends State<ChangeAppKeyPage> {
   bool showNewPassword = false;
   bool showConfirmPassword = true;
   final newPasswordEC = TextEditingController();
@@ -106,8 +106,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   width: Get.size.width * .5,
                   height: 35,
                   onPressed: () {
-                    newPasswordTrim.text =
-                        newPasswordEC.text.replaceAll(" ", "");
+                    newPasswordTrim.text = newPasswordEC.text.trim();
                     if (Util.validateForm(formKey)) {
                       AuthAppKey.auth(
                         onValidate: (oldKey) async {

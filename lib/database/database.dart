@@ -66,10 +66,8 @@ class DBUtil {
     ConflictAlgorithm onCoflict = ConflictAlgorithm.replace,
   }) async {
     await _checkConnection();
-    print(data);
     int lastId = await _dbConnection!
         .insert(table.name, data, conflictAlgorithm: onCoflict);
-    print(lastId);
     await _dbConnection!.close();
 
     return lastId > 0 ? lastId : -1;
