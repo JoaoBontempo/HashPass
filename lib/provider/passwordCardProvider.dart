@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/passwordProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
+import 'package:hashpass/provider/passwordVisualizationProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/view/passwordRegister.dart';
@@ -81,10 +82,10 @@ class PasswordCardProvider extends PasswordProvider {
     AuthAppKey.auth(
       onValidate: (key) {
         Get.dialog(
-          PasswordVisualizationModal(
-            appKey: key,
-            password: password,
-            copyIconColor: Get.theme.hintColor,
+          ChangeNotifierProvider(
+            create: (context) => PasswordVisualizationProvider(
+                password: password, appKey: key, context: context),
+            builder: (context, _) => const PasswordVisualizationModal(),
           ),
         );
       },
