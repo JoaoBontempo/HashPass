@@ -101,7 +101,7 @@ abstract class PasswordProvider extends ChangeNotifier {
   }
 
   void savePassword(BuildContext context) async {
-    if (await validatePassword()) {
+    if (await validatePassword(true)) {
       AuthAppKey.auth(
         onValidate: (key) async {
           await password.save();
@@ -111,7 +111,7 @@ abstract class PasswordProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> validatePassword() async {
+  Future<bool> validatePassword(bool showConfirmationMessage) async {
     Get.focusScope!.unfocus();
     if (Util.validateForm(formKey)) {
       if (Configuration.instance.updatePassVerify && !isVerifiedPassword) {
@@ -128,7 +128,7 @@ abstract class PasswordProvider extends ChangeNotifier {
         return userAction == MessageResponse.YES;
       }
 
-      if (password.isNew) {
+      if (!password.isNew && showConfirmationMessage) {
         MessageResponse userAction = await HashPassMessage.show(
           title: "Confirmar",
           message: "Tem certeza que deseja atualizar os dados desta senha?",

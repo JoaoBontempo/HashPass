@@ -19,8 +19,9 @@ class PasswordCardProvider extends PasswordProvider {
     super.password, {
     this.isHelpExample = false,
   }) {
+    password.setTrueBasePassword(password.basePassword);
     credentialController.text = password.credential;
-    passwordController.text = password.basePassword;
+    passwordController.text = password.getTrueBasePassword();
 
     if (password.leakCount == -1) {
       verifyPasswordLeak(savePassword: true);
@@ -42,18 +43,13 @@ class PasswordCardProvider extends PasswordProvider {
 
   void toUpdatePassword(UserPasswordsProvider userPasswordsProvider) {
     getBasePassword(
-      (basePassword) {
-        password.basePassword = basePassword;
+      (trueBasePassword) {
+        password.setTrueBasePassword(trueBasePassword);
         Get.to(
           ChangeNotifierProvider<PasswordRegisterProvider>(
               create: (context) =>
                   PasswordRegisterProvider(password, userPasswordsProvider),
-              builder: (context, widget) {
-                return NewPasswordPage(
-                  password: password,
-                  basePassword: basePassword,
-                );
-              }),
+              builder: (context, widget) => const NewPasswordPage()),
         );
       },
       getRealBase: true,
@@ -134,7 +130,7 @@ class PasswordCardProvider extends PasswordProvider {
   }
 
   void updatePassword(BuildContext context) async {
-    if (await validatePassword()) {
+    if (await validatePassword(true)) {
       savePassword(context);
     }
   }

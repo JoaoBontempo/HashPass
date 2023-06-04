@@ -4,6 +4,7 @@ import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
+import 'package:hashpass/widgets/interface/snackbar.dart';
 
 class PasswordRegisterProvider extends PasswordProvider {
   final titleController = TextEditingController();
@@ -17,8 +18,8 @@ class PasswordRegisterProvider extends PasswordProvider {
   ) {
     titleController.text = password.title;
     credentialController.text = password.credential;
-    passwordController.text = password.basePassword;
-    passwordHasBeenVerified = isNewPassword ? password.leakCount == 0 : false;
+    passwordController.text = password.getTrueBasePassword();
+    hidePassword = true;
   }
 
   void setUseCredential(bool useCredential) {
@@ -28,7 +29,7 @@ class PasswordRegisterProvider extends PasswordProvider {
 
   @override
   void savePassword(BuildContext context) async {
-    if (await validatePassword()) {
+    if (await validatePassword(false)) {
       AuthAppKey.auth(
         onValidate: (key) async {
           password.title = titleController.text;
@@ -40,8 +41,12 @@ class PasswordRegisterProvider extends PasswordProvider {
           password.save().then((passwordId) {
             if (isNewPassword) {
               userPasswordsProvider.addPassword(password);
-              HashPassRouteManager.to(HashPassRoute.INDEX, context);
             }
+            HashPassRouteManager.to(HashPassRoute.INDEX, context);
+            HashPassSnackBar.show(
+              message:
+                  'Senha ${isNewPassword ? 'cadastrada' : 'atualizada'} com sucesso!',
+            );
           });
         },
       );

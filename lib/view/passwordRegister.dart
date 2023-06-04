@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
@@ -24,11 +23,7 @@ import 'package:validatorless/validatorless.dart';
 class NewPasswordPage extends StatelessWidget {
   const NewPasswordPage({
     Key? key,
-    this.password,
-    this.basePassword,
   }) : super(key: key);
-  final Password? password;
-  final String? basePassword;
 
   @override
   Widget build(BuildContext context) {

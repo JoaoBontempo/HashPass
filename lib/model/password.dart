@@ -9,6 +9,7 @@ class Password extends IEntity {
   String title;
   String credential;
   String basePassword;
+  String _trueBasePassword = '';
   bool isAdvanced;
   HashAlgorithm hashAlgorithm;
   bool useCriptography;
@@ -92,4 +93,10 @@ class Password extends IEntity {
   }
 
   bool get isNew => (id ?? 0) == 0;
+
+  void setTrueBasePassword(String trueBasePassword) {
+    _trueBasePassword = trueBasePassword;
+  }
+
+  String getTrueBasePassword() => _trueBasePassword;
 }
