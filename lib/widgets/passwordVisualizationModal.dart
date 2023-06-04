@@ -11,22 +11,24 @@ import 'package:hashpass/widgets/interface/label.dart';
 
 import '../model/password.dart';
 
-class VisualizacaoSenhaModal extends StatefulWidget {
-  const VisualizacaoSenhaModal({
+class PasswordVisualizationModal extends StatefulWidget {
+  const PasswordVisualizationModal({
     Key? key,
-    required this.senha,
-    required this.chaveGeral,
+    required this.password,
+    required this.appKey,
     required this.copyIconColor,
   }) : super(key: key);
-  final Password senha;
-  final String chaveGeral;
+  final Password password;
+  final String appKey;
   final Color copyIconColor;
 
   @override
-  _VisualizacaoSenhaModalState createState() => _VisualizacaoSenhaModalState();
+  _PasswordVisualizationModalState createState() =>
+      _PasswordVisualizationModalState();
 }
 
-class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
+class _PasswordVisualizationModalState
+    extends State<PasswordVisualizationModal> {
   double tempo = 0;
   double tempoTotal = Configuration.instance.showPasswordTime;
   late Timer time;
@@ -103,12 +105,12 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
     setState(() {
       isAdLoaded = true;
     });
-    if (widget.senha.useCriptography) {
+    if (widget.password.useCriptography) {
       HashCrypt.applyAlgorithms(
-        widget.senha.hashAlgorithm,
-        widget.senha.basePassword,
-        widget.senha.isAdvanced,
-        widget.chaveGeral,
+        widget.password.hashAlgorithm,
+        widget.password.basePassword,
+        widget.password.isAdvanced,
+        widget.appKey,
       ).then((value) {
         setState(() {
           senha = value;
@@ -116,8 +118,8 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
       });
     } else {
       HashCrypt.decipherString(
-        widget.senha.basePassword,
-        widget.chaveGeral,
+        widget.password.basePassword,
+        widget.appKey,
       ).then(
         (value) {
           setState(() {
@@ -175,7 +177,7 @@ class _VisualizacaoSenhaModalState extends State<VisualizacaoSenhaModal> {
                         Expanded(
                           child: HashPassLabel(
                             overflow: TextOverflow.clip,
-                            text: widget.senha.title,
+                            text: widget.password.title,
                             fontWeight: FontWeight.bold,
                             size: 19,
                           ),

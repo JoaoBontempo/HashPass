@@ -16,62 +16,65 @@ class IndexPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isDrawerOpen = false;
-    return WillPopScope(
-      onWillPop: () async {
-        if (isDrawerOpen) {
-          return true;
-        }
-        FocusManager.instance.primaryFocus?.unfocus();
-        HashPassMessage.show(
-          title: "Fechar o aplicativo?",
-          message: "Tem certeza que deseja sair do HashPass?",
-          type: MessageType.YESNO,
-        ).then((action) {
-          if (action == MessageResponse.YES) {
-            exit(0);
+    return Consumer2<UserPasswordsProvider, Configuration>(
+      builder: (context, passwordsProvider, configuration, _) => WillPopScope(
+        onWillPop: () async {
+          if (isDrawerOpen) {
+            return true;
           }
-        });
-        return false;
-      },
-      child: ChangeNotifierProvider<UserPasswordsProvider>(
-        create: (context) => UserPasswordsProvider(),
-        builder: (context, widget) => Scaffold(
-          onDrawerChanged: (isOn) {
-            FocusManager.instance.primaryFocus?.unfocus();
-            isDrawerOpen = isOn;
-          },
-          drawer: const AppDrawer(),
-          appBar: AppBar(
-            title: const Text("Minhas senhas"),
-            actions: Configuration.instance.showHelpTooltips
-                ? <Widget>[
-                    IconButton(
-                      icon: const Icon(
-                        Icons.help,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        HashPassContext.scroller!
-                            .animateTo(
-                              0,
-                              duration: const Duration(milliseconds: 750),
-                              curve: Curves.linear,
-                            )
-                            .then(
-                              (value) => {
-                                ShowCaseWidget.of(Get.context!).startShowCase(
-                                  HashPassContext.keys!
-                                      .where((key) => key.currentState != null)
-                                      .toList(),
-                                )
-                              },
-                            );
-                      },
-                    )
-                  ]
-                : null,
+          FocusManager.instance.primaryFocus?.unfocus();
+          HashPassMessage.show(
+            title: "Fechar o aplicativo?",
+            message: "Tem certeza que deseja sair do HashPass?",
+            type: MessageType.YESNO,
+          ).then((action) {
+            if (action == MessageResponse.YES) {
+              exit(0);
+            }
+          });
+          return false;
+        },
+        child: ChangeNotifierProvider<UserPasswordsProvider>.value(
+          value: passwordsProvider,
+          builder: (context, widget) => Scaffold(
+            onDrawerChanged: (isOn) {
+              FocusManager.instance.primaryFocus?.unfocus();
+              isDrawerOpen = isOn;
+            },
+            drawer: const AppDrawer(),
+            appBar: AppBar(
+              title: const Text("Minhas senhas"),
+              actions: Configuration.instance.showHelpTooltips
+                  ? <Widget>[
+                      IconButton(
+                        icon: const Icon(
+                          Icons.help,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          HashPassContext.scroller!
+                              .animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 750),
+                                curve: Curves.linear,
+                              )
+                              .then(
+                                (value) => {
+                                  ShowCaseWidget.of(Get.context!).startShowCase(
+                                    HashPassContext.keys!
+                                        .where(
+                                            (key) => key.currentState != null)
+                                        .toList(),
+                                  )
+                                },
+                              );
+                        },
+                      )
+                    ]
+                  : null,
+            ),
+            body: const PasswordsMenu(),
           ),
-          body: const PasswordsMenu(),
         ),
       ),
     );

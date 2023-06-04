@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/passwordProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/view/passwordRegister.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
-import 'package:hashpass/widgets/visualizarSenha.dart';
+import 'package:hashpass/widgets/interface/snackbar.dart';
+import 'package:hashpass/widgets/passwordVisualizationModal.dart';
 import 'package:provider/provider.dart';
 
 class PasswordCardProvider extends PasswordProvider {
@@ -26,30 +27,31 @@ class PasswordCardProvider extends PasswordProvider {
     }
   }
 
-  void copyPassword(VoidCallback onCopy) {
+  void copyPassword() {
     getBasePassword(
       (basePassword) => {
-        Clipboard.setData(ClipboardData(text: basePassword))
-            .then((_) => onCopy()),
+        Clipboard.setData(ClipboardData(text: basePassword)).then(
+          (_) => HashPassSnackBar.show(
+            message: "Senha copiada!",
+            duration: const Duration(milliseconds: 2500),
+          ),
+        ),
       },
     );
   }
 
-  void toUpdatePassword(Function(Password, int) onUpdate) {
+  void toUpdatePassword(UserPasswordsProvider userPasswordsProvider) {
     getBasePassword(
       (basePassword) {
         password.basePassword = basePassword;
         Get.to(
           ChangeNotifierProvider<PasswordRegisterProvider>(
-              create: (context) => PasswordRegisterProvider(password),
+              create: (context) =>
+                  PasswordRegisterProvider(password, userPasswordsProvider),
               builder: (context, widget) {
                 return NewPasswordPage(
                   password: password,
                   basePassword: basePassword,
-                  onUpdate: (_password, code) {
-                    Get.back();
-                    notifyListeners();
-                  },
                 );
               }),
         );
@@ -83,9 +85,9 @@ class PasswordCardProvider extends PasswordProvider {
     AuthAppKey.auth(
       onValidate: (key) {
         Get.dialog(
-          VisualizacaoSenhaModal(
-            chaveGeral: key,
-            senha: password,
+          PasswordVisualizationModal(
+            appKey: key,
+            password: password,
             copyIconColor: Get.theme.hintColor,
           ),
         );
@@ -100,6 +102,7 @@ class PasswordCardProvider extends PasswordProvider {
         _setPasswordValues(key);
         await password.save();
         passwordHasBeenVerified = false;
+        HashPassSnackBar.show(message: 'Senha salva com sucesso!');
         notifyListeners();
       },
     );

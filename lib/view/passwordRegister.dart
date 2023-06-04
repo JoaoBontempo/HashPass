@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/cryptography.dart';
@@ -20,47 +21,40 @@ import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:provider/provider.dart';
 import 'package:validatorless/validatorless.dart';
 
-class NewPasswordPage extends StatefulWidget {
+class NewPasswordPage extends StatelessWidget {
   const NewPasswordPage({
     Key? key,
-    this.onRegister,
-    this.onUpdate,
     this.password,
     this.basePassword,
   }) : super(key: key);
   final Password? password;
   final String? basePassword;
-  final Function(Password)? onRegister;
-  final Function(Password, int)? onUpdate;
 
-  @override
-  State<NewPasswordPage> createState() => _NewPasswordPageState();
-}
-
-class _NewPasswordPageState extends State<NewPasswordPage> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<PasswordRegisterProvider>(
-      builder: (context, provider, defaultWidget) => WillPopScope(
+    return Consumer2<PasswordRegisterProvider, UserPasswordsProvider>(
+      builder: (context, registerProvider, passwordsProvider, defaultWidget) =>
+          WillPopScope(
         onWillPop: () async {
           FocusManager.instance.primaryFocus?.unfocus();
           return await HashPassMessage.show(
                 title: "Confirmar",
                 message:
-                    "Tem certeza que deseja cancelar ${provider.isNewPassword ? 'o cadastro' : 'a edição'} da senha?",
+                    "Tem certeza que deseja cancelar ${registerProvider.isNewPassword ? 'o cadastro' : 'a edição'} da senha?",
                 type: MessageType.YESNO,
               ) ==
               MessageResponse.YES;
         },
         child: Scaffold(
           appBar: AppBar(
-            title:
-                Text(provider.isNewPassword ? "Nova senha" : "Alterar senha"),
+            title: Text(registerProvider.isNewPassword
+                ? "Nova senha"
+                : "Alterar senha"),
           ),
           body: SingleChildScrollView(
             reverse: false,
             child: Form(
-              key: provider.formKey,
+              key: registerProvider.formKey,
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: Column(
@@ -70,15 +64,15 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: HashPassLabel(
-                        text: provider.isNewPassword
+                        text: registerProvider.isNewPassword
                             ? "Cadastrar nova senha"
-                            : widget.password!.title,
+                            : registerProvider.password.title,
                         textAlign: TextAlign.center,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Visibility(
-                      visible: provider.isNewPassword,
+                      visible: registerProvider.isNewPassword,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: AppTextField(
@@ -86,8 +80,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           icon: Icons.edit_outlined,
                           label: "Título",
                           padding: 0,
-                          controller: provider.titleController,
-                          validator: provider.isNewPassword
+                          controller: registerProvider.titleController,
+                          validator: registerProvider.isNewPassword
                               ? Validatorless.multiple([
                                   HashPassValidator.empty(
                                       "O título é obrigatório"),
@@ -106,8 +100,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                             icon: Icons.lock_outline,
                             label: "Senha",
                             padding: 0,
-                            obscureText: provider.hidePassword,
-                            controller: provider.passwordController,
+                            obscureText: registerProvider.hidePassword,
+                            controller: registerProvider.passwordController,
                             validator: Validatorless.multiple(
                               [
                                 HashPassValidator.empty(
@@ -116,21 +110,24 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                     'A senha deve ter no mínimo 4 caracteres'),
                               ],
                             ),
-                            onChange: provider.handlePasswordTextFieldChanges,
-                            suffixIcon: provider.passwordHasBeenVerified &&
+                            onChange:
+                                registerProvider.handlePasswordTextFieldChanges,
+                            suffixIcon: registerProvider
+                                        .passwordHasBeenVerified &&
                                     ((Configuration.instance.insertPassVerify &&
-                                            provider.isNewPassword) ||
+                                            registerProvider.isNewPassword) ||
                                         (Configuration
                                                 .instance.updatePassVerify &&
-                                            !provider.isNewPassword))
-                                ? provider.leakInformation.getLeakWidget()
+                                            !registerProvider.isNewPassword))
+                                ? registerProvider.leakInformation
+                                    .getLeakWidget()
                                 : null,
                           ),
                         ),
                         GestureDetector(
-                          onTap: provider.changePasswordVisibility,
+                          onTap: registerProvider.changePasswordVisibility,
                           child: HashPassLabel(
-                            text: provider.hidePassword
+                            text: registerProvider.hidePassword
                                 ? 'Mostrar senha'
                                 : 'Ocultar senha',
                             size: 11,
@@ -145,11 +142,11 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           "A credencial pode ser seu nome de usuário, e-mail, CPF, ou qualquer outra informação "
                           "que deve ser utilizada junto com a senha que deseja guardar",
                       label: "Salvar credencial",
-                      value: provider.useCredential,
-                      onChange: provider.setUseCredential,
+                      value: registerProvider.useCredential,
+                      onChange: registerProvider.setUseCredential,
                     ),
                     AnimatedBooleanContainer(
-                      show: provider.useCredential,
+                      show: registerProvider.useCredential,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: AppTextField(
@@ -157,8 +154,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           label: "Credencial",
                           padding: 0,
                           icon: FontAwesomeIcons.user,
-                          controller: provider.credentialController,
-                          validator: provider.useCredential
+                          controller: registerProvider.credentialController,
+                          validator: registerProvider.useCredential
                               ? Validatorless.multiple([
                                   HashPassValidator.empty(
                                       "A credencial é obrigatória"),
@@ -171,11 +168,11 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                       tooltip: "Ao marcar esta caixa, sua senha real será a "
                           "combinação entre uma senha base e um algoritmo hash.",
                       label: "Usar hash",
-                      value: provider.password.useCriptography,
-                      onChange: provider.setUseCriptography,
+                      value: registerProvider.password.useCriptography,
+                      onChange: registerProvider.setUseCriptography,
                     ),
                     AnimatedBooleanContainer(
-                      show: provider.password.useCriptography,
+                      show: registerProvider.password.useCriptography,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -188,9 +185,10 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                               HashPassDropDown<HashAlgorithm>(
                                 isLightBackground: !HashPassTheme.isDarkMode,
                                 itens: HashAlgorithm.values,
-                                onChange: provider.setAlgorithm,
+                                onChange: registerProvider.setAlgorithm,
                                 hintText: "Função Hash",
-                                selectedItem: provider.password.hashAlgorithm,
+                                selectedItem:
+                                    registerProvider.password.hashAlgorithm,
                               ),
                             ],
                           ),
@@ -206,19 +204,19 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                             children: [
                               TooltippedRadioButton(
                                 value: false,
-                                group: provider.password.isAdvanced,
+                                group: registerProvider.password.isAdvanced,
                                 label: "Modo normal",
                                 tooltip:
                                     "Sua senha final será a senha base com o algoritmo hash aplicado.",
-                                onSelect: provider.setAdvanced,
+                                onSelect: registerProvider.setAdvanced,
                               ),
                               TooltippedRadioButton(
                                 value: true,
-                                group: provider.password.isAdvanced,
+                                group: registerProvider.password.isAdvanced,
                                 label: "Modo avançado",
                                 tooltip:
                                     "Além do algoritmo hash, sua senha real terá uma criptografia simétrica adicional.",
-                                onSelect: provider.setAdvanced,
+                                onSelect: registerProvider.setAdvanced,
                               ),
                             ],
                           ),
@@ -228,12 +226,12 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20, bottom: 25),
                       child: AppButton(
-                        label: provider.isNewPassword
+                        label: registerProvider.isNewPassword
                             ? "Cadastrar senha"
                             : "Salvar",
                         width: Get.size.width * .5,
                         height: 35,
-                        onPressed: () => provider.savePassword(context),
+                        onPressed: () => registerProvider.savePassword(context),
                       ),
                     )
                   ],

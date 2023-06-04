@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/route.dart';
-import 'package:hashpass/util/util.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
 
@@ -33,12 +31,8 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
 
   void authUser() {
     AuthAppKey.auth(
-      onValidate: (password) {
-        Password.findAll().then((passwords) {
-          Util.senhas.addAll(passwords);
-          HashPassRouteManager.to(HashPassRoute.INDEX, context);
-        });
-      },
+      onValidate: (password) =>
+          HashPassRouteManager.to(HashPassRoute.INDEX, context),
     );
   }
 
@@ -54,7 +48,7 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
             child: CircularProgressIndicator(),
           ),
           TextButton(
-            onPressed: () => authUser(),
+            onPressed: authUser,
             child: const HashPassLabel(
               paddingTop: 20,
               text: "Entrar no app",

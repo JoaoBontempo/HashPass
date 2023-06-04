@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/provider/passwordProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
 
 class PasswordRegisterProvider extends PasswordProvider {
   final titleController = TextEditingController();
-  late bool isNewPassword = (password.id ?? 0) == 0;
+  late bool isNewPassword = password.isNew;
   late bool useCredential = password.credential.isNotEmpty;
+  final UserPasswordsProvider userPasswordsProvider;
 
-  PasswordRegisterProvider(super.password) {
+  PasswordRegisterProvider(
+    super.password,
+    this.userPasswordsProvider,
+  ) {
     titleController.text = password.title;
     credentialController.text = password.credential;
     passwordController.text = password.basePassword;
@@ -34,6 +39,7 @@ class PasswordRegisterProvider extends PasswordProvider {
 
           password.save().then((passwordId) {
             if (isNewPassword) {
+              userPasswordsProvider.addPassword(password);
               HashPassRouteManager.to(HashPassRoute.INDEX, context);
             }
           });

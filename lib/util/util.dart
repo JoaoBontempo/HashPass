@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hashpass/model/password.dart';
 
 class Util {
   static const String APP_VERSION = "1.1.0";
@@ -67,8 +66,4 @@ class Util {
   static bool validateForm(GlobalKey<FormState> formKey) {
     return formKey.currentState?.validate() ?? false;
   }
-
-  static bool isDeleting = false;
-
-  static List<Password> senhas = <Password>[];
 }

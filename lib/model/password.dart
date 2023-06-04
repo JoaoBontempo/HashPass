@@ -15,13 +15,13 @@ class Password extends IEntity {
   int leakCount;
   Password({
     this.id,
-    required this.title,
-    required this.credential,
-    required this.basePassword,
-    required this.isAdvanced,
-    required this.hashAlgorithm,
-    required this.useCriptography,
-    required this.leakCount,
+    this.title = '',
+    this.credential = '',
+    this.basePassword = '',
+    this.isAdvanced = false,
+    this.hashAlgorithm = HashAlgorithm.SHA256,
+    this.useCriptography = false,
+    this.leakCount = -1,
   });
 
   static List<Password> serializeList(String data) {
@@ -90,4 +90,6 @@ class Password extends IEntity {
 
     return passwords.map((password) => Password.fromMap(password)).toList();
   }
+
+  bool get isNew => (id ?? 0) == 0;
 }

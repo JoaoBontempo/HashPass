@@ -189,7 +189,7 @@ class _ImportExportDataPageState extends State<ImportExportDataPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Visibility(
-                        visible: Util.senhas.isNotEmpty,
+                        visible: provider.getPasswords().isNotEmpty,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,

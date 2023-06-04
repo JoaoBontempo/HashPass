@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
+import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/appContext.dart';
@@ -18,7 +19,6 @@ import 'package:hashpass/widgets/interface/snackbar.dart';
 import 'package:hashpass/widgets/searchtext.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
-import '../util/util.dart';
 
 class PasswordsMenu extends StatefulWidget {
   const PasswordsMenu({Key? key}) : super(key: key);
@@ -73,14 +73,6 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
   }
 
   void scrollListener() {
-    if (Util.isInFilter || Util.isDeleting) {
-      _showSearchField(true);
-      return;
-    }
-    if (Util.senhas.isEmpty) {
-      _showSearchField(false);
-      return;
-    }
     final scrollDirection = scroller.position.userScrollDirection;
     if (scroller.offset == 0) {
       _showSearchField(true);
@@ -102,15 +94,13 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
 
   void newPasswordScreen(UserPasswordsProvider provider) {
     Get.focusScope!.unfocus();
-    Get.to(ChangeNotifierProvider<UserPasswordsProvider>.value(
-      value: provider,
-      child: NewPasswordPage(
-        onRegister: (password) {
-          HashPassSnackBar.show(message: "Senha cadastrada com sucesso!");
-          Util.senhas.add(password);
-          provider.addPassword(password);
-        },
-      ),
+    Get.to(MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UserPasswordsProvider>.value(value: provider),
+        ChangeNotifierProvider<PasswordRegisterProvider>(
+            create: (context) => PasswordRegisterProvider(Password(), provider))
+      ],
+      builder: (context, _) => const NewPasswordPage(),
     ));
   }
 
@@ -130,17 +120,11 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
     );
   }
 
-  void onPasswordCopy() {
-    HashPassSnackBar.show(
-      message: "Senha copiada!",
-      duration: const Duration(milliseconds: 2500),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer2<UserPasswordsProvider, Configuration>(
-      builder: (context, passwordProvider, configuration, widget) => Scaffold(
+      builder: (context, userPasswordsProvider, configuration, widget) =>
+          Scaffold(
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 50),
           child: Showcase(
@@ -148,11 +132,11 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
             description: "Toque aqui para cadastrar uma nova senha",
             child: FloatingActionButton(
               child: const Icon(Icons.add),
-              onPressed: () => newPasswordScreen(passwordProvider),
+              onPressed: () => newPasswordScreen(userPasswordsProvider),
             ),
           ),
         ),
-        body: Util.senhas.isNotEmpty
+        body: userPasswordsProvider.getPasswords().isNotEmpty
             ? GestureDetector(
                 onTap: () => Get.focusScope!.unfocus(),
                 child: Column(
@@ -168,74 +152,59 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                         child: AppSearchText(
                           placeholder: "Pesquisar título, credencial...",
                           controller: filterController,
-                          onChange: passwordProvider.filterPasswords,
+                          onChange: userPasswordsProvider.filterPasswords,
                         ),
                       ),
                     ),
-                    passwordProvider.filteredPasswords.isEmpty
+                    userPasswordsProvider.filteredPasswords.isEmpty
                         ? const Center(
                             child: Text("Nenhuma senha encontrada!"),
                           )
                         : Expanded(
                             child: ListView.builder(
                               physics: const AlwaysScrollableScrollPhysics(),
-                              key: Key(passwordProvider.filteredPasswords
+                              key: Key(userPasswordsProvider.filteredPasswords
                                   .toString()),
                               padding: const EdgeInsets.only(
                                   bottom: kFloatingActionButtonMargin + 100),
                               controller: scroller,
                               scrollDirection: Axis.vertical,
-                              itemCount:
-                                  passwordProvider.filteredPasswords.length,
+                              itemCount: userPasswordsProvider
+                                  .filteredPasswords.length,
                               itemBuilder: (context, index) {
-                                switch (configuration.cardStyle.style) {
-                                  case CardStyle.DEFAULT:
-                                    return ChangeNotifierProvider<
-                                            PasswordCardProvider>(
-                                        create: (context) =>
-                                            PasswordCardProvider(
-                                              passwordProvider
-                                                  .filteredPasswords[index],
-                                              isHelpExample: index == 0,
-                                            ),
-                                        builder: (context, _widget) =>
-                                            PasswordCard(
-                                              isExample: index == 0,
+                                bool isExampleCard = index == 0;
+                                return MultiProvider(
+                                  providers: [
+                                    ChangeNotifierProvider<
+                                        UserPasswordsProvider>.value(
+                                      value: userPasswordsProvider,
+                                    ),
+                                    ChangeNotifierProvider<
+                                        PasswordCardProvider>(
+                                      create: (context) => PasswordCardProvider(
+                                        userPasswordsProvider
+                                            .filteredPasswords[index],
+                                        isHelpExample: isExampleCard,
+                                      ),
+                                    ),
+                                  ],
+                                  builder: (context, _) =>
+                                      configuration.cardStyle.style ==
+                                              CardStyle.DEFAULT
+                                          ? PasswordCard(
+                                              isExample: isExampleCard,
                                               cardKey: cardKey,
                                               editKey: editKey,
                                               removeKey: removeKey,
                                               saveKey: saveKey,
-                                              onCopy: () => onPasswordCopy(),
-                                              onDelete: (password) =>
-                                                  onPasswordDelete(
-                                                      passwordProvider,
-                                                      password),
-                                              onUpdate: (password) =>
-                                                  onPasswordUpdate(),
-                                            ));
-                                  case CardStyle.SIMPLE:
-                                    return ChangeNotifierProvider<
-                                        PasswordCardProvider>(
-                                      create: (context) => PasswordCardProvider(
-                                        passwordProvider
-                                            .filteredPasswords[index],
-                                        isHelpExample: index == 0,
-                                      ),
-                                      builder: (context, _widget) =>
-                                          SimpleCardPassword(
-                                        cardKey: cardKey,
-                                        editKey: editKey,
-                                        removeKey: removeKey,
-                                        isExample: index == 0,
-                                        onCopy: () => onPasswordCopy(),
-                                        onDelete: (password) =>
-                                            onPasswordDelete(
-                                                passwordProvider, password),
-                                        onUpdate: (password) =>
-                                            onPasswordUpdate(),
-                                      ),
-                                    );
-                                }
+                                            )
+                                          : SimpleCardPassword(
+                                              cardKey: cardKey,
+                                              editKey: editKey,
+                                              removeKey: removeKey,
+                                              isExample: isExampleCard,
+                                            ),
+                                );
                               },
                             ),
                           ),
@@ -251,7 +220,7 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
                   children: [
                     const Text("Nenhuma senha foi cadastrada!"),
                     TextButton(
-                      onPressed: () => newPasswordScreen(passwordProvider),
+                      onPressed: () => newPasswordScreen(userPasswordsProvider),
                       child:
                           const HashPassLabel(text: "CADASTRAR UMA NOVA SENHA"),
                     )

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/cryptography.dart';
@@ -19,18 +19,12 @@ import 'package:validatorless/validatorless.dart';
 class PasswordCard extends StatelessWidget {
   const PasswordCard({
     Key? key,
-    required this.onDelete,
-    required this.onUpdate,
-    required this.onCopy,
     this.isExample = false,
     required this.cardKey,
     required this.saveKey,
     required this.editKey,
     required this.removeKey,
   }) : super(key: key);
-  final Function(Password) onDelete;
-  final Function(Password) onUpdate;
-  final VoidCallback onCopy;
   final bool isExample;
   final GlobalKey cardKey;
   final GlobalKey saveKey;
@@ -39,8 +33,8 @@ class PasswordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PasswordCardProvider>(
-      builder: (context, passwordProvider, _widget) => Padding(
+    return Consumer2<PasswordCardProvider, UserPasswordsProvider>(
+      builder: (context, passwordProvider, userPasswordsProvider, _) => Padding(
         padding: const EdgeInsets.only(
           left: 20,
           top: 12,
@@ -75,9 +69,8 @@ class PasswordCard extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => passwordProvider.toUpdatePassword(
-                          (updatedPassword, code) => onUpdate(updatedPassword),
-                        ),
+                        onPressed: () => passwordProvider
+                            .toUpdatePassword(userPasswordsProvider),
                         icon: Showcase(
                           key: isExample ? editKey : GlobalKey(),
                           description:
@@ -169,8 +162,7 @@ class PasswordCard extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 GestureDetector(
-                                  onTap: () =>
-                                      passwordProvider.copyPassword(onCopy),
+                                  onTap: passwordProvider.copyPassword,
                                   child: HashPassLabel(
                                     text: "Copiar senha",
                                     size: 12,
@@ -244,8 +236,8 @@ class PasswordCard extends StatelessWidget {
                             IconButton(
                               onPressed: () {
                                 Get.focusScope!.unfocus();
-                                passwordProvider.deletePassword((code) =>
-                                    onDelete(passwordProvider.password));
+                                passwordProvider
+                                    .deletePassword(userPasswordsProvider);
                               },
                               icon: Showcase(
                                 key: isExample ? removeKey : GlobalKey(),

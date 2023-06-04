@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 import 'package:hashpass/dto/leakPassDTO.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
+import 'package:hashpass/widgets/interface/snackbar.dart';
 
 abstract class PasswordProvider extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
@@ -73,7 +75,7 @@ abstract class PasswordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void deletePassword(Function(Password) onDelete) {
+  void deletePassword(UserPasswordsProvider userPasswordsProvider) {
     HashPassMessage.show(
       title: "Confirmar exclusão",
       message:
@@ -83,7 +85,15 @@ abstract class PasswordProvider extends ChangeNotifier {
       if (action == MessageResponse.YES) {
         AuthAppKey.auth(
           onValidate: (key) async {
-            if (await password.delete()) onDelete(password);
+            if (await password.delete()) {
+              userPasswordsProvider.removePassword(password);
+              HashPassSnackBar.show(message: 'Senha excluída com sucesso!');
+            } else {
+              HashPassSnackBar.show(
+                message: 'Ocorreu um erro ao excluir a senha',
+                type: SnackBarType.ERROR,
+              );
+            }
           },
         );
       }
@@ -118,13 +128,17 @@ abstract class PasswordProvider extends ChangeNotifier {
         return userAction == MessageResponse.YES;
       }
 
-      MessageResponse userAction = await HashPassMessage.show(
-        title: "Confirmar",
-        message: "Tem certeza que deseja atualizar os dados desta senha?",
-        type: MessageType.YESNO,
-      );
+      if (password.isNew) {
+        MessageResponse userAction = await HashPassMessage.show(
+          title: "Confirmar",
+          message: "Tem certeza que deseja atualizar os dados desta senha?",
+          type: MessageType.YESNO,
+        );
 
-      return userAction == MessageResponse.YES;
+        return userAction == MessageResponse.YES;
+      }
+
+      return true;
     } else {
       return Future(() => false);
     }

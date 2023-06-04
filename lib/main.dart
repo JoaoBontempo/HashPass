@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/dark.dart';
 import 'package:hashpass/themes/light.dart';
 import 'package:hashpass/view/entrance/chooseConfig.dart';
@@ -25,21 +26,16 @@ void main() async {
   runApp(const HashPassApp());
 }
 
-class HashPassApp extends StatefulWidget {
+class HashPassApp extends StatelessWidget {
   const HashPassApp({Key? key}) : super(key: key);
 
   @override
-  State<HashPassApp> createState() => _HashPassAppState();
-
-  static _HashPassAppState? of(BuildContext context) =>
-      context.findAncestorStateOfType<_HashPassAppState>();
-}
-
-class _HashPassAppState extends State<HashPassApp> {
-  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<Configuration>.value(
-      value: Configuration.instance,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserPasswordsProvider()),
+        ChangeNotifierProvider.value(value: Configuration.instance),
+      ],
       child: ShowCaseWidget(
         builder: Builder(
           builder: (context) => GetMaterialApp(
