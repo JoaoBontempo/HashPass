@@ -96,16 +96,15 @@ class PasswordCardProvider extends PasswordProvider {
   void savePassword(BuildContext context) {
     AuthAppKey.auth(
       onValidate: (key) async {
-        _setPasswordValues(key);
+        await _setPasswordValues(key);
         await password.save();
-        passwordHasBeenVerified = false;
         HashPassSnackBar.show(message: 'Senha salva com sucesso!');
         notifyListeners();
       },
     );
   }
 
-  void _setPasswordValues(String appKey) async {
+  Future<void> _setPasswordValues(String appKey) async {
     password.credential = credentialController.text;
     if (password.basePassword != passwordController.text) {
       String newPassword =

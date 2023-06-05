@@ -4,11 +4,13 @@ import 'package:hashpass/model/password.dart';
 class UserPasswordsProvider extends ChangeNotifier {
   List<Password> _userPasswords = <Password>[];
   List<Password> filteredPasswords = <Password>[];
+  bool isLoading = true;
 
   UserPasswordsProvider() {
     Password.findAll().then((passwords) {
       _userPasswords = passwords;
       filteredPasswords = passwords;
+      isLoading = false;
       notifyListeners();
     });
   }

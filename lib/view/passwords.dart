@@ -136,97 +136,107 @@ class _PasswordsMenuState extends State<PasswordsMenu> {
             ),
           ),
         ),
-        body: userPasswordsProvider.getPasswords().isNotEmpty
-            ? GestureDetector(
-                onTap: () => Get.focusScope!.unfocus(),
-                child: Column(
-                  children: [
-                    AnimatedHide(
-                      isVisible: showSearchField,
-                      height: 60,
-                      controller: scroller,
-                      child: Showcase(
-                        key: key,
-                        description:
-                            "Utilize este campo para filtrar suas senhas cadastradas por título ou por credencial",
-                        child: AppSearchText(
-                          placeholder: "Pesquisar título, credencial...",
-                          controller: filterController,
-                          onChange: userPasswordsProvider.filterPasswords,
-                        ),
-                      ),
-                    ),
-                    userPasswordsProvider.filteredPasswords.isEmpty
-                        ? const Center(
-                            child: Text("Nenhuma senha encontrada!"),
-                          )
-                        : Expanded(
-                            child: ListView.builder(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              key: Key(userPasswordsProvider.filteredPasswords
-                                  .toString()),
-                              padding: const EdgeInsets.only(
-                                  bottom: kFloatingActionButtonMargin + 100),
-                              controller: scroller,
-                              scrollDirection: Axis.vertical,
-                              itemCount: userPasswordsProvider
-                                  .filteredPasswords.length,
-                              itemBuilder: (context, index) {
-                                bool isExampleCard = index == 0;
-                                return MultiProvider(
-                                  providers: [
-                                    ChangeNotifierProvider<
-                                        UserPasswordsProvider>.value(
-                                      value: userPasswordsProvider,
-                                    ),
-                                    ChangeNotifierProvider<
-                                        PasswordCardProvider>(
-                                      create: (context) => PasswordCardProvider(
-                                        userPasswordsProvider
-                                            .filteredPasswords[index],
-                                        isHelpExample: isExampleCard,
-                                      ),
-                                    ),
-                                  ],
-                                  builder: (context, _) =>
-                                      configuration.cardStyle.style ==
-                                              CardStyle.DEFAULT
-                                          ? PasswordCard(
-                                              isExample: isExampleCard,
-                                              cardKey: cardKey,
-                                              editKey: editKey,
-                                              removeKey: removeKey,
-                                              saveKey: saveKey,
-                                            )
-                                          : SimpleCardPassword(
-                                              cardKey: cardKey,
-                                              editKey: editKey,
-                                              removeKey: removeKey,
-                                              isExample: isExampleCard,
-                                            ),
-                                );
-                              },
+        body: userPasswordsProvider.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : userPasswordsProvider.getPasswords().isNotEmpty
+                ? GestureDetector(
+                    onTap: () => Get.focusScope!.unfocus(),
+                    child: Column(
+                      children: [
+                        AnimatedHide(
+                          isVisible: showSearchField,
+                          height: 60,
+                          controller: scroller,
+                          child: Showcase(
+                            key: key,
+                            description:
+                                "Utilize este campo para filtrar suas senhas cadastradas por título ou por credencial",
+                            child: AppSearchText(
+                              placeholder: "Pesquisar título, credencial...",
+                              controller: filterController,
+                              onChange: userPasswordsProvider.filterPasswords,
                             ),
                           ),
-                  ],
-                ),
-              )
-            : SizedBox(
-                width: Get.size.width,
-                height: Get.size.height,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("Nenhuma senha foi cadastrada!"),
-                    TextButton(
-                      onPressed: () => newPasswordScreen(userPasswordsProvider),
-                      child:
-                          const HashPassLabel(text: "CADASTRAR UMA NOVA SENHA"),
-                    )
-                  ],
-                ),
-              ),
+                        ),
+                        userPasswordsProvider.filteredPasswords.isEmpty
+                            ? const Center(
+                                child: Text("Nenhuma senha encontrada!"),
+                              )
+                            : Expanded(
+                                child: ListView.builder(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  key: Key(
+                                    userPasswordsProvider.filteredPasswords
+                                        .toString(),
+                                  ),
+                                  padding: const EdgeInsets.only(
+                                    bottom: kFloatingActionButtonMargin + 100,
+                                  ),
+                                  controller: scroller,
+                                  scrollDirection: Axis.vertical,
+                                  itemCount: userPasswordsProvider
+                                      .filteredPasswords.length,
+                                  itemBuilder: (context, index) {
+                                    bool isExampleCard = index == 0;
+                                    return MultiProvider(
+                                      providers: [
+                                        ChangeNotifierProvider<
+                                            UserPasswordsProvider>.value(
+                                          value: userPasswordsProvider,
+                                        ),
+                                        ChangeNotifierProvider<
+                                            PasswordCardProvider>(
+                                          create: (context) =>
+                                              PasswordCardProvider(
+                                            userPasswordsProvider
+                                                .filteredPasswords[index],
+                                            isHelpExample: isExampleCard,
+                                          ),
+                                        ),
+                                      ],
+                                      builder: (context, _) =>
+                                          configuration.cardStyle.style ==
+                                                  CardStyle.DEFAULT
+                                              ? PasswordCard(
+                                                  isExample: isExampleCard,
+                                                  cardKey: cardKey,
+                                                  editKey: editKey,
+                                                  removeKey: removeKey,
+                                                  saveKey: saveKey,
+                                                )
+                                              : SimpleCardPassword(
+                                                  cardKey: cardKey,
+                                                  editKey: editKey,
+                                                  removeKey: removeKey,
+                                                  isExample: isExampleCard,
+                                                ),
+                                    );
+                                  },
+                                ),
+                              ),
+                      ],
+                    ),
+                  )
+                : SizedBox(
+                    width: Get.size.width,
+                    height: Get.size.height,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text("Nenhuma senha foi cadastrada!"),
+                        TextButton(
+                          onPressed: () =>
+                              newPasswordScreen(userPasswordsProvider),
+                          child: const HashPassLabel(
+                              text: "CADASTRAR UMA NOVA SENHA"),
+                        )
+                      ],
+                    ),
+                  ),
         bottomSheet: Container(
           width: Get.width,
           height: bannerAd.size.height.toDouble(),
