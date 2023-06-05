@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/route.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
 
@@ -12,7 +13,7 @@ class HashPasshSplashPage extends StatefulWidget {
   HashPasshSplashPageState createState() => HashPasshSplashPageState();
 }
 
-class HashPasshSplashPageState extends State<HashPasshSplashPage> {
+class HashPasshSplashPageState extends HashPassState<HashPasshSplashPage> {
   @override
   void initState() {
     super.initState();
@@ -37,7 +38,7 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget localeBuild(context, language) {
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -49,9 +50,9 @@ class HashPasshSplashPageState extends State<HashPasshSplashPage> {
           ),
           TextButton(
             onPressed: authUser,
-            child: const HashPassLabel(
+            child: HashPassLabel(
               paddingTop: 20,
-              text: "Entrar no app",
+              text: language.enterApp,
             ),
           ),
         ],

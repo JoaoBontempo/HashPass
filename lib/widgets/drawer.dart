@@ -4,6 +4,7 @@ import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/http.dart';
 import 'package:hashpass/view/configuration.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/view/importExportData.dart';
 import 'package:hashpass/view/changeAppKey.dart';
 import 'package:hashpass/view/passwordLeak.dart';
@@ -12,88 +13,90 @@ import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends HashPassStatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<UserPasswordsProvider>(
-      builder: (context, passwordProvider, widget) => Drawer(
-        backgroundColor: Get.theme.primaryColorLight,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Get.theme.primaryColor,
+  Widget localeBuild(context, language) => Consumer<UserPasswordsProvider>(
+        builder: (context, passwordProvider, widget) => Drawer(
+          backgroundColor: Get.theme.primaryColorLight,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Get.theme.primaryColor,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: HashPassTheme.getLogo(),
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: HashPassTheme.getLogo(),
-              ),
-            ),
-            HashPassDrawerButton(
-              icon: Icons.lock_outline,
-              title: "Mudar senha geral",
-              onTap: () {
-                Get.back();
-                Get.to(const ChangeAppKeyPage());
-              },
-            ),
-            HashPassDrawerButton(
-              icon: Icons.swap_vert,
-              title: "Exportar/Importar dados",
-              onTap: () {
-                Get.back();
-                Get.to(
-                  ChangeNotifierProvider<UserPasswordsProvider>.value(
-                    value: passwordProvider,
-                    builder: ((context, child) => const ImportExportDataPage()),
-                  ),
-                );
-              },
-            ),
-            HashPassDrawerButton(
-              icon: Icons.security,
-              title: "Verificação de vazamento",
-              onTap: () async {
-                if (await HTTPRequest.checkUserConnection()) {
+              HashPassDrawerButton(
+                icon: Icons.lock_outline,
+                title: language.changePasswordMenu,
+                onTap: () {
                   Get.back();
-                  Get.to(const PasswordLeakPage());
-                } else {
-                  HashPassMessage.show(
-                      message:
-                          "Não é possível utilizar a verificação de vazamento sem conexão com a internet.");
-                }
-              },
-            ),
-            HashPassDrawerButton(
-              icon: Icons.settings,
-              title: "Configurações",
-              onTap: () {
-                Get.back();
-                Get.to(const ConfigurationPage());
-              },
-            ),
-            HashPassDrawerButton(
-              icon: Icons.library_books,
-              title: "Política de privacidade",
-              onTap: () => launch(
-                  "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/"),
-            ),
-            HashPassDrawerButton(
-              icon: Icons.info_outline,
-              title: "Sobre",
-              onTap: () {
-                Get.back();
-                Get.to(const AboutPage());
-              },
-            ),
-          ],
+                  Get.to(const ChangeAppKeyPage());
+                },
+              ),
+              HashPassDrawerButton(
+                icon: Icons.swap_vert,
+                title: language.exportImportDataMenu,
+                onTap: () {
+                  Get.back();
+                  Get.to(
+                    ChangeNotifierProvider<UserPasswordsProvider>.value(
+                      value: passwordProvider,
+                      builder: ((context, child) =>
+                          const ImportExportDataPage()),
+                    ),
+                  );
+                },
+              ),
+              HashPassDrawerButton(
+                icon: Icons.security,
+                title: language.passworkLeakMenu,
+                onTap: () async {
+                  if (await HTTPRequest.checkUserConnection()) {
+                    Get.back();
+                    Get.to(const PasswordLeakPage());
+                  } else {
+                    HashPassMessage.show(
+                      message: language.passworkLeakMenuNoAuthorized,
+                    );
+                  }
+                },
+              ),
+              HashPassDrawerButton(
+                icon: Icons.settings,
+                title: language.settings,
+                onTap: () {
+                  Get.back();
+                  Get.to(const ConfigurationPage());
+                },
+              ),
+              HashPassDrawerButton(
+                icon: Icons.library_books,
+                title: language.privacyPolicy,
+                onTap: () => launchUrl(
+                  Uri.dataFromString(
+                    "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/",
+                  ),
+                ),
+              ),
+              HashPassDrawerButton(
+                icon: Icons.info_outline,
+                title: "Sobre",
+                onTap: () {
+                  Get.back();
+                  Get.to(const AboutPage());
+                },
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class HashPassDrawerButton extends StatelessWidget {

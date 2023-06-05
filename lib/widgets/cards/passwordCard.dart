@@ -233,7 +233,7 @@ class PasswordCard extends HashPassStatelessWidget {
                           TextButton(
                             onPressed: () => passwordProvider.showPassword(),
                             child: HashPassLabel(
-                              text: language.showPassword.toUpperCase(),
+                              text: language.showCardPassword.toUpperCase(),
                               size: 12,
                               color: Get.theme.highlightColor,
                             ),

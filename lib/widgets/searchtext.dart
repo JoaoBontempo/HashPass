@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
-import '../util/util.dart';
+import 'package:hashpass/util/util.dart';
 
 class AppSearchText extends StatefulWidget {
   const AppSearchText({

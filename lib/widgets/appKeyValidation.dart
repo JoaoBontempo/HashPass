@@ -5,6 +5,8 @@ import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
+import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:hashpass/widgets/data/textfield.dart';
@@ -39,7 +41,7 @@ class AuthAppKey extends StatefulWidget {
   _AuthAppKeyState createState() => _AuthAppKeyState();
 }
 
-class _AuthAppKeyState extends State<AuthAppKey> {
+class _AuthAppKeyState extends HashPassState<AuthAppKey> {
   final passwordEC = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool isInvalidKey = false;
@@ -52,8 +54,7 @@ class _AuthAppKeyState extends State<AuthAppKey> {
       try {
         auth
             .authenticate(
-          localizedReason:
-              "O desbloqueio é necessário para recuperar a senha do aplicativo",
+          localizedReason: appLanguage.unlockNeeded,
           options: const AuthenticationOptions(
             stickyAuth: true,
             useErrorDialogs: true,
@@ -75,7 +76,7 @@ class _AuthAppKeyState extends State<AuthAppKey> {
         );
       } on Exception catch (error) {
         HashPassSnackBar.show(
-          message: 'Ocorreu um erro: $error',
+          message: appLanguage.errorOcurred + error.toString(),
           type: SnackBarType.ERROR,
         );
       }
@@ -103,48 +104,51 @@ class _AuthAppKeyState extends State<AuthAppKey> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Configuration.instance.isBiometria && !widget.onlyText
-        ? Container()
-        : AlertDialog(
-            title: const Text("Autenticação necessária"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Form(
-                  key: formKey,
-                  child: AppTextField(
-                    onKeyboardAction: (text) => validateTextKey(),
-                    icon: Icons.lock_outlined,
-                    maxLength: 50,
-                    label: widget.lastKeyLabel
-                        ? "Informe sua senha antiga:"
-                        : "Senha do aplicativo:",
-                    padding: 10,
-                    controller: passwordEC,
-                    validator:
-                        HashPassValidator.empty("A senha não foi informada!"),
-                  ),
-                ),
-                Visibility(
-                  visible: isInvalidKey,
-                  child: Text(
-                    "Chave inválida! Você possui mais $attempts tentativas!",
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+  Widget localeBuild(context, language) =>
+      Configuration.instance.isBiometria && !widget.onlyText
+          ? Container()
+          : AlertDialog(
+              title: HashPassLabel(
+                text: language.authNeeded,
+                fontWeight: FontWeight.bold,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Form(
+                    key: formKey,
+                    child: AppTextField(
+                      onKeyboardAction: (text) => validateTextKey(),
+                      icon: Icons.lock_outlined,
+                      maxLength: 50,
+                      label: widget.lastKeyLabel
+                          ? language.setLastAppKey
+                          : language.appKey,
+                      padding: 10,
+                      controller: passwordEC,
+                      validator:
+                          HashPassValidator.empty(language.emptyPassword),
                     ),
-                    textAlign: TextAlign.left,
                   ),
-                )
+                  Visibility(
+                    visible: isInvalidKey,
+                    child: Text(
+                      "${language.keyAttempts} $attempts.",
+                      style: const TextStyle(
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  )
+                ],
+              ),
+              actions: [
+                TextButton(
+                  child: Text(language.validate),
+                  onPressed: () => validateTextKey(),
+                ),
               ],
-            ),
-            actions: [
-              TextButton(
-                  child: const Text("Validar"),
-                  onPressed: () => validateTextKey()),
-            ],
-          );
-  }
+            );
 }
