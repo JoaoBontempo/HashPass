@@ -69,7 +69,7 @@ class AppTextField extends StatelessWidget {
           fontSize: fontSize,
           color: fontColor ?? Get.theme.textTheme.bodyText1?.color,
         ),
-        onSaved: (_) => onSave?.call(controller!.text),
+        onSaved: (value) => onSave?.call(value ?? ''),
         controller: controller,
         obscureText: obscureText,
         validator: validator,
@@ -77,8 +77,7 @@ class AppTextField extends StatelessWidget {
         maxLength: maxLength,
         keyboardType: keyboardType,
         inputFormatters: formatter,
-        onFieldSubmitted: (text) =>
-            onKeyboardAction != null ? onKeyboardAction!(text) : () {},
+        onFieldSubmitted: (text) => onKeyboardAction?.call(text),
         cursorColor: Colors.grey,
         decoration: InputDecoration(
           counterText: "",

@@ -39,6 +39,26 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     super.initState();
   }
 
+  void setTimerValue(Configuration configuration, String value) {
+    String oldTimerValue = configuration.showPasswordTime.toInt().toString();
+
+    if (value.isEmpty) {
+      timerEC.text = oldTimerValue;
+      return;
+    }
+
+    double timer = double.parse(value);
+
+    if (timer == 0) {
+      timerEC.text = oldTimerValue;
+      return;
+    }
+
+    configuration.setConfigs(
+      timer: timer,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<Configuration>(
@@ -122,22 +142,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                                     child: AppTextField(
                                       maxLength: 3,
                                       label: "",
-                                      onSave: (value) {
-                                        if (value.isEmpty) {
-                                          timerEC.text = "30";
-                                          return;
-                                        }
-
-                                        double timer = double.parse(value);
-
-                                        if (timer == 0) {
-                                          timerEC.text = "30";
-                                          return;
-                                        }
-                                        configuration.setConfigs(
-                                          timer: timer,
-                                        );
-                                      },
+                                      onKeyboardAction: (value) =>
+                                          setTimerValue(configuration, value),
+                                      onSave: (value) =>
+                                          setTimerValue(configuration, value),
                                       controller: timerEC,
                                       padding: 0,
                                       fontSize: 14,
