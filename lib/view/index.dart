@@ -43,7 +43,7 @@ class IndexPage extends StatelessWidget {
             },
             drawer: const AppDrawer(),
             appBar: AppBar(
-              title: const Text("Minhas senhas"),
+              title: const Text("HashPass"),
               actions: Configuration.instance.showHelpTooltips
                   ? <Widget>[
                       IconButton(

@@ -341,7 +341,7 @@ class HashCrypt {
             await decipherString(password.basePassword, oldGeneralKey);
         password.basePassword =
             await cipherString(decipheredPassword!, newKeyBase);
-        password.save();
+        await password.save();
       }
 
       await setGeneralKeyValidationMessage(newKeyBase);

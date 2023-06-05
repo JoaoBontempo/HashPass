@@ -25,11 +25,13 @@ class UserPasswordsProvider extends ChangeNotifier {
 
   void addPassword(Password password) {
     _userPasswords.add(password);
+    filteredPasswords = _userPasswords;
     notifyListeners();
   }
 
   void removePassword(Password password) {
     _userPasswords.removeWhere((_password) => _password.id == password.id);
+    filteredPasswords.removeWhere((_password) => _password.id == password.id);
     notifyListeners();
   }
 

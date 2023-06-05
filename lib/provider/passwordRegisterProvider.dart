@@ -24,6 +24,10 @@ class PasswordRegisterProvider extends PasswordProvider {
 
   void setUseCredential(bool useCredential) {
     this.useCredential = useCredential;
+    if (!useCredential) {
+      password.credential = '';
+      credentialController.text = '';
+    }
     notifyListeners();
   }
 
