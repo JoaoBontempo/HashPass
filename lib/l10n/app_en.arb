@@ -1,6 +1,30 @@
 {
-  "helloWorld": "Hello World!",
-  "@helloWorld": {
-    "description": "The conventional newborn programmer greeting"
-  }
+  "@@locale": "en",
+  "closeAppConfirmationTitle": "Close application?",
+  "closeAppConfirmationMessage" : "Are you sure to close HashPass?",
+
+  "updatedDataMessage" : "All data updated sucessfully!",
+  "newPasswordShowCase" : "Tap'here to register a new password!",
+  "passwordFilterShowCase" : "Use this field to filter your passwords by title or credential",
+  "passwordFilterPlaceholder" : "Search for title, credential...",
+  "notFoundPassword" : "No passwords found!",
+  "noRegisteredPasswords" : "No passwords registered!",
+  "registerNewPassword" : "Add new password",
+
+  "simpleCardShowcase": "Tap once to show the password. Tap twice to copy it.",
+  "deletePasswordShowCase" : "Tap here to delete the password",
+  "editPasswordShwocase" : "Tap here to edit the password",
+
+  "defaultCardShowcase" : "You can edit some information in the card, such as password and credential. For the ciphered passwords, you're able to change the hash algorithm and the cipher mode as well.",
+  "credential" : "Credential",
+  "emptyCredential" : "The credential should not be empty!",
+  "basePassword" : "Base password",
+  "password" : "Password",
+  "emptyPassword" : "The password should not be empty!",
+  "shortPassword" : "The password is too short!",
+  "copyPassword" : "Copy password",
+  "hashFunction" : "Hash Function",
+  "advanced" : "Advanced",
+  "showPassword" : "Show password",
+  "savePasswordShowcase" : "Tap here to save your password"
 }

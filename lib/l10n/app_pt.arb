@@ -1,3 +1,30 @@
 {
-    "helloWorld": "Olá mundo!"
+    "@@locale": "pt",
+    "closeAppConfirmationTitle": "Fechar o aplicativo?",
+    "closeAppConfirmationMessage" : "Tem certeza que deseja sair do HashPass?",
+
+    "updatedDataMessage" : "Informações atualizadas com sucesso!",
+    "newPasswordShowCase" : "Toque aqui para cadastrar uma nova senha!",
+    "passwordFilterShowCase" : "Utilize este campo para filtrar suas senhas cadastradas por título ou por credencial",
+    "passwordFilterPlaceholder" : "Pesquisar título, credencial...",
+    "notFoundPassword" : "Nenhuma senha encontrada!",
+    "noRegisteredPasswords" : "Nenhuma senha foi cadastrada!",
+    "registerNewPassword" : "Cadastrar uma nova senha",
+
+    "simpleCardShowcase": "Toque uma vez para visualizar a senha. Segure para copiar a senha.",
+    "deletePasswordShowCase" : "Toque aqui para excluir a senha",
+    "editPasswordShwocase" : "Toque aqui para editar as informações da senha",
+
+    "defaultCardShowcase" : "Você pode editar algumas informações no próprio card, como a credencial e a senha. Para senhas criptografadas, é possível alterar o algoritmo e o tipo de criptografia.",
+    "credential": "Credencial",
+    "emptyCredential" : "A credencial não pode estar vazia!",
+    "basePassword" : "Senha base",
+    "password" : "Senha",
+    "emptyPassword" : "A senha não pode estar vazia!",
+    "shortPassword" : "A senha é curta demais!",
+    "copyPassword" : "Copiar senha",
+    "hashFunction" : "Função Hash",
+    "advanced" : "Avançado",
+    "showPassword" : "Visualizar senha",
+    "savePasswordShowcase" : "Toque aqui para salvar as informações da sua senha"
 }

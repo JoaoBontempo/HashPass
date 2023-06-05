@@ -89,9 +89,9 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   BooleanConfigWidget(
                     useState: false,
                     isVisible: hasBiometricValidation,
-                    onChange: (checked) {
+                    onChange: (useBiometricValidation) {
                       configuration.setConfigs(
-                        useBiometricValidation: checked,
+                        useBiometricValidation: useBiometricValidation,
                         onBiometricChange: (isBiometricConfig) {
                           setState(
                             () {

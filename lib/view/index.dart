@@ -4,18 +4,18 @@ import 'package:get/get.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/appContext.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/view/passwords.dart';
 import 'package:hashpass/widgets/drawer.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class IndexPage extends StatelessWidget {
+class IndexPage extends HashPassStatelessWidget {
   const IndexPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget localeBuild(context, language) {
     bool isDrawerOpen = false;
     return Consumer2<UserPasswordsProvider, Configuration>(
       builder: (context, passwordsProvider, configuration, _) => WillPopScope(
@@ -25,8 +25,8 @@ class IndexPage extends StatelessWidget {
           }
           FocusManager.instance.primaryFocus?.unfocus();
           HashPassMessage.show(
-            title: "Fechar o aplicativo?",
-            message: "Tem certeza que deseja sair do HashPass?",
+            title: language.closeAppConfirmationTitle,
+            message: language.closeAppConfirmationMessage,
             type: MessageType.YESNO,
           ).then((action) {
             if (action == MessageResponse.YES) {
@@ -44,7 +44,7 @@ class IndexPage extends StatelessWidget {
             },
             drawer: const AppDrawer(),
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.helloWorld),
+              title: const Text('HashPass'),
               actions: Configuration.instance.showHelpTooltips
                   ? <Widget>[
                       IconButton(

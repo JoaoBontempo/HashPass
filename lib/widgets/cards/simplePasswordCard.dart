@@ -3,11 +3,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-class SimpleCardPassword extends StatelessWidget {
+class SimpleCardPassword extends HashPassStatelessWidget {
   const SimpleCardPassword({
     Key? key,
     this.isExample = false,
@@ -21,7 +22,7 @@ class SimpleCardPassword extends StatelessWidget {
   final GlobalKey editKey;
 
   @override
-  Widget build(BuildContext context) =>
+  Widget localeBuild(context, language) =>
       Consumer2<PasswordCardProvider, UserPasswordsProvider>(
         builder: (context, passwordProvider, userPasswordsProvider, _) =>
             GestureDetector(
@@ -36,8 +37,7 @@ class SimpleCardPassword extends StatelessWidget {
             ),
             child: Showcase(
               key: passwordProvider.isHelpExample ? cardKey : GlobalKey(),
-              description:
-                  "Toque uma vez para visualizar a senha. Segure para copiar a senha.",
+              description: language.simpleCardShowcase,
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
@@ -104,8 +104,7 @@ class SimpleCardPassword extends StatelessWidget {
                                 padding: EdgeInsets.zero,
                                 icon: Showcase(
                                   key: isExample ? removeKey : GlobalKey(),
-                                  description:
-                                      "Toque aqui para excluir a senha",
+                                  description: language.deletePasswordShowCase,
                                   child: const Icon(
                                     Icons.delete,
                                     size: 20,
@@ -122,8 +121,7 @@ class SimpleCardPassword extends StatelessWidget {
                                   key: passwordProvider.isHelpExample
                                       ? editKey
                                       : GlobalKey(),
-                                  description:
-                                      "Toque aqui para editar as informações da senha",
+                                  description: language.editPasswordShwocase,
                                   child: const Icon(
                                     Icons.edit,
                                     size: 20,
