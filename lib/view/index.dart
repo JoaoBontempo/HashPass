@@ -9,6 +9,7 @@ import 'package:hashpass/widgets/drawer.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class IndexPage extends StatelessWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -43,7 +44,7 @@ class IndexPage extends StatelessWidget {
             },
             drawer: const AppDrawer(),
             appBar: AppBar(
-              title: const Text("HashPass"),
+              title: Text(AppLocalizations.of(context)!.helloWorld),
               actions: Configuration.instance.showHelpTooltips
                   ? <Widget>[
                       IconButton(

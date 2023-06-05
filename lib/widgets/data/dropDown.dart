@@ -5,7 +5,7 @@ import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 
 class HashPassDropDown<T> extends StatelessWidget {
-  HashPassDropDown({
+  const HashPassDropDown({
     Key? key,
     required this.itens,
     required this.onChange,
@@ -17,7 +17,7 @@ class HashPassDropDown<T> extends StatelessWidget {
   final Function(T) onChange;
   final String hintText;
   final bool isLightBackground;
-  T selectedItem;
+  final T selectedItem;
 
   @override
   Widget build(BuildContext context) {

@@ -6,6 +6,7 @@ import 'package:hashpass/util/route.dart';
 import 'package:hashpass/widgets/animations/booleanHide.dart';
 import 'package:hashpass/widgets/configuration/booleanConfig.dart';
 import 'package:hashpass/widgets/configuration/cardStyle.dart';
+import 'package:hashpass/widgets/configuration/dropdownConfiguration.dart';
 import 'package:hashpass/widgets/configuration/multiBooleanWidgetConfig.dart';
 import 'package:hashpass/widgets/configuration/radioConfig.dart';
 import 'package:hashpass/widgets/configuration/secondaryBooleanConfig.dart';
@@ -13,6 +14,7 @@ import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 import '../widgets/data/textfield.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ConfigurationPage extends StatefulWidget {
   const ConfigurationPage({Key? key}) : super(key: key);
@@ -76,6 +78,14 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               padding: const EdgeInsets.only(top: 20, bottom: 20),
               child: Column(
                 children: [
+                  DropDownConfiguration<Locale>(
+                    selectedValue: configuration.language,
+                    onChange: (locale) =>
+                        configuration.setConfigs(language: locale),
+                    label: "Linguagem",
+                    icon: Icons.language,
+                    values: AppLocalizations.supportedLocales,
+                  ),
                   BooleanConfigWidget(
                     useState: false,
                     isVisible: hasBiometricValidation,

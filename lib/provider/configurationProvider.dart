@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum ConfigurationKeys {
   PASSWORD_CARD_STYLE('cardStyle'),
@@ -15,6 +16,7 @@ enum ConfigurationKeys {
   VERIFY_PASSWORD_ON_UPDATE('updateVerify'),
   APP_ENTRANCE('hasEntrance'),
   USE_TOOLTIPS('tooltips'),
+  LANGUAGE('language'),
   THEME('theme');
 
   final String key;
@@ -26,6 +28,7 @@ class Configuration with ChangeNotifier {
   static late Configuration instance;
   SharedPreferences preferencesManager;
 
+  Locale language;
   bool hasEntrance;
   HashPassTheme theme;
   HashPassCardStyle cardStyle;
@@ -47,10 +50,12 @@ class Configuration with ChangeNotifier {
     required this.updatePassVerify,
     required this.showHelpTooltips,
     required this.cardStyle,
+    required this.language,
   });
 
   void setDefaultConfig() {
     setConfigs(
+      language: _getDeviceDefaultSupportedLocale,
       timer: 30,
       useTimer: true,
       insertVerify: true,
@@ -74,8 +79,10 @@ class Configuration with ChangeNotifier {
     bool? tooltips,
     bool? entrance,
     HashPassCardStyle? cardStyle,
+    Locale? language,
     Function(bool)? onBiometricChange,
   }) async {
+    await _setAppLanguage(language);
     await _setBiometricValidation(useBiometricValidation, onBiometricChange);
     await _setTheme(theme);
     await _setConfig<double>(ConfigurationKeys.TIMER_VALUE, timer);
@@ -88,6 +95,8 @@ class Configuration with ChangeNotifier {
     await _setConfig<bool>(ConfigurationKeys.APP_ENTRANCE, entrance);
     await _setConfig<int>(
         ConfigurationKeys.PASSWORD_CARD_STYLE, cardStyle?.style.index);
+    await _setConfig<String>(
+        ConfigurationKeys.LANGUAGE, language?.languageCode);
 
     this.theme = theme ?? this.theme;
     hasTimer = useTimer ?? hasTimer;
@@ -99,7 +108,18 @@ class Configuration with ChangeNotifier {
     hasEntrance = entrance ?? hasEntrance;
     this.cardStyle = cardStyle ?? this.cardStyle;
     instance = this;
+    this.language = language ?? this.language;
     notifyListeners();
+  }
+
+  Future<bool> _setAppLanguage(Locale? language) {
+    if (language != null) {
+      Get.updateLocale(language);
+      return _setConfig<String>(
+          ConfigurationKeys.LANGUAGE, language.languageCode);
+    }
+
+    return Future(() => true);
   }
 
   Future<bool> _setTheme(HashPassTheme? theme) async {
@@ -147,6 +167,8 @@ class Configuration with ChangeNotifier {
   ) async {
     if (value != null) {
       switch (value.runtimeType) {
+        case String:
+          return preferencesManager.setString(key.key, value as String);
         case int:
           return preferencesManager.setInt(key.key, value as int);
         case bool:
@@ -161,11 +183,29 @@ class Configuration with ChangeNotifier {
     return Future(() => true);
   }
 
+  static Locale get _getDeviceDefaultSupportedLocale =>
+      AppLocalizations.supportedLocales.firstWhere(
+        (locale) =>
+            locale.languageCode ==
+            (Get.deviceLocale?.languageCode ??
+                AppLocalizations.supportedLocales.first.languageCode),
+        orElse: () => AppLocalizations.supportedLocales.firstWhere(
+          (locale) => locale.languageCode == 'en',
+        ),
+      );
+
   static Future<Configuration> getHashPassConfiguration() async {
     SharedPreferences configs = await SharedPreferences.getInstance();
 
     Configuration.configs = configs;
     Configuration.instance = Configuration(
+      language: AppLocalizations.supportedLocales.firstWhere(
+          (locale) =>
+              locale.languageCode ==
+              configs.getString(
+                ConfigurationKeys.LANGUAGE.key,
+              ),
+          orElse: () => _getDeviceDefaultSupportedLocale),
       preferencesManager: configs,
       hasEntrance: configs.getBool(ConfigurationKeys.APP_ENTRANCE.key) ?? false,
       theme: HashPassTheme.values.firstWhere(

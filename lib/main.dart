@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
@@ -15,7 +14,7 @@ import 'package:hashpass/view/splashpage.dart';
 import 'package:hashpass/view/entrance/welcomepage.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'provider/configurationProvider.dart';
 
 void main() async {
@@ -39,8 +38,9 @@ class HashPassApp extends StatelessWidget {
       child: ShowCaseWidget(
         builder: Builder(
           builder: (context) => GetMaterialApp(
-            supportedLocales: const [Locale('pt', 'BR')],
-            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Configuration.instance.language,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
             title: 'Hash Pass',
             themeMode: Configuration.instance.theme.mode,
             theme: LightAppTheme(context).defaultTheme,
