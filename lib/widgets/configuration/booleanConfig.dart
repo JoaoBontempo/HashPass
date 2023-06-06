@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:hashpass/widgets/data/switch.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 
-class BooleanConfigWidget extends StatefulWidget {
-  BooleanConfigWidget({
+class BooleanConfigWidget extends StatelessWidget {
+  const BooleanConfigWidget({
     Key? key,
     this.isVisible = true,
     this.onlyHeader = false,
@@ -22,17 +22,12 @@ class BooleanConfigWidget extends StatefulWidget {
   final IconData icon;
   final bool onlyHeader;
   final bool useState;
-  bool? value;
+  final bool? value;
 
-  @override
-  State<BooleanConfigWidget> createState() => _BooleanConfigWidgetState();
-}
-
-class _BooleanConfigWidgetState extends State<BooleanConfigWidget> {
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: widget.isVisible,
+      visible: isVisible,
       child: Padding(
         padding: const EdgeInsets.only(left: 20),
         child: Visibility(
@@ -43,28 +38,28 @@ class _BooleanConfigWidgetState extends State<BooleanConfigWidget> {
                   Padding(
                     padding: const EdgeInsets.only(right: 20),
                     child: Icon(
-                      widget.icon,
+                      icon,
                       color: Colors.grey,
                       size: 30,
                     ),
                   ),
                   Visibility(
-                    visible: widget.onlyHeader,
+                    visible: onlyHeader,
                     child: HashPassLabel(
-                      text: widget.label,
+                      text: label,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Visibility(
-                    visible: !widget.onlyHeader,
+                    visible: !onlyHeader,
                     child: HashPassSwitch(
-                      useState: widget.useState,
+                      useState: useState,
                       labelWeight: FontWeight.bold,
                       onChange: (value) {
-                        widget.onChange!(value);
+                        onChange!(value);
                       },
-                      value: widget.value ?? false,
-                      label: widget.label,
+                      value: value ?? false,
+                      label: label,
                     ),
                   )
                 ],
@@ -72,7 +67,7 @@ class _BooleanConfigWidgetState extends State<BooleanConfigWidget> {
               HashPassLabel(
                 paddingLeft: 50,
                 paddingRight: 10,
-                text: widget.description,
+                text: description,
                 style: Get.textTheme.headline1,
                 fontWeight: FontWeight.bold,
               ),

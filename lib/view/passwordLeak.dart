@@ -5,6 +5,7 @@ import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/http.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/animations/booleanHide.dart';
 import 'package:hashpass/widgets/data/button.dart';
 import 'package:hashpass/widgets/interface/label.dart';
@@ -20,7 +21,7 @@ class PasswordLeakPage extends StatefulWidget {
   State<PasswordLeakPage> createState() => _PasswordLeakPageState();
 }
 
-class _PasswordLeakPageState extends State<PasswordLeakPage> {
+class _PasswordLeakPageState extends HashPassState<PasswordLeakPage> {
   final passwordEC = TextEditingController();
   late LeakStatus lastStatus;
   bool showMessage = false;
@@ -35,10 +36,10 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget localeBuild(context, language) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verificar senha'),
+        title: Text(appLanguage.passworkLeakMenu),
       ),
       body: Center(
         child: Form(
@@ -48,22 +49,20 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const HashPassLabel(
-                  text: 'Informe uma senha para que ela seja verificada '
-                      'em bases de dados de senhas que já foram vazadas na internet. ',
+                HashPassLabel(
+                  text: appLanguage.insertPasswordToBeVerified,
                   textAlign: TextAlign.justify,
                   paddingBottom: 20,
                 ),
                 AppTextField(
                   icon: Icons.lock_outline,
                   maxLength: 100,
-                  label: 'Digite a senha ',
+                  label: appLanguage.typePassword,
                   obscureText: true,
                   controller: passwordEC,
                   validator: Validatorless.multiple([
-                    HashPassValidator.empty("Nenhuma senha foi informada"),
-                    Validatorless.min(
-                        4, "A senha informada deve ter no mínimo 4 caracteres")
+                    HashPassValidator.empty(language.emptyPassword),
+                    Validatorless.min(4, language.passwordMinimumSizeMessage)
                   ]),
                   padding: 0,
                   onChange: (text) => setState(() {
@@ -80,16 +79,15 @@ class _PasswordLeakPageState extends State<PasswordLeakPage> {
                   ),
                 ),
                 AppButton(
-                  label: 'Verificar senha',
+                  label: appLanguage.verifyPassword,
                   width: Get.size.width * .5,
                   height: 35,
                   onPressed: () async {
                     if (Util.validateForm(formKey)) {
                       if (!await HTTPRequest.checkUserConnection()) {
                         HashPassMessage.show(
-                          message:
-                              "Não foi possível verificar sua conexão de internet",
-                          title: "Ocorreu um erro",
+                          message: appLanguage.passworkLeakMenuNoAuthorized,
+                          title: language.errorOcurred,
                         );
 
                         setState(() {

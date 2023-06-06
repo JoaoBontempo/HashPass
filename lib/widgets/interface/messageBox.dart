@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 
-class HashPassMessage extends StatelessWidget {
+class HashPassMessage extends HashPassStatelessWidget {
   static Future<MessageResponse> show({
     String message = "",
     String title = "",
@@ -51,11 +52,15 @@ class HashPassMessage extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () => onAction(MessageResponse.NO),
-                child: const HashPassLabel(text: 'NÃO'),
+                child: HashPassLabel(
+                  text: appLanguage.no.toUpperCase(),
+                ),
               ),
               TextButton(
                 onPressed: () => onAction(MessageResponse.YES),
-                child: const HashPassLabel(text: 'SIM'),
+                child: HashPassLabel(
+                  text: appLanguage.yes.toUpperCase(),
+                ),
               ),
             ],
           );

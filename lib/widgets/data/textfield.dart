@@ -110,17 +110,13 @@ class AppTextField extends StatelessWidget {
               labelStyle ?? Theme.of(context).inputDecorationTheme.labelStyle,
           suffixIcon: suffixIcon != null
               ? GestureDetector(
-                  onTap: () {
-                    if (suffixIconClick != null) suffixIconClick!();
-                  },
+                  onTap: suffixIconClick?.call,
                   child: suffixIcon,
                 )
               : null,
           prefixIcon: prefixIcon != null
               ? GestureDetector(
-                  onTap: () {
-                    if (prefixIconClick != null) prefixIconClick!();
-                  },
+                  onTap: prefixIconClick?.call,
                   child: prefixIcon,
                 )
               : null,

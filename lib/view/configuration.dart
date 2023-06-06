@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/themes/theme.dart';
+import 'package:hashpass/util/appLanguage.dart';
 import 'package:hashpass/util/route.dart';
+import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/animations/booleanHide.dart';
 import 'package:hashpass/widgets/configuration/booleanConfig.dart';
 import 'package:hashpass/widgets/configuration/cardStyle.dart';
@@ -10,11 +12,10 @@ import 'package:hashpass/widgets/configuration/dropdownConfiguration.dart';
 import 'package:hashpass/widgets/configuration/multiBooleanWidgetConfig.dart';
 import 'package:hashpass/widgets/configuration/radioConfig.dart';
 import 'package:hashpass/widgets/configuration/secondaryBooleanConfig.dart';
+import 'package:hashpass/widgets/data/textfield.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
-import '../widgets/data/textfield.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ConfigurationPage extends StatefulWidget {
   const ConfigurationPage({Key? key}) : super(key: key);
@@ -23,7 +24,7 @@ class ConfigurationPage extends StatefulWidget {
   _ConfigurationPageState createState() => _ConfigurationPageState();
 }
 
-class _ConfigurationPageState extends State<ConfigurationPage> {
+class _ConfigurationPageState extends HashPassState<ConfigurationPage> {
   double timer = Configuration.instance.showPasswordTime;
   bool hasBiometricValidation = false;
   late bool isBiometric = Configuration.instance.isBiometria;
@@ -62,196 +63,186 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<Configuration>(
-      builder: (context, configuration, widget) => WillPopScope(
-        onWillPop: () async {
-          HashPassRouteManager.to(HashPassRoute.INDEX, context);
-          return false;
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text("Configurações"),
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 20),
-              child: Column(
-                children: [
-                  DropDownConfiguration<Locale>(
-                    selectedValue: configuration.language,
-                    onChange: (locale) =>
-                        configuration.setConfigs(language: locale),
-                    label: "Linguagem",
-                    icon: Icons.language,
-                    values: AppLocalizations.supportedLocales,
-                  ),
-                  BooleanConfigWidget(
-                    useState: false,
-                    isVisible: hasBiometricValidation,
-                    onChange: (useBiometricValidation) {
-                      configuration.setConfigs(
-                        useBiometricValidation: useBiometricValidation,
-                        onBiometricChange: (isBiometricConfig) {
-                          setState(
-                            () {
-                              isBiometric = isBiometricConfig;
-                            },
-                          );
-                        },
-                      );
-                    },
-                    description:
-                        "Configura a forma de validação da senha geral do app para biometria ou texto.",
-                    label: "Validação biométrica",
-                    icon: Icons.fingerprint,
-                    value: isBiometric,
-                  ),
-                  const HashPassConfigDivider(),
-                  HashPassRadioConfig<HashPassTheme>(
-                    label: "Tema",
-                    group: configuration.theme,
-                    values: HashPassTheme.values,
-                    onSelect: (selectedTheme) =>
-                        configuration.setConfigs(theme: selectedTheme),
-                    icon: Icons.brightness_6,
-                  ),
-                  const HashPassConfigDivider(),
-                  BooleanConfigWidget(
-                    onChange: (checked) =>
-                        configuration.setConfigs(useTimer: checked),
-                    description:
-                        "Ativa ou desativa o temporizador de senha. O temporizador "
-                        "serve para limitar a quantidade de tempo que uma senha ficará "
-                        "disponível para visualização.",
-                    label: "Temporizador de senha",
-                    icon: Icons.timer,
-                    value: configuration.hasTimer,
-                  ),
-                  AnimatedBooleanContainer(
-                    useWidth: false,
-                    show: configuration.hasTimer,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 50),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20, top: 25),
-                            child: Row(
-                              children: [
-                                const Text(
-                                  "Duração do temporizador: ",
-                                  style: TextStyle(fontSize: 13.5),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 5),
-                                  child: SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * .15,
-                                    height: 25,
-                                    child: AppTextField(
-                                      maxLength: 3,
-                                      label: "",
-                                      onKeyboardAction: (value) =>
-                                          setTimerValue(configuration, value),
-                                      onSave: (value) =>
-                                          setTimerValue(configuration, value),
-                                      controller: timerEC,
-                                      padding: 0,
-                                      fontSize: 14,
-                                      textAlign: TextAlign.center,
-                                      formatter: <TextInputFormatter>[
-                                        FilteringTextInputFormatter.digitsOnly,
-                                      ],
-                                      keyboardType: TextInputType.number,
+  Widget localeBuild(context, language) => Consumer<Configuration>(
+        builder: (context, configuration, widget) => WillPopScope(
+          onWillPop: () async {
+            HashPassRouteManager.to(HashPassRoute.INDEX, context);
+            return false;
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(language.settings),
+            ),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 20),
+                child: Column(
+                  children: [
+                    DropDownConfiguration<HashPassLanguage>(
+                      selectedValue:
+                          HashPassLanguage.fromLocale(configuration.language),
+                      onChange: (language) =>
+                          configuration.setConfigs(language: language.locale),
+                      label: language.language,
+                      icon: Icons.language_outlined,
+                      values: HashPassLanguage.values,
+                    ),
+                    BooleanConfigWidget(
+                      useState: false,
+                      isVisible: hasBiometricValidation,
+                      onChange: (useBiometricValidation) {
+                        configuration.setConfigs(
+                          useBiometricValidation: useBiometricValidation,
+                          onBiometricChange: (isBiometricConfig) => setState(
+                            () => isBiometric = isBiometricConfig,
+                          ),
+                        );
+                      },
+                      description: language.biometricConfigDescription,
+                      label: language.biometricConfigTitle,
+                      icon: Icons.fingerprint,
+                      value: isBiometric,
+                    ),
+                    const HashPassConfigDivider(),
+                    HashPassRadioConfig<HashPassTheme>(
+                      label: language.theme,
+                      selectedValue: configuration.theme,
+                      values: HashPassTheme.values,
+                      onSelect: (selectedTheme) =>
+                          configuration.setConfigs(theme: selectedTheme),
+                      icon: Icons.brightness_6_outlined,
+                    ),
+                    const HashPassConfigDivider(),
+                    BooleanConfigWidget(
+                      onChange: (checked) =>
+                          configuration.setConfigs(useTimer: checked),
+                      description: language.timerConfigDescription,
+                      label: language.timerConfigTitle,
+                      icon: Icons.timer_outlined,
+                      value: configuration.hasTimer,
+                    ),
+                    AnimatedBooleanContainer(
+                      useWidth: false,
+                      show: configuration.hasTimer,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 50),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20, top: 25),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "${language.timerDurationConfigTitle}: ",
+                                    style: const TextStyle(fontSize: 13.5),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          .15,
+                                      height: 25,
+                                      child: AppTextField(
+                                        maxLength: 3,
+                                        label: "",
+                                        onKeyboardAction: (value) =>
+                                            setTimerValue(configuration, value),
+                                        onSave: (value) =>
+                                            setTimerValue(configuration, value),
+                                        controller: timerEC,
+                                        padding: 0,
+                                        fontSize: 14,
+                                        textAlign: TextAlign.center,
+                                        formatter: <TextInputFormatter>[
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                        ],
+                                        keyboardType: TextInputType.number,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const Text("s"),
-                              ],
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20, top: 10, right: 20, bottom: 25),
-                              child: Text(
-                                "Determina a duração do temporizador de senha, em segundos.",
-                                style: Theme.of(context).textTheme.headline1,
-                                textAlign: TextAlign.start,
+                                  const Text("s"),
+                                ],
                               ),
                             ),
-                          )
-                        ],
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 20,
+                                  top: 10,
+                                  right: 20,
+                                  bottom: 25,
+                                ),
+                                child: Text(
+                                  language.timerDurationConfigDescription,
+                                  style: Theme.of(context).textTheme.headline1,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const HashPassConfigDivider(),
-                  MultiBooleanWConfig(
-                    headerLabel: "Verificação de senha",
-                    headerDescription:
-                        'Configurações relacionadas com a verificação das senhas informadas por você no sistema '
-                        'em bancos de dados de senhas que já foram vazadas na internet.',
-                    configurations: [
-                      SecondaryBooleanConfigWidget(
-                        onChange: (checked) =>
-                            configuration.setConfigs(insertVerify: checked),
-                        description:
-                            'Ativa a verificação real-time ao cadastrar uma senha. Somente será '
-                            'possível cadastrar uma senha verificada.',
-                        label: "Verificar ao cadastrar",
-                        value: configuration.insertPassVerify,
-                      ),
-                      SecondaryBooleanConfigWidget(
-                        onChange: (checked) =>
-                            configuration.setConfigs(updateVerify: checked),
-                        description:
-                            'Ativa a verificação real-time ao atualizar uma senha já cadastrada. Não será '
-                            'possível salvar uma senha não verificada.',
-                        label: "Verificar ao atualizar",
-                        value: configuration.updatePassVerify,
-                      ),
-                    ],
-                    headerIcon: Icons.security,
-                  ),
-                  const HashPassConfigDivider(),
-                  BooleanConfigWidget(
-                    onChange: (checked) =>
-                        configuration.setConfigs(tooltips: checked),
-                    description:
-                        "Habilita ou desabilita ícones (?) para informações e explicações de ajuda em relação a como o aplicativo funciona.",
-                    label: "Habilitar ajuda",
-                    icon: Icons.help,
-                    value: configuration.showHelpTooltips,
-                  ),
-                  const HashPassConfigDivider(),
-                  HashPassRadioConfig<HashPassCardStyle>(
-                    label: "Estilo de card",
-                    description:
-                        "Determina o estilo dos cards aplicativo ao listar suas senhas. "
-                        "O estilo simples será um card mais minimalista e o padrão será um card mais completo.",
-                    group: configuration.cardStyle,
-                    values: HashPassCardStyle.values,
-                    onSelect: (selectedStyle) {
-                      if (selectedStyle.style == CardStyle.SIMPLE) {
-                        HashPassMessage.show(
-                            message:
-                                "Toque uma vez no card para visualizar sua senha. Pressione o card por alguns segundos para copiar a senha.",
-                            title: "Card simples");
-                      }
-                      configuration.setConfigs(cardStyle: selectedStyle);
-                    },
-                    icon: Icons.subtitles,
-                  ),
-                ],
+                    const HashPassConfigDivider(),
+                    MultiBooleanWConfig(
+                      headerLabel: language.passworkLeakMenu,
+                      headerDescription: language.passworkLeakConfigDescription,
+                      configurations: [
+                        SecondaryBooleanConfigWidget(
+                          onChange: (checked) =>
+                              configuration.setConfigs(insertVerify: checked),
+                          description:
+                              language.insertPasswordLeakVerificationConfig,
+                          label: language.registerVerifyTitle,
+                          value: configuration.insertPassVerify,
+                        ),
+                        SecondaryBooleanConfigWidget(
+                          onChange: (checked) =>
+                              configuration.setConfigs(updateVerify: checked),
+                          description:
+                              language.updatePasswordLeakVerificationConfig,
+                          label: language.updateVerificationTitle,
+                          value: configuration.updatePassVerify,
+                        ),
+                      ],
+                      headerIcon: Icons.security_outlined,
+                    ),
+                    const HashPassConfigDivider(),
+                    BooleanConfigWidget(
+                      onChange: (checked) =>
+                          configuration.setConfigs(tooltips: checked),
+                      description: language.helpConfigDescription,
+                      label: language.helpConfigTitle,
+                      icon: Icons.help_outline,
+                      value: configuration.showHelpTooltips,
+                    ),
+                    const HashPassConfigDivider(),
+                    HashPassRadioConfig<HashPassCardStyle>(
+                      label: language.cardStyleConfigTitle,
+                      description: language.cardStyleConfigDescription,
+                      selectedValue: configuration.cardStyle,
+                      values: HashPassCardStyle.values,
+                      onSelect: (selectedStyle) {
+                        if (selectedStyle.style == CardStyle.SIMPLE) {
+                          HashPassMessage.show(
+                            message: language.simpleCardShowcase,
+                            title:
+                                "${language.cardStyleConfigTitle} : ${language.simple}",
+                          );
+                        }
+                        configuration.setConfigs(cardStyle: selectedStyle);
+                      },
+                      icon: Icons.subtitles_outlined,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class HashPassConfigDivider extends StatelessWidget {

@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/dto/leakPassDTO.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/hashPassProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/util.dart';
@@ -11,7 +11,7 @@ import 'package:hashpass/widgets/appKeyValidation.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
 
-abstract class PasswordProvider extends ChangeNotifier {
+abstract class PasswordProvider extends HashPassProvider {
   final formKey = GlobalKey<FormState>();
   final passwordController = TextEditingController();
   final credentialController = TextEditingController();
@@ -77,9 +77,8 @@ abstract class PasswordProvider extends ChangeNotifier {
 
   void deletePassword(UserPasswordsProvider userPasswordsProvider) {
     HashPassMessage.show(
-      title: "Confirmar exclusão",
-      message:
-          "Você tem certeza que deseja excluir esta senha? Esta ação não poderá ser desfeita.",
+      title: language.confirmDelete,
+      message: language.confirmDeleteMessage,
       type: MessageType.YESNO,
     ).then((action) {
       if (action == MessageResponse.YES) {
@@ -87,10 +86,10 @@ abstract class PasswordProvider extends ChangeNotifier {
           onValidate: (key) async {
             if (await password.delete()) {
               userPasswordsProvider.removePassword(password);
-              HashPassSnackBar.show(message: 'Senha excluída com sucesso!');
+              HashPassSnackBar.show(message: language.deleteSuccess);
             } else {
               HashPassSnackBar.show(
-                message: 'Ocorreu um erro ao excluir a senha',
+                message: language.deleteError,
                 type: SnackBarType.ERROR,
               );
             }
@@ -117,11 +116,11 @@ abstract class PasswordProvider extends ChangeNotifier {
       if (Configuration.instance.updatePassVerify && !isVerifiedPassword) {
         MessageResponse userAction = await HashPassMessage.show(
           message: leakInformation.status == LeakStatus.LEAKED
-              ? "A senha que você está tentando salvar já foi vazada! Você deseja salvá-la mesmo assim?"
-              : "Não foi possível verificar sua senha, pois não há conexão com a internet. Deseja salvar sua senha mesmo assim?",
+              ? language.confirmSaveLeakedPassword
+              : language.confirmSaveNotVerifiedPassword,
           title: leakInformation.status == LeakStatus.LEAKED
-              ? "Senha vazada"
-              : "Senha não verificada",
+              ? language.leakedPassword
+              : language.notVerifiedPassword,
           type: MessageType.YESNO,
         );
 
@@ -130,8 +129,8 @@ abstract class PasswordProvider extends ChangeNotifier {
 
       if (!password.isNew && showConfirmationMessage) {
         MessageResponse userAction = await HashPassMessage.show(
-          title: "Confirmar",
-          message: "Tem certeza que deseja atualizar os dados desta senha?",
+          title: language.confirm,
+          message: language.confirmSavePassword,
           type: MessageType.YESNO,
         );
 

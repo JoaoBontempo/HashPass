@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/themes/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HashPassTheme {
   ThemeMode mode;
@@ -18,11 +19,11 @@ class HashPassTheme {
   String toString() {
     switch (mode) {
       case ThemeMode.dark:
-        return "Escuro";
+        return AppLocalizations.of(Get.context!)?.darkTheme ?? 'Dark';
       case ThemeMode.light:
-        return "Padrão";
+        return AppLocalizations.of(Get.context!)?.lightTheme ?? 'Light';
       case ThemeMode.system:
-        return "Automático (Sistema)";
+        return AppLocalizations.of(Get.context!)?.autoTheme ?? 'Default';
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PasswordRegisterProvider extends PasswordProvider {
   final titleController = TextEditingController();
@@ -42,16 +43,17 @@ class PasswordRegisterProvider extends PasswordProvider {
               await HashCrypt.cipherString(passwordController.text, key);
           password.leakCount = leakInformation.leakCount;
 
-          password.save().then((passwordId) {
-            if (isNewPassword) {
-              userPasswordsProvider.addPassword(password);
-            }
-            HashPassRouteManager.to(HashPassRoute.INDEX, context);
-            HashPassSnackBar.show(
-              message:
-                  'Senha ${isNewPassword ? 'cadastrada' : 'atualizada'} com sucesso!',
-            );
-          });
+          password.save().then(
+            (passwordId) {
+              if (isNewPassword) userPasswordsProvider.addPassword(password);
+
+              HashPassRouteManager.to(HashPassRoute.INDEX, context);
+              HashPassSnackBar.show(
+                  message: isNewPassword
+                      ? AppLocalizations.of(context)!.passwordSuccessRegister
+                      : AppLocalizations.of(context)!.passwordSuccessUpdate);
+            },
+          );
         },
       );
     }

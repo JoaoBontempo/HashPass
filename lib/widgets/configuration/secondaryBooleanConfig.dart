@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hashpass/widgets/data/switch.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 
-class SecondaryBooleanConfigWidget extends StatefulWidget {
-  SecondaryBooleanConfigWidget({
+class SecondaryBooleanConfigWidget extends StatelessWidget {
+  const SecondaryBooleanConfigWidget({
     Key? key,
     required this.onChange,
     required this.description,
@@ -13,15 +13,8 @@ class SecondaryBooleanConfigWidget extends StatefulWidget {
   final Function(bool) onChange;
   final String description;
   final String label;
-  bool value;
+  final bool value;
 
-  @override
-  State<SecondaryBooleanConfigWidget> createState() =>
-      _SecondaryBooleanConfigWidgetState();
-}
-
-class _SecondaryBooleanConfigWidgetState
-    extends State<SecondaryBooleanConfigWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -30,18 +23,13 @@ class _SecondaryBooleanConfigWidgetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HashPassSwitch(
-            onChange: (checked) {
-              setState(() {
-                widget.value = checked;
-                widget.onChange(checked);
-              });
-            },
-            value: widget.value,
-            label: widget.label,
+            onChange: onChange,
+            value: value,
+            label: label,
             labelSize: 13.5,
           ),
           HashPassLabel(
-            text: widget.description,
+            text: description,
             style: Theme.of(context).textTheme.headline1,
           ),
         ],

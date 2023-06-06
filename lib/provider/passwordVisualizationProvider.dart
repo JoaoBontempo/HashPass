@@ -1,13 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/cryptography.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PasswordVisualizationProvider extends ChangeNotifier {
   final Password password;
@@ -87,7 +86,9 @@ class PasswordVisualizationProvider extends ChangeNotifier {
         appKey,
       ).then(
         (value) {
-          realPassword = value ?? 'Erro ao decifrar a senha';
+          realPassword = value ??
+              AppLocalizations.of(context)?.decipherFailure ??
+              'An error ocurred. Please, try again.';
           notifyListeners();
         },
       );

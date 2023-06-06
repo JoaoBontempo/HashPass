@@ -34,7 +34,7 @@ class PasswordCardProvider extends PasswordProvider {
       (basePassword) => {
         Clipboard.setData(ClipboardData(text: basePassword)).then(
           (_) => HashPassSnackBar.show(
-            message: "Senha copiada!",
+            message: language.passwordCopied,
             duration: const Duration(milliseconds: 2500),
           ),
         ),
@@ -64,15 +64,19 @@ class PasswordCardProvider extends PasswordProvider {
     AuthAppKey.auth(
       onValidate: (key) async {
         if (password.useCriptography && !getRealBase) {
-          onGet(await HashCrypt.applyAlgorithms(
-            password.hashAlgorithm,
-            password.basePassword,
-            password.isAdvanced,
-            key,
-          ));
+          onGet(
+            await HashCrypt.applyAlgorithms(
+              password.hashAlgorithm,
+              password.basePassword,
+              password.isAdvanced,
+              key,
+            ),
+          );
         } else {
-          onGet(await HashCrypt.decipherString(password.basePassword, key) ??
-              "Ocorreu um erro ao recuperar sua senha");
+          onGet(
+            await HashCrypt.decipherString(password.basePassword, key) ??
+                language.passwordRecoverError,
+          );
         }
       },
     );
@@ -98,7 +102,7 @@ class PasswordCardProvider extends PasswordProvider {
       onValidate: (key) async {
         await _setPasswordValues(key);
         await password.save();
-        HashPassSnackBar.show(message: 'Senha salva com sucesso!');
+        HashPassSnackBar.show(message: language.passwordSuccessUpdate);
         notifyListeners();
       },
     );

@@ -41,7 +41,7 @@ class HashPassApp extends StatelessWidget {
             supportedLocales: AppLocalizations.supportedLocales,
             locale: Configuration.instance.language,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
-            title: 'Hash Pass',
+            title: 'HashPass',
             themeMode: Configuration.instance.theme.mode,
             theme: LightAppTheme(context).defaultTheme,
             darkTheme: DarkAppTheme(context).defaultTheme,
