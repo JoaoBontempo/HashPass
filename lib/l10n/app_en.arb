@@ -4,7 +4,7 @@
   "closeAppConfirmationMessage" : "Are you sure to close HashPass?",
 
   "updatedDataMessage" : "All data successfully updated!",
-  "newPasswordShowCase" : "Tap'here to register a new password!",
+  "newPasswordShowCase" : "Tap here to register a new password!",
   "passwordFilterShowCase" : "Use this field to filter your passwords by title or credential",
   "passwordFilterPlaceholder" : "Search for title, credential...",
   "notFoundPassword" : "No passwords found!",
@@ -86,7 +86,7 @@
   "cardStyleConfigTitle" : "Interface style",
   "cardStyleConfigDescription" : "Determines the interface style of the app to list your passwords. The simple style is a minimalist interface and the dafault will have more information on the screen",
   "simple": "Simple",
-  "default" : "Default",
+  "default_" : "Default",
   "registerVerifyTitle" : "Register verification",
   "updateVerificationTitle" : "Update verification",
 
@@ -107,7 +107,7 @@
   "doNotShareToken" : "Do not share your token or your file with nobody!",
   "export" : "Export",
   "import" : "Import",
-  "insertExportToken" : "Insira a chave de exportação",
+  "insertExportToken" : "Insira seu token",
   "emptyFieldMessage" : "This field should not be empty",
   "chooseImportFile" : "Choose the file to import",
   "accessDenied" : "Access denied",
@@ -169,5 +169,11 @@
   "yes": "Yes",
   "no" : "No",
 
-  "updateAndInsertLeakConfigDescription" : "Activate/deactivate leak verification to register or update a password"
+  "updateAndInsertLeakConfigDescription" : "Activate/deactivate leak verification to register or update a password",
+
+  "couldNotVerifyPassword" : "Was not possible to verify your password. Please, check your internet connection",
+  "passwordLeakedOnce" : "This passwork has been leaked at least once!",
+  "passwordMaybeNotLeaked" : "Your password has a great chance of not ever been leaked",
+  "passwordLeakedMoreThanOnce" : "This passwork has been leaked at least",
+  "times" : "times"
 }

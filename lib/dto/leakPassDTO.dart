@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/themes/theme.dart';
+import 'package:hashpass/util/appLanguage.dart';
 import 'package:hashpass/util/util.dart';
 
-class PasswordLeakDTO {
+class PasswordLeakDTO with l10nClass {
   int leakCount;
   PasswordLeakDTO({
     required this.leakCount,
@@ -34,7 +35,7 @@ class PasswordLeakDTO {
   Icon _getIcon(double? size) {
     return leakCount == LeakStatus.FAILURE.count
         ? Icon(
-            Icons.warning,
+            Icons.warning_amber,
             color: HashPassTheme.isDarkMode
                 ? Colors.yellowAccent
                 : Colors.yellow.shade700,
@@ -42,12 +43,12 @@ class PasswordLeakDTO {
           )
         : leakCount == LeakStatus.VERIFIED.count
             ? Icon(
-                Icons.verified_user,
+                Icons.verified_user_outlined,
                 size: size,
                 color: Colors.greenAccent,
               )
             : Icon(
-                Icons.warning,
+                Icons.warning_amber,
                 size: size,
                 color: Colors.redAccent,
               );
@@ -62,12 +63,12 @@ class PasswordLeakDTO {
   Color get _textColor => leakCount > 0 ? Colors.white : Colors.black;
 
   String get message => leakCount == LeakStatus.FAILURE.count
-      ? "Não foi possível verificar sua senha. Verifique sua conexão de internet ou tente novamente."
+      ? language.couldNotVerifyPassword
       : leakCount == LeakStatus.VERIFIED.count
-          ? 'Sua senha tem grandes chances de não ter sido vazada!'
+          ? language.passwordMaybeNotLeaked
           : leakCount == 1
-              ? 'Esta senha foi vazada pelo menos uma vez!'
-              : 'Esta senha foi vazada pelo menos ${Util.formatInteger(leakCount)} vezes!';
+              ? language.passwordLeakedOnce
+              : '${language.passwordLeakedMoreThanOnce} ${Util.formatInteger(leakCount)} ${language.times}!';
 }
 
 enum LeakStatus {

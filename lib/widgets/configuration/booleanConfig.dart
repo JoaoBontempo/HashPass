@@ -56,7 +56,7 @@ class BooleanConfigWidget extends StatelessWidget {
                       useState: useState,
                       labelWeight: FontWeight.bold,
                       onChange: (value) {
-                        onChange!(value);
+                        onChange?.call(value);
                       },
                       value: value ?? false,
                       label: label,

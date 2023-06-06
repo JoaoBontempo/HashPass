@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/themes/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hashpass/util/appLanguage.dart';
 
-class HashPassTheme {
+class HashPassTheme with l10nClass {
   ThemeMode mode;
   HashPassTheme({
     required this.mode,
@@ -19,11 +19,11 @@ class HashPassTheme {
   String toString() {
     switch (mode) {
       case ThemeMode.dark:
-        return AppLocalizations.of(Get.context!)?.darkTheme ?? 'Dark';
+        return language.darkTheme;
       case ThemeMode.light:
-        return AppLocalizations.of(Get.context!)?.lightTheme ?? 'Light';
+        return language.lightTheme;
       case ThemeMode.system:
-        return AppLocalizations.of(Get.context!)?.autoTheme ?? 'Default';
+        return language.autoTheme;
     }
   }
 

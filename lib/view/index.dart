@@ -45,7 +45,8 @@ class IndexPage extends HashPassStatelessWidget {
             drawer: const AppDrawer(),
             appBar: AppBar(
               title: const Text('HashPass'),
-              actions: Configuration.instance.showHelpTooltips
+              actions: Configuration.instance.showHelpTooltips &&
+                      passwordsProvider.getPasswords().isNotEmpty
                   ? <Widget>[
                       IconButton(
                         icon: const Icon(

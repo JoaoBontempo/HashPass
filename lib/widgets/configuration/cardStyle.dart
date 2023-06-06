@@ -1,3 +1,6 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
+
 enum CardStyle { SIMPLE, DEFAULT }
 
 class HashPassCardStyle {
@@ -6,15 +9,16 @@ class HashPassCardStyle {
     required this.style,
   });
 
-  static final List<HashPassCardStyle> values = CardStyle.values.map((style) => HashPassCardStyle(style: style)).toList();
+  static final List<HashPassCardStyle> values =
+      CardStyle.values.map((style) => HashPassCardStyle(style: style)).toList();
 
   @override
   String toString() {
     switch (style) {
       case CardStyle.SIMPLE:
-        return "Simples";
+        return AppLocalizations.of(Get.context!)!.simple;
       case CardStyle.DEFAULT:
-        return "Padrão";
+        return AppLocalizations.of(Get.context!)!.default_;
     }
   }
 }

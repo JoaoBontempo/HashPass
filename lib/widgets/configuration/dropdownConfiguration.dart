@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/widgets/data/dropDown.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 
@@ -41,6 +42,7 @@ class DropDownConfiguration<ConfigType> extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 15),
                   child: HashPassDropDown<ConfigType>(
+                    isLightBackground: !HashPassTheme.isDarkMode,
                     itens: values,
                     onChange: onChange,
                     hintText: '',

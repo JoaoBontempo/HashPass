@@ -86,7 +86,7 @@
     "cardStyleConfigTitle" : "Estilo de interface",
     "cardStyleConfigDescription" : "Determina o estilo dos cards aplicativo ao listar suas senhas. O estilo simples será um card mais minimalista e o padrão será um card mais completo.",
     "simple": "Simples",
-    "default" : "Padrão",
+    "default_" : "Padrão",
     "registerVerifyTitle" : "Verificar ao cadastrar",
     "updateVerificationTitle" : "Verificar ao atualizar",
 
@@ -107,7 +107,7 @@
     "doNotShareToken" : "Não compartihe seu token e não envie o arquivo para ninguém!",
     "export" : "Exportar",
     "import" : "Importar",
-    "insertExportToken" : "Insira a chave de exportação",
+    "insertExportToken" : "Insert your token",
     "emptyFieldMessage" : "Este campo não pode estar vazio",
     "chooseImportFile" : "Selecione o arquivo para importação",
     "accessDenied" : "Acesso negado",
@@ -169,5 +169,11 @@
     "yes": "Sim",
     "no" : "Não",
 
-    "updateAndInsertLeakConfigDescription" : "Ativar/desativar a verificação de vazamento de senha ao cadastrar e ao atualizar uma senha."
+    "updateAndInsertLeakConfigDescription" : "Ativar/desativar a verificação de vazamento de senha ao cadastrar e ao atualizar uma senha.",
+
+    "couldNotVerifyPassword" : "Não foi possível verificar sua senha. Verifique sua conexão de internet ou tente novamente.",
+    "passwordLeakedOnce" : "Esta senha foi vazada pelo menos uma vez!",
+    "passwordMaybeNotLeaked" : "Sua senha tem grandes chances de não ter sido vazada!",
+    "passwordLeakedMoreThanOnce" : "Esta senha foi vazada pelo menos",
+    "times" : "vezes"
 }

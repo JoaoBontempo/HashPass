@@ -67,7 +67,7 @@ class HashPassRadioConfig<T> extends StatelessWidget {
                   label: value.toString(),
                   value: value,
                   group: selectedValue,
-                  onSelect: onSelect(value),
+                  onSelect: onSelect,
                 );
               }).toList(),
             ),

@@ -41,7 +41,7 @@ class AppDrawer extends HashPassStatelessWidget {
                 },
               ),
               HashPassDrawerButton(
-                icon: Icons.swap_vert,
+                icon: Icons.swap_vert_outlined,
                 title: language.exportImportDataMenu,
                 onTap: () {
                   Get.back();
@@ -55,7 +55,7 @@ class AppDrawer extends HashPassStatelessWidget {
                 },
               ),
               HashPassDrawerButton(
-                icon: Icons.security,
+                icon: Icons.security_outlined,
                 title: language.passworkLeakMenu,
                 onTap: () async {
                   if (await HTTPRequest.checkUserConnection()) {
@@ -69,7 +69,7 @@ class AppDrawer extends HashPassStatelessWidget {
                 },
               ),
               HashPassDrawerButton(
-                icon: Icons.settings,
+                icon: Icons.settings_outlined,
                 title: language.settings,
                 onTap: () {
                   Get.back();
@@ -77,17 +77,15 @@ class AppDrawer extends HashPassStatelessWidget {
                 },
               ),
               HashPassDrawerButton(
-                icon: Icons.library_books,
+                icon: Icons.library_books_outlined,
                 title: language.privacyPolicy,
-                onTap: () => launchUrl(
-                  Uri.dataFromString(
-                    "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/",
-                  ),
+                onTap: () => launch(
+                  "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/",
                 ),
               ),
               HashPassDrawerButton(
                 icon: Icons.info_outline,
-                title: "Sobre",
+                title: language.about,
                 onTap: () {
                   Get.back();
                   Get.to(const AboutPage());
