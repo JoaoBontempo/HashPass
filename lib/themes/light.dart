@@ -20,14 +20,14 @@ class LightAppTheme {
           color: Colors.grey.shade400,
           circularTrackColor: AppColors.SECONDARY_LIGHT,
         ),
-        cardTheme: CardTheme(
-          color: AppColors.SECONDARY_LIGHT.withOpacity(0.9),
+        cardTheme: const CardTheme(
+          color: Colors.white,
         ),
         textSelectionTheme: TextSelectionThemeData(
           selectionHandleColor: AppColors.SECONDARY_LIGHT.withOpacity(0.9),
           cursorColor: AppColors.SECONDARY_LIGHT.withOpacity(0.9),
         ),
-        shadowColor: AppColors.ACCENT_LIGHT_2,
+        shadowColor: Colors.grey.shade300,
         scaffoldBackgroundColor: Colors.grey.shade100,
         canvasColor: AppColors.PRIMARY_LIGHT,
         highlightColor: AppColors.ACCENT_LIGHT_2,
@@ -75,11 +75,11 @@ class LightAppTheme {
         ),
         colorScheme: ColorScheme.fromSwatch().copyWith(
           secondary: AppColors.ACCENT_LIGHT,
-          tertiary: Colors.grey.shade100,
+          tertiary: Colors.grey.shade700,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: AppColors.ACCENT_LIGHT,
+            primary: AppColors.SECONDARY_LIGHT,
             shape: const StadiumBorder(),
             textStyle: const TextStyle(
               color: AppColors.SECONDARY_LIGHT,
@@ -94,8 +94,10 @@ class LightAppTheme {
             FontWeight.bold,
           ),
         ),
+        iconTheme: const IconThemeData(color: AppColors.SECONDARY_LIGHT),
+        primaryIconTheme: const IconThemeData(color: AppColors.SECONDARY_LIGHT),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: AppColors.ACCENT_LIGHT,
+          backgroundColor: AppColors.SECONDARY_LIGHT,
           foregroundColor: AppColors.PRIMARY_LIGHT,
         ),
         switchTheme: SwitchThemeData(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
@@ -50,45 +49,12 @@ class SimpleCardPassword extends HashPassStatelessWidget {
                     children: [
                       SizedBox(
                         width: Get.size.width * 0.6,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            HashPassLabel(
-                              textAlign: TextAlign.left,
-                              overflow: TextOverflow.clip,
-                              text: passwordProvider.password.title,
-                              color: Get.theme.highlightColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            Visibility(
-                              visible: passwordProvider
-                                  .password.credential.isNotEmpty,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      FontAwesomeIcons.user,
-                                      size: 13,
-                                      color: Get.theme.colorScheme.tertiary,
-                                    ),
-                                    Expanded(
-                                      child: HashPassLabel(
-                                        paddingLeft: 7.5,
-                                        paddingTop: 1.5,
-                                        overflow: TextOverflow.fade,
-                                        size: 12,
-                                        text: passwordProvider
-                                            .password.credential,
-                                        color: Get.theme.colorScheme.tertiary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: HashPassLabel(
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.clip,
+                          text: passwordProvider.password.title,
+                          color: Get.theme.highlightColor,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Row(

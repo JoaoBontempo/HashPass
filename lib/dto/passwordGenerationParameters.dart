@@ -9,12 +9,12 @@ class PasswordGenerationParameters {
     4: [123, 126]
   };
 
-  final int size;
-  final bool useNumbers;
-  final bool useUpperCase;
-  final bool useLowerCase;
-  final bool useSpecialChar;
-  final String blackList;
+  int size;
+  bool useNumbers;
+  bool useUpperCase;
+  bool useLowerCase;
+  bool useSpecialChar;
+  String blackList;
   late Random _randomGenerator;
 
   PasswordGenerationParameters({
@@ -37,7 +37,7 @@ class PasswordGenerationParameters {
   }
 
   String _getNextChar() {
-    if (useSpecialChar && fiftyPercentChance) {
+    if (useSpecialChar && _fiftyPercentChance) {
       int symbolGroupIndex = _rangeRandom(1, 4);
       List<int> symbolGroup = _specialCharCodeGroups[symbolGroupIndex] ??
           _specialCharCodeGroups.values.first;
@@ -51,11 +51,11 @@ class PasswordGenerationParameters {
       );
     }
 
-    if (useNumbers && fiftyPercentChance) {
-      return _checkNewChar(String.fromCharCode(_rangeRandom(57, 48)));
+    if (useNumbers && _fiftyPercentChance) {
+      return _checkNewChar(String.fromCharCode(_rangeRandom(48, 57)));
     }
 
-    if ((useUpperCase && fiftyPercentChance) || !useLowerCase) {
+    if ((useUpperCase && _fiftyPercentChance) || !useLowerCase) {
       return _checkNewChar(String.fromCharCode(_rangeRandom(65, 90)));
     }
 
@@ -65,7 +65,7 @@ class PasswordGenerationParameters {
   String _checkNewChar(String char) =>
       blackList.isNotEmpty && blackList.contains(char) ? _getNextChar() : char;
 
-  bool get fiftyPercentChance => _rangeRandom(1, 10) > 5;
+  bool get _fiftyPercentChance => _rangeRandom(1, 10) > 5;
 
   int _rangeRandom(int min, int max) =>
       min + _randomGenerator.nextInt(max - min);

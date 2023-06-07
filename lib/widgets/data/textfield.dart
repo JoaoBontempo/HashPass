@@ -17,7 +17,6 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.formatter,
     this.fontSize = 15,
-    this.dark = false,
     this.fontColor,
     this.borderColor,
     this.textAlign = TextAlign.start,
@@ -43,7 +42,6 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? formatter;
   final double? fontSize;
-  final bool dark;
   final Color? fontColor;
   final Color? borderColor;
   final TextAlign textAlign;
@@ -93,7 +91,6 @@ class AppTextField extends StatelessWidget {
                   children: [
                     FaIcon(
                       icon ?? Icons.abc,
-                      color: iconColor ?? Colors.grey,
                       size: 18,
                     ),
                     HashPassLabel(

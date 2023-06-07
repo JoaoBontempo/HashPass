@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/provider/passwordGeneratorProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/http.dart';
@@ -7,6 +8,7 @@ import 'package:hashpass/view/configuration.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/view/importExportData.dart';
 import 'package:hashpass/view/changeAppKey.dart';
+import 'package:hashpass/view/passwordGenerator.dart';
 import 'package:hashpass/view/passwordLeak.dart';
 import 'package:hashpass/view/about.dart';
 import 'package:hashpass/widgets/interface/messageBox.dart';
@@ -46,10 +48,28 @@ class AppDrawer extends HashPassStatelessWidget {
                 onTap: () {
                   Get.back();
                   Get.to(
-                    ChangeNotifierProvider<UserPasswordsProvider>.value(
+                    ChangeNotifierProvider.value(
                       value: passwordProvider,
-                      builder: ((context, child) =>
-                          const ImportExportDataPage()),
+                      builder: (context, child) => const ImportExportDataPage(),
+                    ),
+                  );
+                },
+              ),
+              HashPassDrawerButton(
+                icon: Icons.lock_reset,
+                title: language.passwordGeneratorMenu,
+                onTap: () {
+                  Get.back();
+                  Get.to(
+                    MultiProvider(
+                      providers: [
+                        ChangeNotifierProvider(
+                          create: (context) => PasswordGeneratorProvider(),
+                        ),
+                        ChangeNotifierProvider.value(value: passwordProvider)
+                      ],
+                      builder: (context, child) =>
+                          const PasswordGeneratorScreen(),
                     ),
                   );
                 },

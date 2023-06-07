@@ -183,5 +183,17 @@
     "update1_3_0_title" : "A versão 1.3.0 do HashPass chegou!",
     "update1_3_0_description" : "Esta é a primeira atualização do aplicativo desde que o desenvolvi e publiquei enquanto estava na faculdade. Algumas novas ideias e surgiram e esta é apenas uma pequena atualização de preparação para algo ainda melhor que está por vir!\n\nMuito orbigado por utilizar o HashPass!",
     "update1_3_0_note1" : "Nova função: Gerador de senha (presente no menu lateral). Gere uma senha segura e salve-a no HashPass;",
-    "update1_3_0_note2" : "O HashPass agora está internacionalizado. Você pode alterar a linguagem do aplicativo para Português (BR) ou Inglês (US)."
+    "update1_3_0_note2" : "O HashPass agora está internacionalizado. Você pode alterar a linguagem do aplicativo para Português (BR) ou Inglês (US).",
+
+    "passwordGeneratorMenu" : "Gerador de senha",
+    "passwordSize" : "Tamanho da senha",
+    "lowercases" : "Minúsculas",
+    "uppercases" : "Maiúsculas",
+    "numbers" : "Números",
+    "symbols" : "Sìmbolos",
+    "charBlackList" : "Lista negra de caracteres",
+    "blackListDescription" : "Os caracteres contidos neste campo não farão parte da senha gerada",
+    "generatePassword" : "Gerar senha",
+    "passwordDetails" : "Detalhes da senha",
+    "generatedPassword" : "Senha gerada"
 }
