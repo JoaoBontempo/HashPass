@@ -17,6 +17,7 @@ enum ConfigurationKeys {
   APP_ENTRANCE('hasEntrance'),
   USE_TOOLTIPS('tooltips'),
   LANGUAGE('language'),
+  APP_VERSION('appVersion'),
   THEME('theme');
 
   final String key;

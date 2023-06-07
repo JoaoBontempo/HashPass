@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
+import 'package:hashpass/widgets/interface/modalTitle.dart';
 import 'package:provider/provider.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordVisualizationProvider.dart';
@@ -178,19 +179,8 @@ class PasswordInformationVisualization extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20),
       child: Column(
         children: [
-          Row(
-            children: [
-              Icon(
-                icon,
-                size: 17,
-                color: Colors.grey,
-              ),
-              HashPassLabel(
-                text: label,
-                paddingLeft: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ],
+          ModalTitle(
+            title: label,
           ),
           Padding(
             padding: const EdgeInsets.only(top: 5),

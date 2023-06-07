@@ -175,5 +175,13 @@
   "passwordLeakedOnce" : "This passwork has been leaked at least once!",
   "passwordMaybeNotLeaked" : "Your password has a great chance of not ever been leaked",
   "passwordLeakedMoreThanOnce" : "This passwork has been leaked at least",
-  "times" : "times"
+  "times" : "times",
+
+  "pathNotes": "Path Notes",
+  "pathNotesIntroduction" : "Path notes below",
+
+  "update1_3_0_title" : "HashPass version 1.3.0 has arrived!",
+  "update1_3_0_description" : "This is the first update of the app since I developed and published it while I was at the University",
+  "update1_3_0_note1" : "New feature: Password generation (access it on the aside menu). Gerenate a random and secure password then save it;",
+  "update1_3_0_note2" : "HashPass is now avaliable in English!. You can swap the language between Portuguese (BR) and English (US)."
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/themes/theme.dart';
-import 'package:hashpass/util/util.dart';
+import 'package:hashpass/util/versionControl.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -37,7 +37,8 @@ class AboutPage extends HashPassStatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: HashPassLabel(
-                    text: "${language.version}: ${Util.APP_VERSION}",
+                    text:
+                        "${language.version}: ${HashPassVersion.currentVersion}",
                     paddingLeft: 20,
                     paddingBottom: 15,
                     size: 13,

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/util/appLanguage.dart';
 
-class HashPassTheme with l10nClass {
+class HashPassTheme with L10n {
   ThemeMode mode;
   HashPassTheme({
     required this.mode,

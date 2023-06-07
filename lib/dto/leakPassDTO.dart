@@ -3,7 +3,7 @@ import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/appLanguage.dart';
 import 'package:hashpass/util/util.dart';
 
-class PasswordLeakDTO with l10nClass {
+class PasswordLeakDTO with L10n {
   int leakCount;
   PasswordLeakDTO({
     required this.leakCount,

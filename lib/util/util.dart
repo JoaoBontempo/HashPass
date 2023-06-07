@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 class Util {
-  static const String APP_VERSION = "1.1.0";
-
   static UnderlineInputBorder defaultBorder(Color cor) {
     return UnderlineInputBorder(
         borderSide: BorderSide(

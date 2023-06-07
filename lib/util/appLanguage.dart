@@ -21,6 +21,7 @@ enum HashPassLanguage {
       );
 }
 
-class l10nClass {
+class L10n {
   AppLocalizations get language => AppLocalizations.of(Get.context!)!;
+  static AppLocalizations get appLanguage => AppLocalizations.of(Get.context!)!;
 }
