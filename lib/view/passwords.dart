@@ -9,6 +9,7 @@ import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/appContext.dart';
+import 'package:hashpass/util/versionControl.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/view/passwordRegister.dart';
 import 'package:hashpass/widgets/cards/passwordCard.dart';
@@ -53,6 +54,7 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
       removeKey,
       saveKey
     ];
+    HashPassVersion.checkPath(Configuration.instance);
     super.initState();
     bannerAd = BannerAd(
       size: AdSize.banner,

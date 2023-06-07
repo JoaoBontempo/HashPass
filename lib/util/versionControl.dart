@@ -34,6 +34,9 @@ class HashPassVersion with L10n {
             .getString(ConfigurationKeys.APP_VERSION.key) ??
         currentVersion;
 
+    configuration.preferencesManager
+        .setString(ConfigurationKeys.APP_VERSION.key, lastVersion);
+
     if (lastVersion == currentVersion) return;
 
     HashPassVersion currentVersionNotes = pathNotes[currentVersion]!;
