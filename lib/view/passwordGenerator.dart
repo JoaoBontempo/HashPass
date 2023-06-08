@@ -98,7 +98,13 @@ class PasswordGeneratorScreen extends HashPassStatelessWidget {
                           padding: const EdgeInsets.all(8.0),
                           child: AppTextField(
                             label: language.charBlackList,
+                            maxLength: 25,
                             controller: provider.blackListController,
+                            onChange: (value) {
+                              if (provider.generatedPassword.isNotEmpty) {
+                                provider.generatePassword();
+                              }
+                            },
                           ),
                         ),
                       ],
@@ -129,7 +135,7 @@ class PasswordGeneratorScreen extends HashPassStatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                         SizedBox(
-                          height: Get.height * .09,
+                          height: Get.height * .1,
                           child: Center(
                             child: HashPassLabel(
                               text: provider.generatedPassword,

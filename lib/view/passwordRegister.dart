@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
-import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/cryptography.dart';
 import 'package:hashpass/util/validator.dart';
@@ -317,9 +316,6 @@ class TooltippedCheckBox extends StatelessWidget {
     return Row(
       children: [
         HashPassCheckBox(
-          checkColor: HashPassTheme.isDarkMode
-              ? AppColors.SECONDARY_DARK
-              : AppColors.ACCENT_LIGHT_2,
           onChange: (isSelected) => onChange(isSelected),
           value: value,
           labelSize: 15,

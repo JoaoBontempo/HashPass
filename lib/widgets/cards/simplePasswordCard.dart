@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
+import 'package:hashpass/widgets/cards/hashPassCard.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -34,74 +35,67 @@ class SimpleCardPassword extends HashPassStatelessWidget {
               bottom: 7,
               right: 20,
             ),
-            child: Showcase(
-              key: passwordProvider.isHelpExample ? cardKey : GlobalKey(),
+            child: ShowcaseHashPassCard(
+              showcaseKey:
+                  passwordProvider.isHelpExample ? cardKey : GlobalKey(),
               description: language.simpleCardShowcase,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: Get.size.width * 0.6,
+                    child: HashPassLabel(
+                      textAlign: TextAlign.left,
+                      overflow: TextOverflow.clip,
+                      text: passwordProvider.password.title,
+                      color: Get.theme.hintColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
                     children: [
-                      SizedBox(
-                        width: Get.size.width * 0.6,
-                        child: HashPassLabel(
-                          textAlign: TextAlign.left,
-                          overflow: TextOverflow.clip,
-                          text: passwordProvider.password.title,
-                          color: Get.theme.highlightColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                       Row(
                         children: [
-                          Row(
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  Get.focusScope!.unfocus();
-                                  passwordProvider
-                                      .deletePassword(userPasswordsProvider);
-                                },
-                                padding: EdgeInsets.zero,
-                                icon: Showcase(
-                                  key: isExample ? removeKey : GlobalKey(),
-                                  description: language.deletePasswordShowCase,
-                                  child: const Icon(
-                                    Icons.delete,
-                                    size: 20,
-                                  ),
-                                ),
-                                color: Colors.redAccent,
+                          IconButton(
+                            onPressed: () {
+                              Get.focusScope!.unfocus();
+                              passwordProvider
+                                  .deletePassword(userPasswordsProvider);
+                            },
+                            padding: EdgeInsets.zero,
+                            icon: Showcase(
+                              key: isExample ? removeKey : GlobalKey(),
+                              description: language.deletePasswordShowCase,
+                              child: const Icon(
+                                Icons.delete_outline,
+                                size: 20,
                               ),
-                              IconButton(
-                                padding: const EdgeInsets.only(right: 10),
-                                constraints: const BoxConstraints(),
-                                onPressed: () => passwordProvider
-                                    .toUpdatePassword(userPasswordsProvider),
-                                icon: Showcase(
-                                  key: passwordProvider.isHelpExample
-                                      ? editKey
-                                      : GlobalKey(),
-                                  description: language.editPasswordShwocase,
-                                  child: const Icon(
-                                    Icons.edit,
-                                    size: 20,
-                                  ),
-                                ),
-                                color: Get.theme.highlightColor,
+                            ),
+                            color: Colors.redAccent,
+                          ),
+                          IconButton(
+                            padding: const EdgeInsets.only(right: 10),
+                            constraints: const BoxConstraints(),
+                            onPressed: () => passwordProvider
+                                .toUpdatePassword(userPasswordsProvider),
+                            icon: Showcase(
+                              key: passwordProvider.isHelpExample
+                                  ? editKey
+                                  : GlobalKey(),
+                              description: language.editPasswordShwocase,
+                              child: const Icon(
+                                Icons.edit,
+                                size: 20,
                               ),
-                            ],
+                            ),
+                            color: Get.theme.hintColor,
                           ),
                         ],
-                      )
+                      ),
                     ],
-                  ),
-                ),
+                  )
+                ],
               ),
             ),
           ),

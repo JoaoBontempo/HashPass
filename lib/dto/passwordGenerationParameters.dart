@@ -1,5 +1,12 @@
 import 'dart:math';
 
+enum PasswordGeneratorCharacterType {
+  SYMBOL,
+  NUMBER,
+  LOWERCASE,
+  UPPERCASE;
+}
+
 class PasswordGenerationParameters {
   //Symbols char codes at ASCII table divided by 4 groups
   static final Map<int, List<int>> _specialCharCodeGroups = {
@@ -37,7 +44,28 @@ class PasswordGenerationParameters {
   }
 
   String _getNextChar() {
-    if (useSpecialChar && _fiftyPercentChance) {
+    int typeIndex = _rangeRandom(0, 3);
+    PasswordGeneratorCharacterType charType =
+        PasswordGeneratorCharacterType.values.firstWhere(
+      (_charType) => _charType.index == typeIndex,
+    );
+
+    switch (charType) {
+      case PasswordGeneratorCharacterType.SYMBOL:
+        return _getNewSymbol();
+      case PasswordGeneratorCharacterType.NUMBER:
+        return _getNewNumber();
+      case PasswordGeneratorCharacterType.UPPERCASE:
+        return _getNewUppercase();
+      case PasswordGeneratorCharacterType.LOWERCASE:
+        return _getNewLowercase();
+      default:
+        return _getNextChar();
+    }
+  }
+
+  String _getNewSymbol() {
+    if (useSpecialChar && _randomChance) {
       int symbolGroupIndex = _rangeRandom(1, 4);
       List<int> symbolGroup = _specialCharCodeGroups[symbolGroupIndex] ??
           _specialCharCodeGroups.values.first;
@@ -51,22 +79,40 @@ class PasswordGenerationParameters {
       );
     }
 
-    if (useNumbers && _fiftyPercentChance) {
+    return _getNextChar();
+  }
+
+  String _getNewNumber() {
+    if (useNumbers && _randomChance) {
       return _checkNewChar(String.fromCharCode(_rangeRandom(48, 57)));
     }
 
-    if ((useUpperCase && _fiftyPercentChance) || !useLowerCase) {
+    return _getNextChar();
+  }
+
+  String _getNewUppercase() {
+    if (useUpperCase && _randomChance) {
       return _checkNewChar(String.fromCharCode(_rangeRandom(65, 90)));
     }
 
-    return _checkNewChar(String.fromCharCode(_rangeRandom(97, 122)));
+    return _getNextChar();
+  }
+
+  String _getNewLowercase() {
+    if (useLowerCase && _randomChance) {
+      return _checkNewChar(String.fromCharCode(_rangeRandom(97, 122)));
+    }
+
+    return _getNextChar();
   }
 
   String _checkNewChar(String char) =>
       blackList.isNotEmpty && blackList.contains(char) ? _getNextChar() : char;
 
-  bool get _fiftyPercentChance => _rangeRandom(1, 10) > 5;
+  bool get _randomChance =>
+      _rangeRandom(_rangeRandom(1, 50), _rangeRandom(51, 100)) >
+      _rangeRandom(1, 100);
 
   int _rangeRandom(int min, int max) =>
-      min + _randomGenerator.nextInt(max - min);
+      min + _randomGenerator.nextInt(++max - min);
 }

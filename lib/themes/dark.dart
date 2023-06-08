@@ -21,17 +21,19 @@ class DarkAppTheme {
           color: Colors.black,
         ),
         cardTheme: const CardTheme(
-          color: AppColors.SECONDARY_DARK,
+          color: Colors.black,
         ),
         textSelectionTheme: const TextSelectionThemeData(
           cursorColor: AppColors.ACCENT_LIGHT,
           selectionHandleColor: Colors.grey,
         ),
-        shadowColor: AppColors.SECONDARY_DARK,
+        iconTheme: IconThemeData(color: Colors.grey.shade300),
+        primaryIconTheme: IconThemeData(color: Colors.grey.shade300),
+        shadowColor: Colors.black.withOpacity(0.35),
         hintColor: Colors.grey,
         canvasColor: Colors.grey.shade900,
         highlightColor: AppColors.ACCENT_DARK_2,
-        primaryColorLight: const Color(0xFF202029),
+        primaryColorLight: AppColors.SECONDARY_DARK,
         inputDecorationTheme: InputDecorationTheme(
           border: Util.defaultBorder(AppColors.ACCENT_DARK_2),
           enabledBorder: Util.defaultBorder(AppColors.ACCENT_DARK_2),
@@ -52,8 +54,8 @@ class DarkAppTheme {
             color: Colors.grey,
           ),
         ),
-        scaffoldBackgroundColor: const Color(0xFF202029),
-        primaryColor: AppColors.SECONDARY_DARK,
+        scaffoldBackgroundColor: AppColors.SECONDARY_DARK,
+        primaryColor: Colors.black,
         primaryTextTheme: TextTheme(
             titleLarge: buildTextStyle(
           AppColors.PRIMARY_DARK,
@@ -88,7 +90,7 @@ class DarkAppTheme {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: AppColors.SECONDARY_DARK,
+            primary: Colors.black,
             shape: const StadiumBorder(),
             textStyle: const TextStyle(
               color: AppColors.ACCENT_DARK_2,
@@ -96,7 +98,7 @@ class DarkAppTheme {
           ),
         ),
         appBarTheme: AppBarTheme(
-          color: AppColors.SECONDARY_DARK,
+          color: Colors.black,
           titleTextStyle: buildTextStyle(
             AppColors.PRIMARY_DARK,
             15,
@@ -112,7 +114,7 @@ class DarkAppTheme {
           overlayColor: MaterialStateProperty.all(Colors.black),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: AppColors.SECONDARY_DARK,
+          backgroundColor: Colors.black,
           selectedItemColor: AppColors.PRIMARY_DARK,
           unselectedItemColor: Colors.grey.shade400,
         ),
@@ -130,5 +132,12 @@ class DarkAppTheme {
           ),
         ),
         cardColor: Colors.grey,
+        sliderTheme: SliderThemeData(
+          trackHeight: 3,
+          thumbColor: AppColors.ACCENT_DARK_2,
+          overlayColor: AppColors.ACCENT_DARK_2.withOpacity(0.09),
+          activeTrackColor: AppColors.ACCENT_DARK_2.withAlpha(175),
+          inactiveTrackColor: AppColors.ACCENT_DARK_2.withOpacity(0.2),
+        ),
       );
 }

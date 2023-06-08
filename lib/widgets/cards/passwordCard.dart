@@ -202,8 +202,6 @@ class PasswordCard extends HashPassStatelessWidget {
                             label: language.advanced,
                             labelSize: 14,
                             labelColor: Get.theme.hintColor,
-                            backgroundColor: Get.theme.hintColor,
-                            checkColor: Get.theme.highlightColor,
                           ),
                         ],
                       ),

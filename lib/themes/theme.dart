@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/util/appLanguage.dart';
 
 class HashPassTheme with L10n {
@@ -12,8 +11,7 @@ class HashPassTheme with L10n {
   static final List<HashPassTheme> values =
       ThemeMode.values.map((mode) => HashPassTheme(mode: mode)).toList();
 
-  static bool get isDarkMode =>
-      Get.theme.primaryColor == AppColors.SECONDARY_DARK;
+  static bool get isDarkMode => Get.theme.primaryColor == Colors.black;
 
   @override
   String toString() {

@@ -123,5 +123,12 @@ class LightAppTheme {
           ),
         ),
         cardColor: Colors.white,
+        sliderTheme: SliderThemeData(
+          trackHeight: 3,
+          thumbColor: AppColors.SECONDARY_LIGHT,
+          overlayColor: AppColors.ACCENT_LIGHT.withOpacity(0.15),
+          activeTrackColor: AppColors.SECONDARY_LIGHT.withAlpha(175),
+          inactiveTrackColor: AppColors.SECONDARY_LIGHT.withOpacity(0.35),
+        ),
       );
 }
