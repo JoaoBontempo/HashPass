@@ -35,7 +35,7 @@ class HashPassVersion with L10n {
         'none';
 
     configuration.preferencesManager
-        .setString(ConfigurationKeys.APP_VERSION.key, lastVersion);
+        .setString(ConfigurationKeys.APP_VERSION.key, currentVersion);
 
     if (lastVersion == currentVersion) return;
 
@@ -63,8 +63,7 @@ class PathNotesModal extends HashPassStatelessWidget {
             ),
             HashPassLabel(
               text: version.title,
-              paddingBottom: 10,
-              paddingTop: 10,
+              padding: 10,
             ),
             HashPassLabel(
               text: language.pathNotesIntroduction,

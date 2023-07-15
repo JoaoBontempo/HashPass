@@ -1,7 +1,7 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';
 
-enum CardStyle { SIMPLE, DEFAULT }
+enum CardStyle { DEFAULT, SIMPLE }
 
 class HashPassCardStyle {
   CardStyle style;

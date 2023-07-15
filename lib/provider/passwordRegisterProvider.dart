@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/passwordProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/cryptography.dart';
@@ -12,6 +13,7 @@ class PasswordRegisterProvider extends PasswordProvider {
   late bool isNewPassword = password.isNew;
   late bool useCredential = password.credential.isNotEmpty;
   final UserPasswordsProvider userPasswordsProvider;
+  late Password passwordFirstState;
 
   PasswordRegisterProvider(
     super.password,
@@ -21,6 +23,7 @@ class PasswordRegisterProvider extends PasswordProvider {
     credentialController.text = password.credential;
     passwordController.text = password.getTrueBasePassword();
     hidePassword = true;
+    passwordFirstState = Password.fromMap(password.toMap());
   }
 
   void setUseCredential(bool useCredential) {
@@ -29,6 +32,11 @@ class PasswordRegisterProvider extends PasswordProvider {
       password.credential = '';
       credentialController.text = '';
     }
+    notifyListeners();
+  }
+
+  void resetPasswordState() {
+    password = Password.fromMap(passwordFirstState.toMap());
     notifyListeners();
   }
 

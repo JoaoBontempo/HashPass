@@ -134,8 +134,8 @@ class _FirstConfigurationScreenState extends HashPassState<ChooseConfigScreen> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             TextButton(
-                              onPressed: () {
-                                configuration.setDefaultConfig();
+                              onPressed: () async {
+                                await configuration.setDefaultConfig();
                                 HashPassRouteManager.to(
                                   HashPassRoute.ENTRANCE,
                                   context,

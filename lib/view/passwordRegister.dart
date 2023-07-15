@@ -33,7 +33,7 @@ class NewPasswordPage extends HashPassStatelessWidget {
                 WillPopScope(
           onWillPop: () async {
             FocusManager.instance.primaryFocus?.unfocus();
-            return await HashPassMessage.show(
+            bool cancelEditing = await HashPassMessage.show(
                   title: language.confirm,
                   message: registerProvider.isNewPassword
                       ? language.confirmNewPasswordSave
@@ -41,6 +41,10 @@ class NewPasswordPage extends HashPassStatelessWidget {
                   type: MessageType.YESNO,
                 ) ==
                 MessageResponse.YES;
+
+            if (cancelEditing) registerProvider.resetPasswordState();
+
+            return cancelEditing;
           },
           child: Scaffold(
             appBar: AppBar(

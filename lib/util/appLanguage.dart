@@ -16,7 +16,7 @@ enum HashPassLanguage {
 
   static HashPassLanguage fromLocale(Locale locale) =>
       HashPassLanguage.values.firstWhere(
-        (language) => language.locale.countryCode == locale.countryCode,
+        (language) => language.locale.languageCode == locale.languageCode,
         orElse: () => HashPassLanguage.ENGLISH_US,
       );
 }

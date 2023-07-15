@@ -54,20 +54,15 @@ class Configuration with ChangeNotifier {
     required this.language,
   });
 
-  void setDefaultConfig() {
-    setConfigs(
+  Future<void> setDefaultConfig() async {
+    await setConfigs(
       language: _getDeviceDefaultSupportedLocale,
       timer: 30,
       useTimer: true,
       insertVerify: true,
       updateVerify: true,
       tooltips: true,
-      cardStyle: HashPassCardStyle(style: CardStyle.DEFAULT),
     );
-  }
-
-  void setDatabaseVersion() {
-    preferencesManager.setInt("sqlv", 1);
   }
 
   Future<void> setConfigs({

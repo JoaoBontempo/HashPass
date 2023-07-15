@@ -46,6 +46,7 @@ class BooleanConfigWidget extends StatelessWidget {
                   Visibility(
                     visible: onlyHeader,
                     child: HashPassLabel(
+                      textAlign: TextAlign.start,
                       text: label,
                       fontWeight: FontWeight.bold,
                     ),

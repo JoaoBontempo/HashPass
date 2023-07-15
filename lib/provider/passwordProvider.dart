@@ -20,7 +20,7 @@ abstract class PasswordProvider extends HashPassProvider {
   bool hidePassword = true;
   late PasswordLeakDTO leakInformation =
       PasswordLeakDTO(leakCount: password.leakCount);
-  final Password password;
+  Password password;
   late bool isVerifiedPassword = password.leakCount == 0;
   late bool passwordHasBeenVerified = password.leakCount != -1;
 

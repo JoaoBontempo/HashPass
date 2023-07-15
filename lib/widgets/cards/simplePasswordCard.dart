@@ -58,23 +58,6 @@ class SimpleCardPassword extends HashPassStatelessWidget {
                       Row(
                         children: [
                           IconButton(
-                            onPressed: () {
-                              Get.focusScope!.unfocus();
-                              passwordProvider
-                                  .deletePassword(userPasswordsProvider);
-                            },
-                            padding: EdgeInsets.zero,
-                            icon: Showcase(
-                              key: isExample ? removeKey : GlobalKey(),
-                              description: language.deletePasswordShowCase,
-                              child: const Icon(
-                                Icons.delete_outline,
-                                size: 20,
-                              ),
-                            ),
-                            color: Colors.redAccent,
-                          ),
-                          IconButton(
                             padding: const EdgeInsets.only(right: 10),
                             constraints: const BoxConstraints(),
                             onPressed: () => passwordProvider
@@ -90,6 +73,23 @@ class SimpleCardPassword extends HashPassStatelessWidget {
                               ),
                             ),
                             color: Get.theme.hintColor,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Get.focusScope!.unfocus();
+                              passwordProvider
+                                  .deletePassword(userPasswordsProvider);
+                            },
+                            padding: EdgeInsets.zero,
+                            icon: Showcase(
+                              key: isExample ? removeKey : GlobalKey(),
+                              description: language.deletePasswordShowCase,
+                              child: const Icon(
+                                Icons.delete_outline,
+                                size: 20,
+                              ),
+                            ),
+                            color: Colors.redAccent,
                           ),
                         ],
                       ),

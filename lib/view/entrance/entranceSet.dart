@@ -53,7 +53,6 @@ class _SetEntrancePageState extends HashPassState<SetEntrancePage> {
                       child: TextButton(
                         onPressed: () {
                           configuration.setConfigs(entrance: true);
-                          configuration.setDatabaseVersion();
                           HashPassRouteManager.to(HashPassRoute.INDEX, context);
                         },
                         child: HashPassLabel(

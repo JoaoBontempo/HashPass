@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/util/appLanguage.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/animations/animatedOpacityList.dart';
 import 'package:hashpass/widgets/configuration/booleanConfig.dart';
 import 'package:hashpass/widgets/configuration/cardStyle.dart';
+import 'package:hashpass/widgets/configuration/dropdownConfiguration.dart';
 import 'package:hashpass/widgets/configuration/radioConfig.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:provider/provider.dart';
@@ -52,6 +54,18 @@ class FirstConfigScreen extends HashPassStatelessWidget {
                 ),
                 AnimatedOpacitytList(
                   widgets: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 25),
+                      child: DropDownConfiguration<HashPassLanguage>(
+                        selectedValue:
+                            HashPassLanguage.fromLocale(configuration.language),
+                        onChange: (language) =>
+                            configuration.setConfigs(language: language.locale),
+                        label: language.language,
+                        icon: Icons.language_outlined,
+                        values: HashPassLanguage.values,
+                      ),
+                    ),
                     BooleanConfigWidget(
                       description: language.timerConfigDescription,
                       label: language.timerConfigTitle,

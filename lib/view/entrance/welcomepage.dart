@@ -66,19 +66,21 @@ class _AppWelcomePageState extends HashPassState<AppWelcomePage> {
                         label: language.insertGeneralKey,
                         maxLength: 50,
                         padding: 20,
-                        validator: Validatorless.multiple([
-                          HashPassValidator.empty(
-                            language.emptyFieldMessage,
-                          ),
-                          Validatorless.compare(
-                            passwordTrimCompare,
-                            language.passwordShouldNotHaveSpacesMessage,
-                          ),
-                          Validatorless.min(
-                            4,
-                            language.passwordMinimumSizeMessage,
-                          ),
-                        ]),
+                        validator: Validatorless.multiple(
+                          [
+                            HashPassValidator.empty(
+                              language.emptyFieldMessage,
+                            ),
+                            Validatorless.compare(
+                              passwordTrimCompare,
+                              language.passwordShouldNotHaveSpacesMessage,
+                            ),
+                            Validatorless.min(
+                              4,
+                              language.passwordMinimumSizeMessage,
+                            ),
+                          ],
+                        ),
                         controller: senhaEC,
                       ),
                     ),
@@ -101,7 +103,7 @@ class _AppWelcomePageState extends HashPassState<AppWelcomePage> {
                             GestureDetector(
                               child: HashPassLabel(
                                 text: language.privacyPolicy.toUpperCase(),
-                                color: Get.theme.highlightColor,
+                                color: Get.theme.toggleableActiveColor,
                                 size: 12,
                               ),
                               onTap: () => launch(

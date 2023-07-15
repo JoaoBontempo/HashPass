@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/dto/passwordGenerationParameters.dart';
 import 'package:hashpass/provider/hashPassProvider.dart';
+import 'package:hashpass/widgets/interface/messageBox.dart';
 
 class PasswordGeneratorProvider extends HashPassProvider {
   String generatedPassword;
   late PasswordGenerationParameters parameters;
   final blackListController = TextEditingController();
+
+  final digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   PasswordGeneratorProvider({
     this.generatedPassword = '',
@@ -49,9 +52,28 @@ class PasswordGeneratorProvider extends HashPassProvider {
     notifyListeners();
   }
 
+  bool isValidParameters() {
+    if (parameters.useNumbers &&
+        !parameters.useLowerCase &&
+        !parameters.useSpecialChar &&
+        !parameters.useUpperCase &&
+        digits.every(
+          (digit) => parameters.blackList.contains(digit.toString()),
+        )) {
+      HashPassMessage.show(
+        message: language.everyDigitOnBlacklist,
+        title: language.invalidParameters,
+      );
+      return false;
+    }
+    return true;
+  }
+
   void generatePassword() {
     parameters.blackList = blackListController.text;
-    generatedPassword = parameters.generate();
-    notifyListeners();
+    if (isValidParameters()) {
+      generatedPassword = parameters.generate();
+      notifyListeners();
+    }
   }
 }

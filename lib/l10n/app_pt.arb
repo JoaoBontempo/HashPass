@@ -70,7 +70,7 @@
     "passwordMinimumSizeMessage" : "A senha deve ter no mínimo 4 caracteres",
     "register" : "Cadastrar",
 
-    "language" : "Líguagem",
+    "language" : "Liguagem",
     "biometricConfigDescription" : "Configura a forma de validação da senha geral do app para biometria ou texto.",
     "biometricConfigTitle" : "Validação biométrica",
     "theme" : "Tema",
@@ -107,7 +107,7 @@
     "doNotShareToken" : "Não compartihe seu token e não envie o arquivo para ninguém!",
     "export" : "Exportar",
     "import" : "Importar",
-    "insertExportToken" : "Insert your token",
+    "insertExportToken" : "Insira seu token",
     "emptyFieldMessage" : "Este campo não pode estar vazio",
     "chooseImportFile" : "Selecione o arquivo para importação",
     "accessDenied" : "Acesso negado",
@@ -195,5 +195,7 @@
     "blackListDescription" : "Os caracteres contidos neste campo não farão parte da senha gerada",
     "generatePassword" : "Gerar senha",
     "passwordDetails" : "Detalhes da senha",
-    "generatedPassword" : "Senha gerada"
+    "generatedPassword" : "Senha gerada",
+    "invalidParameters" : "Parametros inválidos",
+    "everyDigitOnBlacklist" : "Não é possível gerar uma senha contendo somente números se todos os algarismos ([0-9]) estiverem na lista negra."
 }
