@@ -74,10 +74,10 @@
     "biometricConfigDescription" : "Configura a forma de validação da senha geral do app para biometria ou texto.",
     "biometricConfigTitle" : "Validação biométrica",
     "theme" : "Tema",
-    "timerConfigDescription" : "Ativa ou desativa o temporizador de senha. O temporizador serve para limitar a quantidade de tempo que uma senha ficará disponível para visualização.",
+    "timerConfigDescription" : "Ativar / desativar o temporizador de senha. O temporizador serve para limitar a quantidade de tempo que uma senha ficará disponível para visualização.",
     "timerConfigTitle" : "Temporizador de senha",
     "timerDurationConfigTitle" : "Duração do temporizador",
-    "timerDurationConfigDescription" : "Determina a duração do temporizador de senha, em segundos.",
+    "timerDurationConfigDescription" : "Determina, em segundos, a duração do temporizador de senha.",
     "passworkLeakConfigDescription" : "Configurações relacionadas com a verificação das senhas informadas por você no aplicativo.",
     "insertPasswordLeakVerificationConfig" : "Ativa a verificação em real-time ao cadastrar uma senha. Somente será possível cadastrar uma senha verificada.",
     "updatePasswordLeakVerificationConfig" : "Ativa a verificação em real-time ao atualizar uma senha já cadastrada. Não será possível salvar uma senha não verificada.",
@@ -169,7 +169,7 @@
     "yes": "Sim",
     "no" : "Não",
 
-    "updateAndInsertLeakConfigDescription" : "Ativar/desativar a verificação de vazamento de senha ao cadastrar e ao atualizar uma senha.",
+    "updateAndInsertLeakConfigDescription" : "Ativar / desativar a verificação de vazamento de senha ao cadastrar e ao atualizar uma senha.",
 
     "couldNotVerifyPassword" : "Não foi possível verificar sua senha. Verifique sua conexão de internet ou tente novamente.",
     "passwordLeakedOnce" : "Esta senha foi vazada pelo menos uma vez!",

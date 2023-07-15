@@ -19,6 +19,25 @@ import 'package:provider/provider.dart';
 class PasswordGeneratorScreen extends HashPassStatelessWidget {
   const PasswordGeneratorScreen({super.key});
 
+  void toRegisterPage(
+      UserPasswordsProvider userPasswordsProvider, Password password) {
+    PasswordRegisterProvider registerProvider = PasswordRegisterProvider(
+      password,
+      userPasswordsProvider,
+    );
+
+    registerProvider.handlePasswordTextFieldChanges(
+      password.getTrueBasePassword(),
+    );
+
+    Get.to(
+      ChangeNotifierProvider<PasswordRegisterProvider>.value(
+        value: registerProvider,
+        builder: (context, widget) => const NewPasswordPage(),
+      ),
+    );
+  }
+
   @override
   Widget localeBuild(context, language) =>
       Consumer2<PasswordGeneratorProvider, UserPasswordsProvider>(
@@ -156,16 +175,9 @@ class PasswordGeneratorScreen extends HashPassStatelessWidget {
                                 generatedPassword.setTrueBasePassword(
                                   provider.generatedPassword,
                                 );
-                                Get.to(
-                                  ChangeNotifierProvider<
-                                      PasswordRegisterProvider>(
-                                    create: (context) =>
-                                        PasswordRegisterProvider(
-                                            generatedPassword,
-                                            passwordsProvider),
-                                    builder: (context, widget) =>
-                                        const NewPasswordPage(),
-                                  ),
+                                toRegisterPage(
+                                  passwordsProvider,
+                                  generatedPassword,
                                 );
                               },
                               icon: const Icon(Icons.save_outlined),

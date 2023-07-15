@@ -54,7 +54,6 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
       removeKey,
       saveKey
     ];
-    HashPassVersion.checkPath(Configuration.instance);
     super.initState();
     bannerAd = BannerAd(
       size: AdSize.banner,
@@ -67,6 +66,10 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
       ),
       request: const AdRequest(),
     )..load();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => HashPassVersion.checkPath(Configuration.instance),
+    );
   }
 
   @override
@@ -126,8 +129,7 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
   @override
   Widget localeBuild(context, language) =>
       Consumer2<UserPasswordsProvider, Configuration>(
-        builder: (context, userPasswordsProvider, configuration, widget) =>
-            Scaffold(
+        builder: (context, userPasswordsProvider, configuration, _) => Scaffold(
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(bottom: 50),
             child: Showcase(

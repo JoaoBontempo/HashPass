@@ -34,30 +34,11 @@ class PasswordVisualizationModal extends HashPassStatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: HashPassLabel(
-                                  overflow: TextOverflow.clip,
-                                  text: provider.password.title,
-                                  fontWeight: FontWeight.bold,
-                                  size: 19,
-                                  paddingRight: 10,
-                                ),
-                              ),
-                              IconButton(
-                                constraints: const BoxConstraints(),
-                                padding: EdgeInsets.zero,
-                                onPressed: provider.closeModal,
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
+                          ModalTitle(
+                            title: provider.password.title,
+                            onTapClose: provider.closeModal,
                           ),
-                          if (provider.password.credential.isNotEmpty)
+                          if (provider.existsCredential)
                             PasswordInformationVisualization(
                               information: provider.password.credential,
                               icon: Icons.person,
@@ -67,6 +48,7 @@ class PasswordVisualizationModal extends HashPassStatelessWidget {
                             information: provider.realPassword,
                             icon: Icons.lock_open,
                             label: language.password,
+                            showTitle: provider.existsCredential,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(
@@ -84,7 +66,8 @@ class PasswordVisualizationModal extends HashPassStatelessWidget {
                                         LinearProgressIndicator(
                                       value: value,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Get.theme.toggleableActiveColor),
+                                        Get.theme.toggleableActiveColor,
+                                      ),
                                       backgroundColor: AppColors.ACCENT_LIGHT
                                           .withOpacity(0.3),
                                     ),
@@ -165,12 +148,14 @@ class PasswordInformationVisualization extends StatelessWidget {
   final String information;
   final IconData icon;
   final String label;
+  final bool showTitle;
 
   const PasswordInformationVisualization({
     Key? key,
     required this.information,
     required this.icon,
     required this.label,
+    this.showTitle = true,
   }) : super(key: key);
 
   @override
@@ -179,9 +164,22 @@ class PasswordInformationVisualization extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20),
       child: Column(
         children: [
-          ModalTitle(
-            title: label,
-          ),
+          if (showTitle)
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+                HashPassLabel(
+                  text: label,
+                  paddingLeft: 10,
+                  size: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ],
+            ),
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Row(
@@ -192,7 +190,7 @@ class PasswordInformationVisualization extends StatelessWidget {
                   width: Get.width * .8,
                   child: HashPassLabel(
                     text: information,
-                    size: 14,
+                    size: 13,
                     paddingRight: 5,
                   ),
                 ),

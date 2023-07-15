@@ -132,8 +132,8 @@ class NewPasswordPage extends HashPassStatelessWidget {
                             onTap: registerProvider.changePasswordVisibility,
                             child: HashPassLabel(
                               text: registerProvider.hidePassword
-                                  ? language.hidePassword
-                                  : language.showPassword,
+                                  ? language.showPassword
+                                  : language.hidePassword,
                               size: 11,
                             ),
                           )

@@ -13,6 +13,7 @@ class PasswordVisualizationProvider extends ChangeNotifier {
   final String appKey;
   final BuildContext context;
 
+  late bool existsCredential = password.credential.isNotEmpty;
   bool isBannerLoaded = false;
   bool isVideoLoaded = false;
   bool isAdLoaded = false;

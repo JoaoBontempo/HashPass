@@ -229,7 +229,7 @@ class _ConfigurationPageState extends HashPassState<ConfigurationPage> {
                           HashPassMessage.show(
                             message: language.simpleCardShowcase,
                             title:
-                                "${language.cardStyleConfigTitle} : ${language.simple}",
+                                "${language.cardStyleConfigTitle}: ${language.simple}",
                           );
                         }
                         configuration.setConfigs(cardStyle: selectedStyle);

@@ -32,7 +32,7 @@ class HashPassVersion with L10n {
   static void checkPath(Configuration configuration) {
     String lastVersion = configuration.preferencesManager
             .getString(ConfigurationKeys.APP_VERSION.key) ??
-        currentVersion;
+        'none';
 
     configuration.preferencesManager
         .setString(ConfigurationKeys.APP_VERSION.key, lastVersion);
@@ -62,25 +62,22 @@ class PathNotesModal extends HashPassStatelessWidget {
               title: "${language.pathNotes}: ${HashPassVersion.currentVersion}",
             ),
             HashPassLabel(
+              text: version.title,
+              paddingBottom: 10,
               paddingTop: 10,
-              text: version.title,
-              fontWeight: FontWeight.bold,
-              paddingBottom: 5,
-            ),
-            HashPassLabel(
-              text: version.title,
-              paddingBottom: 5,
             ),
             HashPassLabel(
               text: language.pathNotesIntroduction,
               fontWeight: FontWeight.bold,
               paddingBottom: 10,
             ),
-            const Divider(),
-            Column(
-              children: version.notes
-                  .map((note) => HashPassPathNoteItem(note: note))
-                  .toList(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: Column(
+                children: version.notes
+                    .map((note) => HashPassPathNoteItem(note: note))
+                    .toList(),
+              ),
             )
           ],
         ),
@@ -95,17 +92,27 @@ class HashPassPathNoteItem extends StatelessWidget {
   final String note;
 
   @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          const Icon(
-            Icons.brightness_1,
-            size: 13,
-          ),
-          HashPassLabel(
-            wrap: true,
-            text: note,
-            size: 13.5,
-          )
-        ],
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 5),
+              child: Icon(
+                Icons.brightness_1,
+                size: 6,
+              ),
+            ),
+            Expanded(
+              child: HashPassLabel(
+                paddingLeft: 7.5,
+                wrap: true,
+                text: note,
+                size: 14,
+              ),
+            )
+          ],
+        ),
       );
 }
