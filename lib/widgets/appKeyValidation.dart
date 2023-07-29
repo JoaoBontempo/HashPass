@@ -9,6 +9,8 @@ import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
+import 'package:local_auth_ios/local_auth_ios.dart';
 import 'package:hashpass/widgets/data/textfield.dart';
 
 class AuthAppKey extends StatefulWidget {
@@ -52,15 +54,19 @@ class _AuthAppKeyState extends HashPassState<AuthAppKey> {
     final LocalAuthentication auth = LocalAuthentication();
     if (Configuration.instance.isBiometria && !widget.onlyText) {
       try {
-        auth
-            .authenticate(
+        auth.authenticate(
+          authMessages: [
+            AndroidAuthMessages(
+              biometricHint: appLanguage.verifyIdentity,
+              signInTitle: appLanguage.authNeeded,
+            ),
+          ],
           localizedReason: appLanguage.unlockNeeded,
           options: const AuthenticationOptions(
             stickyAuth: true,
             useErrorDialogs: true,
           ),
-        )
-            .then(
+        ).then(
           (isValidBiometric) {
             Get.back();
             if (isValidBiometric) {

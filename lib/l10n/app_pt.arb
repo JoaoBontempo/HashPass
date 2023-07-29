@@ -37,6 +37,7 @@
     "about" : "Sobre",
 
     "authNeeded" : "Autenticação necessária",
+    "verifyIdentity" : "Verificação de identidade",
     "setLastAppKey" : "Informe sua senha antiga:",
     "appKey" : "Senha do aplicativo:",
     "keyAttempts" : "Chave inválida! Tentativas restantes:",
@@ -190,7 +191,7 @@
     "lowercases" : "Minúsculas",
     "uppercases" : "Maiúsculas",
     "numbers" : "Números",
-    "symbols" : "Sìmbolos",
+    "symbols" : "Símbolos",
     "charBlackList" : "Lista negra de caracteres",
     "blackListDescription" : "Os caracteres contidos neste campo não farão parte da senha gerada",
     "generatePassword" : "Gerar senha",

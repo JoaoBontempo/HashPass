@@ -37,6 +37,7 @@
   "about" : "About",
 
   "authNeeded" : "Authentication required",
+  "verifyIdentity" : "Verify identity",
   "setLastAppKey" : "Last general key:",
   "appKey" : "General key:",
   "keyAttempts" : "Invalid key! Attempts left:",
