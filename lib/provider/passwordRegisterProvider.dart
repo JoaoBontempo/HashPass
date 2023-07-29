@@ -36,7 +36,12 @@ class PasswordRegisterProvider extends PasswordProvider {
   }
 
   void resetPasswordState() {
-    password = Password.fromMap(passwordFirstState.toMap());
+    password.basePassword = passwordFirstState.basePassword;
+    password.credential = passwordFirstState.credential;
+    password.hashAlgorithm = passwordFirstState.hashAlgorithm;
+    password.isAdvanced = passwordFirstState.isAdvanced;
+    passwordFirstState.leakCount = passwordFirstState.leakCount;
+    password.useCriptography = passwordFirstState.useCriptography;
     notifyListeners();
   }
 
