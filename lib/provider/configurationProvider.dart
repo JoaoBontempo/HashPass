@@ -18,7 +18,8 @@ enum ConfigurationKeys {
   USE_TOOLTIPS('tooltips'),
   LANGUAGE('language'),
   APP_VERSION('appVersion'),
-  THEME('theme');
+  THEME('theme'),
+  USE_DESKTOP('useDesktop');
 
   final String key;
   const ConfigurationKeys(this.key);
@@ -39,6 +40,7 @@ class Configuration with ChangeNotifier {
   bool insertPassVerify;
   bool updatePassVerify;
   bool showHelpTooltips;
+  bool useDesktop;
 
   Configuration({
     required this.preferencesManager,
@@ -52,6 +54,7 @@ class Configuration with ChangeNotifier {
     required this.showHelpTooltips,
     required this.cardStyle,
     required this.language,
+    required this.useDesktop,
   });
 
   Future<void> setDefaultConfig() async {
@@ -74,6 +77,7 @@ class Configuration with ChangeNotifier {
     bool? updateVerify,
     bool? tooltips,
     bool? entrance,
+    bool? useDesktop,
     HashPassCardStyle? cardStyle,
     Locale? language,
     Function(bool)? onBiometricChange,
@@ -89,6 +93,7 @@ class Configuration with ChangeNotifier {
         ConfigurationKeys.VERIFY_PASSWORD_ON_UPDATE, updateVerify);
     await _setConfig<bool>(ConfigurationKeys.USE_TOOLTIPS, tooltips);
     await _setConfig<bool>(ConfigurationKeys.APP_ENTRANCE, entrance);
+    await _setConfig<bool>(ConfigurationKeys.USE_DESKTOP, useDesktop);
     await _setConfig<int>(
         ConfigurationKeys.PASSWORD_CARD_STYLE, cardStyle?.style.index);
     await _setConfig<String>(
@@ -105,6 +110,7 @@ class Configuration with ChangeNotifier {
     this.cardStyle = cardStyle ?? this.cardStyle;
     instance = this;
     this.language = language ?? this.language;
+    this.useDesktop = useDesktop ?? this.useDesktop;
     notifyListeners();
   }
 
@@ -232,6 +238,7 @@ class Configuration with ChangeNotifier {
                 CardStyle.DEFAULT.index),
         orElse: () => HashPassCardStyle(style: CardStyle.DEFAULT),
       ),
+      useDesktop: configs.getBool(ConfigurationKeys.USE_DESKTOP.key) ?? false,
     );
     return instance;
   }

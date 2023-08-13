@@ -198,5 +198,8 @@
   "passwordDetails" : "Password details",
   "generatedPassword" : "Generated password",
   "invalidParameters" : "Invalid parameters",
-  "everyDigitOnBlacklist" : "It is impossible to generate a password using only numbers if every number ([0-9]) are in the blacklist."
+  "everyDigitOnBlacklist" : "It is impossible to generate a password using only numbers if every number ([0-9]) are in the blacklist.",
+
+  "useDesktopTitle" : "Desktop module",
+  "useDesktopDescription" : "Activate / deactivate the integration with HashPass Desktop version"
 }

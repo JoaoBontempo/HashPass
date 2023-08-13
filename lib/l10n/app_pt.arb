@@ -198,5 +198,8 @@
     "passwordDetails" : "Detalhes da senha",
     "generatedPassword" : "Senha gerada",
     "invalidParameters" : "Parametros inválidos",
-    "everyDigitOnBlacklist" : "Não é possível gerar uma senha contendo somente números se todos os algarismos ([0-9]) estiverem na lista negra."
+    "everyDigitOnBlacklist" : "Não é possível gerar uma senha contendo somente números se todos os algarismos ([0-9]) estiverem na lista negra.",
+
+    "useDesktopTitle" : "Módulo desktop",
+    "useDesktopDescription" : "Ativar ou desativar a integração com a versão desktop do HashPass"
 }
