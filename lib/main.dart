@@ -38,6 +38,7 @@ class HashPassApp extends StatelessWidget {
       child: ShowCaseWidget(
         builder: Builder(
           builder: (context) => GetMaterialApp(
+            debugShowCheckedModeBanner: false,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: Configuration.instance.language,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
