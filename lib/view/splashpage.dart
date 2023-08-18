@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
@@ -17,15 +18,18 @@ class HashPasshSplashPageState extends HashPassState<HashPasshSplashPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      verifyEntrance();
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => verifyEntrance(),
+    );
   }
 
   void verifyEntrance() {
     if (!Configuration.instance.hasEntrance) {
       HashPassRouteManager.to(HashPassRoute.WELCOME, context);
     } else {
+      if (Configuration.instance.useDesktop) {
+        HashPassDesktopProvider.instance.connect();
+      }
       authUser();
     }
   }

@@ -38,6 +38,9 @@ dependencies:
   path: ^1.8.0
   local_auth: ^2.1.6
   showcaseview: ^2.0.3
+  web_socket_channel: ^2.4.0
+  fast_rsa: ^3.6.1
+
 
 dev_dependencies:
   flutter_test:

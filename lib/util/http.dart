@@ -20,7 +20,7 @@ class HTTPRequest {
 
   static Future<String> postRequest(String route, String json) async {
     http.Response response = await http.post(
-      Uri.parse(BASE_URL + route),
+      Uri.parse(route),
       body: json,
       headers: HEADERS,
     );

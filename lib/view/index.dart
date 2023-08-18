@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/appContext.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
@@ -14,11 +15,29 @@ import 'package:showcaseview/showcaseview.dart';
 class IndexPage extends HashPassStatelessWidget {
   const IndexPage({Key? key}) : super(key: key);
 
+  void startHelpShowcase() => HashPassContext.scroller!
+      .animateTo(
+        0,
+        duration: const Duration(milliseconds: 750),
+        curve: Curves.linear,
+      )
+      .then(
+        (value) => {
+          ShowCaseWidget.of(Get.context!).startShowCase(
+            HashPassContext.keys!
+                .where((key) => key.currentState != null)
+                .toList(),
+          )
+        },
+      );
+
   @override
   Widget localeBuild(context, language) {
     bool isDrawerOpen = false;
-    return Consumer2<UserPasswordsProvider, Configuration>(
-      builder: (context, passwordsProvider, configuration, _) => WillPopScope(
+    return Consumer3<UserPasswordsProvider, Configuration,
+        HashPassDesktopProvider>(
+      builder: (context, passwordsProvider, configuration, desktop, _) =>
+          WillPopScope(
         onWillPop: () async {
           if (isDrawerOpen) {
             return true;
@@ -53,24 +72,16 @@ class IndexPage extends HashPassStatelessWidget {
                           Icons.help,
                           color: Colors.white,
                         ),
-                        onPressed: () {
-                          HashPassContext.scroller!
-                              .animateTo(
-                                0,
-                                duration: const Duration(milliseconds: 750),
-                                curve: Curves.linear,
-                              )
-                              .then(
-                                (value) => {
-                                  ShowCaseWidget.of(Get.context!).startShowCase(
-                                    HashPassContext.keys!
-                                        .where(
-                                            (key) => key.currentState != null)
-                                        .toList(),
-                                  )
-                                },
-                              );
-                        },
+                        onPressed: startHelpShowcase,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.desktop_windows_outlined,
+                          color: desktop.isConnected
+                              ? Colors.green
+                              : Colors.redAccent,
+                        ),
+                        onPressed: desktop.connect,
                       )
                     ]
                   : null,
