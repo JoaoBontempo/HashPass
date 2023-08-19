@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hashpass/dto/desktop/desktopAuthDTO.dart';
+import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
 import 'package:hashpass/dto/desktop/desktopPublicKeyDTO.dart';
 import 'package:hashpass/util/http.dart';
 import 'package:web_socket_channel/io.dart';
@@ -13,7 +14,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
   IOWebSocketChannel? socket;
   late String serverIp;
   bool isLoading;
-  late KeyPair rsaKey;
+  late KeyPair appKeys;
   late String serverPublicKey;
   String get serverPath => '$serverIp:$serverPort';
 
@@ -75,20 +76,31 @@ class HashPassDesktopProvider extends ChangeNotifier {
     await generateKeyPair();
     String desktopPublicKeyJson = await HTTPRequest.postRequest(
       'http://$serverPath/',
-      DesktopAuthDTO(id: 'sadhjfkashjk', publicKey: rsaKey.publicKey).toJson(),
+      DesktopAuthDTO(id: 'sadhjfkashjk', publicKey: appKeys.publicKey).toJson(),
     );
 
     DesktopPublicKeyDTO desktopPublicKey =
         DesktopPublicKeyDTO.fromJson(desktopPublicKeyJson);
 
-    serverPublicKey = desktopPublicKey.publicKey;
+    serverPublicKey = utf8.decode(base64.decode(desktopPublicKey.publicKey));
     isLoading = false;
     isConnected = true;
     notifyListeners();
   }
 
   Future<void> generateKeyPair() async {
-    rsaKey = await RSA.generate(2048);
+    appKeys = await RSA.generate(2048);
     return;
+  }
+
+  Future<String> _cypherMessage(DesktopOperationDTO dto) async =>
+      await RSA.encryptPKCS1v15(dto.toJson(), serverPublicKey);
+
+  Future<void> sendMessage(DesktopOperationDTO messageDto) async {
+    print(messageDto.toJson());
+    print(serverPublicKey);
+    if (isConnected) {
+      socket!.sink.add(await _cypherMessage(messageDto));
+    }
   }
 }

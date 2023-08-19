@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/dto/desktop/desktopCopyPasswordDTO.dart';
+import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/passwordProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/passwordVisualizationProvider.dart';
@@ -31,13 +35,25 @@ class PasswordCardProvider extends PasswordProvider {
 
   void copyPassword() {
     getBasePassword(
-      (basePassword) => {
+      (basePassword) {
+        if (Configuration.instance.useDesktop) {
+          HashPassDesktopProvider.instance.sendMessage(
+            DesktopOperationDTO<DesktopCopyPasswordDTO>(
+              message: 'Password copy',
+              success: true,
+              data: DesktopCopyPasswordDTO(
+                  title: password.title, password: basePassword),
+              operation: DesktopOperation.COPY,
+            ),
+          );
+        }
+
         Clipboard.setData(ClipboardData(text: basePassword)).then(
           (_) => HashPassSnackBar.show(
             message: language.passwordCopied,
             duration: const Duration(milliseconds: 2500),
           ),
-        ),
+        );
       },
     );
   }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
@@ -128,8 +129,9 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
 
   @override
   Widget localeBuild(context, language) =>
-      Consumer2<UserPasswordsProvider, Configuration>(
-        builder: (context, userPasswordsProvider, configuration, _) => Scaffold(
+      Consumer3<UserPasswordsProvider, Configuration, HashPassDesktopProvider>(
+        builder: (context, userPasswordsProvider, configuration, desktop, _) =>
+            Scaffold(
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(bottom: 50),
             child: Showcase(
