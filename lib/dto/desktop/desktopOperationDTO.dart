@@ -24,7 +24,7 @@ class DesktopOperationDTO<DataType extends Serializable> {
       'message': message,
       'success': success,
       'data': data.toJson(),
-      'operation': operation.index
+      'operation': operation.name
     };
   }
 
@@ -37,7 +37,7 @@ class DesktopOperationDTO<DataType extends Serializable> {
       success: map['success'] as bool,
       data: serialize(map['data']),
       operation: DesktopOperation.values
-          .firstWhere((operation) => operation.index == map['operation']),
+          .firstWhere((operation) => operation.name == map['operation']),
     );
   }
 

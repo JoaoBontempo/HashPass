@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'package:crypton/crypton.dart';
 import 'package:flutter/material.dart';
 import 'package:hashpass/dto/desktop/desktopAuthDTO.dart';
 import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
 import 'package:hashpass/dto/desktop/desktopPublicKeyDTO.dart';
 import 'package:hashpass/util/http.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:fast_rsa/fast_rsa.dart';
 
 class HashPassDesktopProvider extends ChangeNotifier {
   final String serverPort = "3000";
@@ -14,8 +14,8 @@ class HashPassDesktopProvider extends ChangeNotifier {
   IOWebSocketChannel? socket;
   late String serverIp;
   bool isLoading;
-  late KeyPair appKeys;
-  late String serverPublicKey;
+  late RSAKeypair appKeys;
+  late RSAPublicKey serverPublicKey;
   String get serverPath => '$serverIp:$serverPort';
 
   HashPassDesktopProvider({
@@ -44,23 +44,21 @@ class HashPassDesktopProvider extends ChangeNotifier {
     );
     socket!.stream.listen(
       (message) {
-        String data = '';
-        if (!(message is String)) {
-          message = utf8.decode(message);
-        }
-        if (data == '') {
+        if (message == '') {
           isLoading = false;
           isConnected = true;
           print('Connected!');
           establishConnection();
           notifyListeners();
         } else {
-          print(message);
+          print(_decypherMessage(message));
         }
       },
       onError: (error) => connect(ipRange: ipRange),
       onDone: () {
+        isConnected = false;
         print('Connection closed.');
+        notifyListeners();
       },
       cancelOnError: true,
     );
@@ -73,34 +71,40 @@ class HashPassDesktopProvider extends ChangeNotifier {
   }
 
   void establishConnection() async {
-    await generateKeyPair();
+    generateKeyPair();
     String desktopPublicKeyJson = await HTTPRequest.postRequest(
       'http://$serverPath/',
-      DesktopAuthDTO(id: 'sadhjfkashjk', publicKey: appKeys.publicKey).toJson(),
+      DesktopAuthDTO(id: 'sadhjfkashjk', publicKey: appKeys.publicKey.toPEM())
+          .toJson(),
     );
 
     DesktopPublicKeyDTO desktopPublicKey =
         DesktopPublicKeyDTO.fromJson(desktopPublicKeyJson);
 
-    serverPublicKey = utf8.decode(base64.decode(desktopPublicKey.publicKey));
+    serverPublicKey = RSAPublicKey.fromPEM(
+        utf8.decode(base64.decode(desktopPublicKey.publicKey)));
     isLoading = false;
     isConnected = true;
     notifyListeners();
   }
 
-  Future<void> generateKeyPair() async {
-    appKeys = await RSA.generate(2048);
-    return;
+  void generateKeyPair() {
+    appKeys = RSAKeypair.fromRandom(keySize: 4096);
   }
 
-  Future<String> _cypherMessage(DesktopOperationDTO dto) async =>
-      await RSA.encryptPKCS1v15(dto.toJson(), serverPublicKey);
+  String _cypherMessage(DesktopOperationDTO dto) {
+    return serverPublicKey.encrypt(dto.toJson());
+  }
 
-  Future<void> sendMessage(DesktopOperationDTO messageDto) async {
+  String _decypherMessage(String message) {
+    return appKeys.privateKey.decrypt(message);
+  }
+
+  void sendMessage(DesktopOperationDTO messageDto) {
     print(messageDto.toJson());
     print(serverPublicKey);
     if (isConnected) {
-      socket!.sink.add(await _cypherMessage(messageDto));
+      socket!.sink.add(_cypherMessage(messageDto));
     }
   }
 }
