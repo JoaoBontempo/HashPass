@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypton/crypton.dart';
 import 'package:flutter/material.dart';
 import 'package:hashpass/dto/desktop/desktopAuthDTO.dart';
+import 'package:hashpass/dto/desktop/desktopGuidDTO.dart';
 import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
 import 'package:hashpass/dto/desktop/desktopPublicKeyDTO.dart';
 import 'package:hashpass/util/http.dart';
@@ -14,6 +15,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
   IOWebSocketChannel? socket;
   late String serverIp;
   bool isLoading;
+  late String serverGuid;
   late RSAKeypair appKeys;
   late RSAPublicKey serverPublicKey;
   String get serverPath => '$serverIp:$serverPort';
@@ -51,7 +53,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
           establishConnection();
           notifyListeners();
         } else {
-          print(_decypherMessage(message));
+          print(_decypherAssymetricMessage(message));
         }
       },
       onError: (error) => connect(ipRange: ipRange),
@@ -72,31 +74,48 @@ class HashPassDesktopProvider extends ChangeNotifier {
 
   void establishConnection() async {
     generateKeyPair();
+
+    final serverApiPath = 'http://$serverPath/';
     String desktopPublicKeyJson = await HTTPRequest.postRequest(
-      'http://$serverPath/',
+      serverApiPath,
       DesktopAuthDTO(id: 'sadhjfkashjk', publicKey: appKeys.publicKey.toPEM())
           .toJson(),
     );
 
     DesktopPublicKeyDTO desktopPublicKey =
         DesktopPublicKeyDTO.fromJson(desktopPublicKeyJson);
-
     serverPublicKey = RSAPublicKey.fromPEM(
         utf8.decode(base64.decode(desktopPublicKey.publicKey)));
+
+    String desktopChyperedGuidJson =
+        await HTTPRequest.getRequest('${serverApiPath}key');
+
+    ExchangeKeyDTO keyDTO = ExchangeKeyDTO.fromJson(desktopChyperedGuidJson);
+
+    print('Keys exchanged!');
+    String json = _decypherAssymetricMessage(keyDTO.key);
+    print(json);
+    DesktopOperationDTO<DesktopGuidDTO> guidDTO =
+        DesktopOperationDTO<DesktopGuidDTO>.fromJson(
+      json,
+      (guidJSON) => DesktopGuidDTO.fromMap(guidJSON),
+    );
+    serverGuid = guidDTO.data.guid;
+    print('GUID dechypered and ready to use!');
     isLoading = false;
     isConnected = true;
     notifyListeners();
   }
 
   void generateKeyPair() {
-    appKeys = RSAKeypair.fromRandom(keySize: 4096);
+    appKeys = RSAKeypair.fromRandom(keySize: 2048);
   }
 
-  String _cypherMessage(DesktopOperationDTO dto) {
+  String _cypherAssymetricMessage(DesktopOperationDTO dto) {
     return serverPublicKey.encrypt(dto.toJson());
   }
 
-  String _decypherMessage(String message) {
+  String _decypherAssymetricMessage(String message) {
     return appKeys.privateKey.decrypt(message);
   }
 
@@ -104,7 +123,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
     print(messageDto.toJson());
     print(serverPublicKey);
     if (isConnected) {
-      socket!.sink.add(_cypherMessage(messageDto));
+      socket!.sink.add(_cypherAssymetricMessage(messageDto));
     }
   }
 }

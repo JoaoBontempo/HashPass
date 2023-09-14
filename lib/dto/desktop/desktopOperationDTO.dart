@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-enum DesktopOperation { COPY, SHOW }
+enum DesktopOperation { COPY, SHOW, BROWSER_FILE, EXCHANGE_KEY }
 
 class Serializable<DataType> {
   String toJson() => '';
@@ -30,7 +30,7 @@ class DesktopOperationDTO<DataType extends Serializable> {
 
   factory DesktopOperationDTO.fromMap(
     Map<String, dynamic> map,
-    DataType Function(String) serialize,
+    DataType Function(Map<String, dynamic>) serialize,
   ) {
     return DesktopOperationDTO(
       message: map['message'] as String,
@@ -45,7 +45,7 @@ class DesktopOperationDTO<DataType extends Serializable> {
 
   factory DesktopOperationDTO.fromJson(
     String source,
-    DataType Function(String) serialize,
+    DataType Function(Map<String, dynamic>) serialize,
   ) =>
       DesktopOperationDTO.fromMap(
         json.decode(source) as Map<String, dynamic>,

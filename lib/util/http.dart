@@ -18,6 +18,14 @@ class HTTPRequest {
     }
   }
 
+  static Future<String> getRequest(String route) async {
+    http.Response response = await http.get(
+      Uri.parse(route),
+      headers: HEADERS,
+    );
+    return utf8.decode(response.bodyBytes);
+  }
+
   static Future<String> postRequest(String route, String json) async {
     http.Response response = await http.post(
       Uri.parse(route),
