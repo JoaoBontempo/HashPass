@@ -40,7 +40,7 @@ dependencies:
   showcaseview: ^2.0.3
   web_socket_channel: ^2.4.0
   crypton: ^2.2.0
-  cryptography: ^2.6.0
+  aescryptojs: ^1.0.0
   
 
 

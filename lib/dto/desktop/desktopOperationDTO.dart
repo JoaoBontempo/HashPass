@@ -30,12 +30,12 @@ class DesktopOperationDTO<DataType extends Serializable> {
 
   factory DesktopOperationDTO.fromMap(
     Map<String, dynamic> map,
-    DataType Function(Map<String, dynamic>) serialize,
+    DataType Function(Map<String, dynamic>)? serialize,
   ) {
     return DesktopOperationDTO(
-      message: map['message'] as String,
-      success: map['success'] as bool,
-      data: serialize(map['data']),
+      message: (map['message'] ?? '') as String,
+      success: (map['success'] ?? true) as bool,
+      data: serialize == null ? map['data'] : serialize(map['data']),
       operation: DesktopOperation.values
           .firstWhere((operation) => operation.name == map['operation']),
     );
@@ -44,9 +44,9 @@ class DesktopOperationDTO<DataType extends Serializable> {
   String toJson() => json.encode(toMap());
 
   factory DesktopOperationDTO.fromJson(
-    String source,
-    DataType Function(Map<String, dynamic>) serialize,
-  ) =>
+    String source, {
+    DataType Function(Map<String, dynamic>)? serialize,
+  }) =>
       DesktopOperationDTO.fromMap(
         json.decode(source) as Map<String, dynamic>,
         serialize,

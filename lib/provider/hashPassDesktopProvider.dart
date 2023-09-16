@@ -101,7 +101,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
     DesktopOperationDTO<DesktopGuidDTO> guidDTO =
         DesktopOperationDTO<DesktopGuidDTO>.fromJson(
       json,
-      (guidJSON) => DesktopGuidDTO.fromMap(guidJSON),
+      serialize: (guidJSON) => DesktopGuidDTO.fromMap(guidJSON),
     );
     serverGuid = guidDTO.data.guid;
     isLoading = false;
@@ -111,7 +111,10 @@ class HashPassDesktopProvider extends ChangeNotifier {
 
   void sendMessage(DesktopOperationDTO messageDto) {
     if (isConnected) {
-      socket!.sink.add(messageDto.toJson());
+      String encryptedData =
+          AES.encryptServer(messageDto.toJson(), _getServerKey);
+      print('Data: ' + encryptedData);
+      socket!.sink.add(encryptedData);
     }
   }
 
@@ -120,15 +123,12 @@ class HashPassDesktopProvider extends ChangeNotifier {
     print('KEY: ' + serverKey);
     print('AES:' + serverMessage);
     String aesEncryptedMessage =
-        await AES.decryptServer(serverMessage, _getServerKey);
-    print('Decrypt AES:' + serverMessage);
-    DesktopOperationDTO<Serializable> operation =
-        DesktopOperationDTO<Serializable>.fromJson(
-      aesEncryptedMessage,
-      (p0) => p0 as dynamic,
-    );
+        AES.decryptServer(serverMessage, _getServerKey);
+    print('Decrypt AES:' + aesEncryptedMessage);
+    /*DesktopOperationDTO<List<dynamic>> operation =
+        DesktopOperationDTO<List<dynamic>>.fromJson(aesEncryptedMessage);
 
-    print(operation);
+    print('OPERATION DTO:' + operation.toJson());*/
   }
 
   String get _getServerKey =>
