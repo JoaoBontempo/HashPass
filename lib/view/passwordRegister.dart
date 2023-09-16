@@ -5,7 +5,7 @@ import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/theme.dart';
-import 'package:hashpass/util/cryptography.dart';
+import 'package:hashpass/util/security/hash.dart';
 import 'package:hashpass/util/validator.dart';
 import 'package:hashpass/view/configuration.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';

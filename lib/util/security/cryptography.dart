@@ -8,23 +8,9 @@ import 'package:hashpass/dto/dataExportDTO.dart';
 import 'package:hashpass/dto/leakPassDTO.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
-import 'http.dart';
-
-enum HashAlgorithm {
-  SHA512('SHA-512'),
-  MD5('MD-5'),
-  SHA256('SHA-256'),
-  SHA384('SHA-348'),
-  SHA224('SHA-224'),
-  SHA1('SHA-1'),
-  HMAC('HMAC');
-
-  final String name;
-  const HashAlgorithm(this.name);
-
-  @override
-  String toString() => name;
-}
+import 'package:hashpass/util/security/aes.dart';
+import '../http.dart';
+import 'hash.dart';
 
 class HashCrypt {
   static final List<int> _specialCharCodes = [
@@ -51,7 +37,7 @@ class HashCrypt {
   ];
 
   static Future<PasswordLeakDTO> verifyPassowordLeak(String basePass) async {
-    String passwordHash = _applyHashAlgorithm(hashs.sha1, basePass);
+    String passwordHash = Hash.applyHash(hashs.sha1, basePass);
     String response = await HTTPRequest.requestPasswordLeak(passwordHash);
 
     if (response.isEmpty) {
@@ -94,7 +80,7 @@ class HashCrypt {
 
   static String _generatePasswordKey() {
     Random random = Random();
-    return _applyHashAlgorithm(
+    return Hash.applyHash(
       hashs.sha256,
       DateTime.now().microsecondsSinceEpoch.toString() +
           random.nextInt(1000000).toString(),
@@ -111,7 +97,7 @@ class HashCrypt {
     String dispositivo = "";
     if (Platform.isAndroid) {
       dispositivo = androidInfo.manufacturer + androidInfo.model;
-      baseFileKey = _applyHashAlgorithm(
+      baseFileKey = Hash.applyHash(
         hashs.sha256,
         dispositivo + androidInfo.id + androidInfo.id + _generatePasswordKey(),
       );
@@ -175,34 +161,6 @@ class HashCrypt {
     return utf8.decode(base64.decode(textBase64));
   }
 
-  static String _applyHashAlgorithm(hashs.Hash algorithm, String base) {
-    var bytes = utf8.encode(base);
-    var digest = algorithm.convert(bytes);
-    return digest.toString();
-  }
-
-  static String _applyHash(HashAlgorithm algorithm, String text) {
-    switch (algorithm) {
-      case HashAlgorithm.SHA512:
-        return _applyHashAlgorithm(hashs.sha512, text);
-      case HashAlgorithm.MD5:
-        return _applyHashAlgorithm(hashs.md5, text);
-      case HashAlgorithm.SHA256:
-        return _applyHashAlgorithm(hashs.sha256, text);
-      case HashAlgorithm.SHA384:
-        return _applyHashAlgorithm(hashs.sha384, text);
-      case HashAlgorithm.SHA224:
-        return _applyHashAlgorithm(hashs.sha224, text);
-      case HashAlgorithm.SHA1:
-        return _applyHashAlgorithm(hashs.sha1, text);
-      case HashAlgorithm.HMAC:
-        List<int> bytes = utf8.encode(text);
-        return hashs.Hmac(hashs.sha256, bytes).convert(bytes).toString();
-      default:
-        return "";
-    }
-  }
-
   static Future<String> applyAlgorithms(
     HashAlgorithm algorithm,
     String password,
@@ -210,11 +168,11 @@ class HashCrypt {
     String? generalKey,
   ) async {
     String? decipheredPassword = await decipherString(password, generalKey);
-    String truePassword = _applyHash(algorithm, decipheredPassword!);
+    String truePassword = Hash.applyHashPass(algorithm, decipheredPassword!);
     if (isAdvanced) {
       try {
-        truePassword = (await FlutterAesEcbPkcs5.encryptString(
-            truePassword, truePassword.substring(0, 32)))!;
+        truePassword =
+            (await AES.encrypt(truePassword, truePassword.substring(0, 32)));
         truePassword = base64Encode(truePassword.codeUnits);
         int length = truePassword.length;
         int numCaracteres = (length / 3) ~/ 10;
@@ -268,11 +226,11 @@ class HashCrypt {
   static Future<bool> isValidGeneralKey(String? generalKey) async {
     try {
       String? cipheredMessage = Configuration.configs
-          .getString(_applyHashAlgorithm(hashs.sha512, "validateKey"));
+          .getString(Hash.applyHash(hashs.sha512, "validateKey"));
       String? decipheredMessage =
           await decipherString(cipheredMessage!, generalKey);
       return decipheredMessage ==
-          _applyHashAlgorithm(hashs.sha512,
+          Hash.applyHash(hashs.sha512,
               "Mensagem para verificar se a chave informada de fato está correta");
     } catch (error) {
       return false;
@@ -281,12 +239,12 @@ class HashCrypt {
 
   static Future<bool> setGeneralKeyValidationMessage(String generalKey) async {
     String message = await cipherString(
-      _applyHashAlgorithm(hashs.sha512,
+      Hash.applyHash(hashs.sha512,
           "Mensagem para verificar se a chave informada de fato está correta"),
       generalKey,
     );
     return Configuration.configs
-        .setString(_applyHashAlgorithm(hashs.sha512, "validateKey"), message);
+        .setString(Hash.applyHash(hashs.sha512, "validateKey"), message);
   }
 
   static Future<String?> decipherString(
@@ -301,25 +259,25 @@ class HashCrypt {
 
   static Future<String> cipherString(String senha, String? chaveGeral) async {
     String? key = await getGeneralKey(chaveGeral);
-    return (await FlutterAesEcbPkcs5.encryptString(senha, key!))!;
+    return (await AES.encrypt(senha, key!));
   }
 
   static String getGeneralKeyBase() {
-    String key = Configuration.configs
-        .getString(_applyHashAlgorithm(hashs.sha512, "key"))!;
+    String key =
+        Configuration.configs.getString(Hash.applyHash(hashs.sha512, "key"))!;
     return fromBase64(key);
   }
 
   static Future<String?> getGeneralKey(String? base) async {
     if (base == null) {
-      String key = Configuration.configs
-          .getString(_applyHashAlgorithm(hashs.sha512, "key"))!;
+      String key =
+          Configuration.configs.getString(Hash.applyHash(hashs.sha512, "key"))!;
       String generalKey =
-          _applyHashAlgorithm(hashs.sha512, utf8.decode(base64.decode(key)))
+          Hash.applyHash(hashs.sha512, utf8.decode(base64.decode(key)))
               .substring(0, 32);
       return generalKey;
     } else {
-      String key = _applyHashAlgorithm(hashs.sha512, base).substring(0, 32);
+      String key = Hash.applyHash(hashs.sha512, base).substring(0, 32);
       return key;
     }
   }
@@ -353,8 +311,8 @@ class HashCrypt {
 
   static Future<bool> createGeneralKey(String baseKey) async {
     try {
-      return Configuration.configs.setString(
-          _applyHashAlgorithm(hashs.sha512, "key"), toBase64(baseKey));
+      return Configuration.configs
+          .setString(Hash.applyHash(hashs.sha512, "key"), toBase64(baseKey));
     } catch (erro) {
       return false;
     }

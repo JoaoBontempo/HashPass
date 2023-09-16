@@ -6,18 +6,24 @@ import 'package:hashpass/dto/desktop/desktopGuidDTO.dart';
 import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
 import 'package:hashpass/dto/desktop/desktopPublicKeyDTO.dart';
 import 'package:hashpass/util/http.dart';
+import 'package:hashpass/util/security/aes.dart';
+import 'package:hashpass/util/security/hash.dart';
+import 'package:hashpass/util/security/rsa.dart';
 import 'package:web_socket_channel/io.dart';
 
 class HashPassDesktopProvider extends ChangeNotifier {
   final String serverPort = "3000";
+
   bool isConnected;
-  static late HashPassDesktopProvider instance;
   IOWebSocketChannel? socket;
-  late String serverIp;
   bool isLoading;
+
+  static late HashPassDesktopProvider instance;
+  late String serverIp;
   late String serverGuid;
   late RSAKeypair appKeys;
   late RSAPublicKey serverPublicKey;
+
   String get serverPath => '$serverIp:$serverPort';
 
   HashPassDesktopProvider({
@@ -39,27 +45,25 @@ class HashPassDesktopProvider extends ChangeNotifier {
     ipRange = ipRange + 1;
     serverIp = '192.168.0.$ipRange';
     String socketPath = 'ws://$serverIp:$serverPort';
-    print(socketPath);
     socket = IOWebSocketChannel.connect(
       socketPath,
       connectTimeout: const Duration(seconds: 3),
     );
     socket!.stream.listen(
       (message) {
+        print(message);
         if (message == '') {
           isLoading = false;
           isConnected = true;
-          print('Connected!');
           establishConnection();
           notifyListeners();
         } else {
-          print(_decypherAssymetricMessage(message));
+          processMessage(message);
         }
       },
       onError: (error) => connect(ipRange: ipRange),
       onDone: () {
         isConnected = false;
-        print('Connection closed.');
         notifyListeners();
       },
       cancelOnError: true,
@@ -73,7 +77,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
   }
 
   void establishConnection() async {
-    generateKeyPair();
+    appKeys = RSA.generateKeyPair();
 
     final serverApiPath = 'http://$serverPath/';
     String desktopPublicKeyJson = await HTTPRequest.postRequest(
@@ -92,38 +96,41 @@ class HashPassDesktopProvider extends ChangeNotifier {
 
     ExchangeKeyDTO keyDTO = ExchangeKeyDTO.fromJson(desktopChyperedGuidJson);
 
-    print('Keys exchanged!');
-    String json = _decypherAssymetricMessage(keyDTO.key);
-    print(json);
+    String json = RSA.decrypt(appKeys.privateKey, keyDTO.key);
+
     DesktopOperationDTO<DesktopGuidDTO> guidDTO =
         DesktopOperationDTO<DesktopGuidDTO>.fromJson(
       json,
       (guidJSON) => DesktopGuidDTO.fromMap(guidJSON),
     );
     serverGuid = guidDTO.data.guid;
-    print('GUID dechypered and ready to use!');
     isLoading = false;
     isConnected = true;
     notifyListeners();
   }
 
-  void generateKeyPair() {
-    appKeys = RSAKeypair.fromRandom(keySize: 2048);
-  }
-
-  String _cypherAssymetricMessage(DesktopOperationDTO dto) {
-    return serverPublicKey.encrypt(dto.toJson());
-  }
-
-  String _decypherAssymetricMessage(String message) {
-    return appKeys.privateKey.decrypt(message);
-  }
-
   void sendMessage(DesktopOperationDTO messageDto) {
-    print(messageDto.toJson());
-    print(serverPublicKey);
     if (isConnected) {
-      socket!.sink.add(_cypherAssymetricMessage(messageDto));
+      socket!.sink.add(messageDto.toJson());
     }
   }
+
+  void processMessage(String serverMessage) async {
+    String serverKey = _getServerKey;
+    print('KEY: ' + serverKey);
+    print('AES:' + serverMessage);
+    String aesEncryptedMessage =
+        await AES.decryptServer(serverMessage, _getServerKey);
+    print('Decrypt AES:' + serverMessage);
+    DesktopOperationDTO<Serializable> operation =
+        DesktopOperationDTO<Serializable>.fromJson(
+      aesEncryptedMessage,
+      (p0) => p0 as dynamic,
+    );
+
+    print(operation);
+  }
+
+  String get _getServerKey =>
+      Hash.applyHashPass(HashAlgorithm.SHA256, serverGuid).substring(32);
 }
