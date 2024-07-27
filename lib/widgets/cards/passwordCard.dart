@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/theme.dart';
@@ -41,7 +40,7 @@ class PasswordCard extends HashPassStatelessWidget {
             left: 20,
             top: 12,
             bottom: 12,
-            right: 20,
+            right: 17,
           ),
           child: ShowcaseHashPassCard(
             showcaseKey: passwordProvider.isHelpExample ? cardKey : GlobalKey(),
@@ -53,11 +52,27 @@ class PasswordCard extends HashPassStatelessWidget {
                 children: [
                   Row(
                     children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 20,
+                            right: passwordProvider.showSecurityUpdateIcon
+                                ? 10
+                                : 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Visibility(
+                              visible: passwordProvider.showSecurityUpdateIcon,
+                              child: passwordProvider.leakInformation
+                                  .getLeakWidget(size: 16),
+                            ),
+                          ],
+                        ),
+                      ),
                       Expanded(
                         child: HashPassLabel(
                           overflow: TextOverflow.fade,
                           paddingTop: 10,
-                          paddingLeft: 20,
                           paddingRight: 20,
                           paddingBottom: 10,
                           text: passwordProvider.password.title,
@@ -108,7 +123,7 @@ class PasswordCard extends HashPassStatelessWidget {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(
-                                left: 20, bottom: 15, right: 20),
+                                left: 20, bottom: 10, right: 20),
                             child: AppTextField(
                               maxLength: 225,
                               icon: Icons.lock_outline,
@@ -149,32 +164,6 @@ class PasswordCard extends HashPassStatelessWidget {
                                   : passwordProvider.restorePasswordHistory,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20, right: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  onTap: passwordProvider.copyPassword,
-                                  child: HashPassLabel(
-                                    text: language.copyPassword,
-                                    size: 12,
-                                    color: Get.theme.hintColor,
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: Configuration
-                                          .instance.updatePassVerify &&
-                                      passwordProvider.passwordController.text
-                                              .trim()
-                                              .length >
-                                          4,
-                                  child: passwordProvider.leakInformation
-                                      .getLeakWidget(size: 16),
-                                ),
-                              ],
-                            ),
-                          )
                         ],
                       ),
                     ],
@@ -182,8 +171,7 @@ class PasswordCard extends HashPassStatelessWidget {
                   Visibility(
                     visible: passwordProvider.password.useCriptography,
                     child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 20, right: 5, top: 5),
+                      padding: const EdgeInsets.only(left: 20, right: 5),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -209,17 +197,35 @@ class PasswordCard extends HashPassStatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
-                        right: 10, top: 8, bottom: 15, left: 12),
+                      right: 10,
+                      bottom: 10,
+                      left: 12,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        TextButton(
-                          onPressed: () => passwordProvider.showPassword(),
-                          child: HashPassLabel(
-                            text: language.showCardPassword.toUpperCase(),
-                            size: 12,
-                            color: Get.theme.hintColor,
-                          ),
+                        Row(
+                          children: [
+                            //TODO: Add showcases
+                            IconButton(
+                              onPressed: passwordProvider.copyPassword,
+                              icon: Showcase(
+                                key: isExample ? removeKey : GlobalKey(),
+                                description: language.deletePasswordShowCase,
+                                child: const Icon(Icons.copy),
+                              ),
+                              color: Get.theme.hintColor,
+                            ),
+                            IconButton(
+                              onPressed: () => passwordProvider.showPassword,
+                              icon: Showcase(
+                                key: isExample ? saveKey : GlobalKey(),
+                                description: language.savePasswordShowcase,
+                                child: const Icon(Icons.visibility_outlined),
+                              ),
+                              color: Get.theme.hintColor,
+                            ),
+                          ],
                         ),
                         Row(
                           children: [

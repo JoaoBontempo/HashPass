@@ -86,8 +86,7 @@ class _AppWelcomePageState extends HashPassState<AppWelcomePage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                        left: 20,
-                        right: 20,
+                        left: 12,
                       ),
                       child: HashPassCheckBox(
                         onChange: (checked) => setState(() {
@@ -106,8 +105,12 @@ class _AppWelcomePageState extends HashPassState<AppWelcomePage> {
                                 color: Get.theme.indicatorColor,
                                 size: 12,
                               ),
-                              onTap: () => launch(
-                                  "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/"),
+                              onTap: () => launchUrl(
+                                Uri(
+                                  path:
+                                      "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/",
+                                ),
+                              ),
                             )
                           ],
                         ),

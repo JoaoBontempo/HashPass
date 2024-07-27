@@ -92,12 +92,13 @@ class DarkAppTheme {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black,
             shape: const StadiumBorder(),
-            textStyle: const TextStyle(
-              color: AppColors.ACCENT_DARK_2,
-            ),
+            foregroundColor: Colors.white,
           ),
         ),
         appBarTheme: AppBarTheme(
+          iconTheme: const IconThemeData(
+            color: AppColors.PRIMARY_DARK,
+          ),
           color: Colors.black,
           titleTextStyle: buildTextStyle(
             AppColors.PRIMARY_DARK,
@@ -110,8 +111,16 @@ class DarkAppTheme {
           foregroundColor: AppColors.PRIMARY_DARK,
         ),
         switchTheme: SwitchThemeData(
-          thumbColor: MaterialStateProperty.all(Colors.grey),
-          overlayColor: MaterialStateProperty.all(Colors.black),
+          trackOutlineColor: WidgetStateProperty.all(Colors.grey.shade300),
+          trackColor: WidgetStateProperty.all(Colors.transparent),
+          thumbColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return AppColors.ACCENT_DARK_2;
+              }
+              return Colors.grey.shade700;
+            },
+          ),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: Colors.black,
@@ -128,7 +137,8 @@ class DarkAppTheme {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            backgroundColor: Colors.grey,
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.grey,
           ),
         ),
         cardColor: Colors.grey,
@@ -138,6 +148,17 @@ class DarkAppTheme {
           overlayColor: AppColors.ACCENT_DARK_2.withOpacity(0.09),
           activeTrackColor: AppColors.ACCENT_DARK_2.withAlpha(175),
           inactiveTrackColor: AppColors.ACCENT_DARK_2.withOpacity(0.2),
+        ),
+        radioTheme: RadioThemeData(
+          fillColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return AppColors.ACCENT_DARK_2;
+              }
+              return Colors.grey.shade700;
+            },
+          ),
+          visualDensity: VisualDensity.compact,
         ),
       );
 }

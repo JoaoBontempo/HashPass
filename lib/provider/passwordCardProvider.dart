@@ -154,4 +154,8 @@ class PasswordCardProvider extends PasswordProvider {
       savePassword(context);
     }
   }
+
+  bool get showSecurityUpdateIcon =>
+      Configuration.instance.updatePassVerify &&
+      passwordController.text.trim().length > 4;
 }

@@ -37,11 +37,12 @@ class IndexPage extends HashPassStatelessWidget {
     return Consumer3<UserPasswordsProvider, Configuration,
         HashPassDesktopProvider>(
       builder: (context, passwordsProvider, configuration, desktop, _) =>
-          WillPopScope(
-        onWillPop: () async {
+          PopScope(
+        onPopInvoked: (bool didPop) async {
           if (isDrawerOpen) {
-            return true;
+            return;
           }
+
           FocusManager.instance.primaryFocus?.unfocus();
           HashPassMessage.show(
             title: language.closeAppConfirmationTitle,
@@ -52,7 +53,8 @@ class IndexPage extends HashPassStatelessWidget {
               exit(0);
             }
           });
-          return false;
+
+          return;
         },
         child: ChangeNotifierProvider<UserPasswordsProvider>.value(
           value: passwordsProvider,

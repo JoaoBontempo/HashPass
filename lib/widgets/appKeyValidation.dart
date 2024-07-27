@@ -115,7 +115,9 @@ class _AuthAppKeyState extends HashPassState<AuthAppKey> {
           : AlertDialog(
               title: HashPassLabel(
                 text: language.authNeeded,
+                style: Get.theme.textTheme.bodyLarge,
                 fontWeight: FontWeight.bold,
+                textAlign: TextAlign.center,
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,

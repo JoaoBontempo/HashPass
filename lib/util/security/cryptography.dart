@@ -36,6 +36,9 @@ class HashCrypt {
     125,
   ];
 
+  static const String validationMessage =
+      "5659ed994e7dbd1862bb003b2098782475a62892bf12a1be90e32218df125b76";
+
   static Future<PasswordLeakDTO> verifyPassowordLeak(String basePass) async {
     String passwordHash = Hash.applyHash(hashs.sha1, basePass);
     String response = await HTTPRequest.requestPasswordLeak(passwordHash);
@@ -230,8 +233,7 @@ class HashCrypt {
       String? decipheredMessage =
           await decipherString(cipheredMessage!, generalKey);
       return decipheredMessage ==
-          Hash.applyHash(hashs.sha512,
-              "Mensagem para verificar se a chave informada de fato está correta");
+          Hash.applyHash(hashs.sha512, validationMessage);
     } catch (error) {
       return false;
     }
@@ -239,8 +241,7 @@ class HashCrypt {
 
   static Future<bool> setGeneralKeyValidationMessage(String generalKey) async {
     String message = await cipherString(
-      Hash.applyHash(hashs.sha512,
-          "Mensagem para verificar se a chave informada de fato está correta"),
+      Hash.applyHash(hashs.sha512, validationMessage),
       generalKey,
     );
     return Configuration.configs

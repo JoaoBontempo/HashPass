@@ -22,7 +22,7 @@ class ModalTitle extends StatelessWidget {
                 overflow: TextOverflow.clip,
                 text: title,
                 fontWeight: FontWeight.bold,
-                size: 19,
+                size: 18,
                 paddingRight: 10,
               ),
             ),

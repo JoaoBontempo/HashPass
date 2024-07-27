@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:hashpass/themes/colors.dart';
 import 'package:hashpass/util/util.dart';
@@ -16,6 +18,7 @@ class LightAppTheme {
   }
 
   ThemeData get defaultTheme => ThemeData(
+        dialogBackgroundColor: Colors.white,
         progressIndicatorTheme: ProgressIndicatorThemeData(
           color: Colors.grey.shade400,
           circularTrackColor: AppColors.SECONDARY_LIGHT,
@@ -81,12 +84,13 @@ class LightAppTheme {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.SECONDARY_LIGHT,
             shape: const StadiumBorder(),
-            textStyle: const TextStyle(
-              color: AppColors.SECONDARY_LIGHT,
-            ),
+            foregroundColor: Colors.white,
           ),
         ),
         appBarTheme: AppBarTheme(
+          iconTheme: const IconThemeData(
+            color: AppColors.PRIMARY_LIGHT,
+          ),
           color: AppColors.SECONDARY_LIGHT,
           titleTextStyle: buildTextStyle(
             AppColors.PRIMARY_LIGHT,
@@ -101,8 +105,16 @@ class LightAppTheme {
           foregroundColor: AppColors.PRIMARY_LIGHT,
         ),
         switchTheme: SwitchThemeData(
-          thumbColor: MaterialStateProperty.all(AppColors.SECONDARY_LIGHT),
-          overlayColor: MaterialStateProperty.all(AppColors.ACCENT_LIGHT),
+          trackOutlineColor: WidgetStateProperty.all(AppColors.SECONDARY_LIGHT),
+          trackColor: WidgetStateProperty.all(Colors.transparent),
+          thumbColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return AppColors.ACCENT_LIGHT;
+              }
+              return Colors.grey;
+            },
+          ),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: AppColors.SECONDARY_LIGHT,
@@ -119,7 +131,8 @@ class LightAppTheme {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            backgroundColor: AppColors.ACCENT_LIGHT,
+            foregroundColor: AppColors.ACCENT_LIGHT,
+            backgroundColor: Colors.transparent,
           ),
         ),
         cardColor: Colors.white,
@@ -129,6 +142,17 @@ class LightAppTheme {
           overlayColor: AppColors.ACCENT_LIGHT.withOpacity(0.15),
           activeTrackColor: AppColors.SECONDARY_LIGHT.withAlpha(175),
           inactiveTrackColor: AppColors.SECONDARY_LIGHT.withOpacity(0.35),
+        ),
+        radioTheme: RadioThemeData(
+          fillColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return AppColors.ACCENT_LIGHT;
+              }
+              return Colors.grey;
+            },
+          ),
+          visualDensity: VisualDensity.compact,
         ),
       );
 }

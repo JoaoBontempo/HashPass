@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/dark.dart';
@@ -21,7 +20,6 @@ import 'provider/configurationProvider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await MobileAds.instance.initialize();
   await Configuration.getHashPassConfiguration();
   HashPassDesktopProvider.instance = HashPassDesktopProvider();
   runApp(const HashPassApp());
