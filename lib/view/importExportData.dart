@@ -194,7 +194,7 @@ class _ImportExportDataPageState extends HashPassState<ImportExportDataPage> {
                               HashPassLabel(
                                 paddingTop: 20,
                                 text: language.dataExportExplanation,
-                                style: Get.theme.textTheme.headline1,
+                                style: Get.theme.textTheme.titleLarge,
                               ),
                               HashPassLabel(
                                 paddingTop: 15,
@@ -236,7 +236,7 @@ class _ImportExportDataPageState extends HashPassState<ImportExportDataPage> {
                             padding: const EdgeInsets.only(top: 10),
                             child: Text(
                               language.dataImportExplanation,
-                              style: Theme.of(context).textTheme.headline1,
+                              style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
                           Padding(

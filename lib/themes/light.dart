@@ -35,7 +35,7 @@ class LightAppTheme {
         primaryColor: AppColors.SECONDARY_LIGHT,
         primaryColorLight: Colors.grey.shade50,
         unselectedWidgetColor: Colors.grey,
-        toggleableActiveColor: AppColors.ACCENT_LIGHT,
+        indicatorColor: AppColors.ACCENT_LIGHT,
         inputDecorationTheme: InputDecorationTheme(
           border: Util.defaultBorder(AppColors.ACCENT_LIGHT_2),
           enabledBorder: Util.defaultBorder(AppColors.SECONDARY_LIGHT),
@@ -52,22 +52,22 @@ class LightAppTheme {
           FontWeight.bold,
         )),
         textTheme: TextTheme(
-          bodyText1: buildTextStyle(
+          bodySmall: buildTextStyle(
             Colors.grey.shade600,
             15,
             FontWeight.normal,
           ),
-          bodyText2: buildTextStyle(
+          bodyMedium: buildTextStyle(
             Colors.grey.shade600,
             17,
             FontWeight.normal,
           ),
-          button: buildTextStyle(
+          bodyLarge: buildTextStyle(
             Colors.grey.shade700,
             15,
             FontWeight.bold,
           ),
-          headline1: buildTextStyle(
+          titleLarge: buildTextStyle(
             Colors.grey.shade600,
             12,
             FontWeight.normal,
@@ -79,7 +79,7 @@ class LightAppTheme {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: AppColors.SECONDARY_LIGHT,
+            backgroundColor: AppColors.SECONDARY_LIGHT,
             shape: const StadiumBorder(),
             textStyle: const TextStyle(
               color: AppColors.SECONDARY_LIGHT,
@@ -112,14 +112,14 @@ class LightAppTheme {
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             textStyle: const TextStyle(fontWeight: FontWeight.normal),
-            primary: AppColors.ACCENT_LIGHT_2,
+            backgroundColor: AppColors.ACCENT_LIGHT_2,
             shape: const StadiumBorder(),
             side: const BorderSide(width: 1.0, color: AppColors.ACCENT_LIGHT_2),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            primary: AppColors.ACCENT_LIGHT,
+            backgroundColor: AppColors.ACCENT_LIGHT,
           ),
         ),
         cardColor: Colors.white,

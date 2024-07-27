@@ -44,7 +44,7 @@ class DarkAppTheme {
           filled: false,
         ),
         unselectedWidgetColor: Colors.grey,
-        toggleableActiveColor: AppColors.ACCENT_DARK_2,
+        indicatorColor: AppColors.ACCENT_DARK_2,
         dialogTheme: const DialogTheme(
           backgroundColor: Color(0xFF202029),
           titleTextStyle: TextStyle(
@@ -63,22 +63,22 @@ class DarkAppTheme {
           FontWeight.bold,
         )),
         textTheme: TextTheme(
-          bodyText1: buildTextStyle(
+          bodySmall: buildTextStyle(
             Colors.grey.shade200,
             15,
             FontWeight.normal,
           ),
-          bodyText2: buildTextStyle(
+          bodyMedium: buildTextStyle(
             Colors.grey.shade300,
             17,
             FontWeight.normal,
           ),
-          button: buildTextStyle(
+          bodyLarge: buildTextStyle(
             Colors.grey.shade300,
             15,
             FontWeight.bold,
           ),
-          headline1: buildTextStyle(
+          titleLarge: buildTextStyle(
             Colors.grey,
             12,
             FontWeight.normal,
@@ -90,7 +90,7 @@ class DarkAppTheme {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: Colors.black,
+            backgroundColor: Colors.black,
             shape: const StadiumBorder(),
             textStyle: const TextStyle(
               color: AppColors.ACCENT_DARK_2,
@@ -121,14 +121,14 @@ class DarkAppTheme {
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             textStyle: const TextStyle(fontWeight: FontWeight.normal),
-            primary: AppColors.ACCENT_DARK_2,
+            backgroundColor: AppColors.ACCENT_DARK_2,
             shape: const StadiumBorder(),
             side: const BorderSide(width: 1.0, color: AppColors.ACCENT_DARK_2),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            primary: Colors.grey,
+            backgroundColor: Colors.grey,
           ),
         ),
         cardColor: Colors.grey,

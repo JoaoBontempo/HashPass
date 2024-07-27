@@ -21,15 +21,15 @@ dependencies:
   encrypt: ^5.0.1
   flutter_aes_ecb_pkcs5: ^0.1.2
   shared_preferences: ^2.0.13
-  http: ^0.13.4
+  http: ^1.2.2
   archive: ^3.2.1
   font_awesome_flutter: ^10.4.0
-  google_mobile_ads: ^3.0.0
+  google_mobile_ads: ^5.1.0
   url_launcher: ^6.0.20
-  file_picker: ^5.2.11
+  file_picker: ^8.0.0+1
   jaguar_jwt: ^3.0.0
-  device_info_plus: ^8.2.2
-  intl: ^0.18.0
+  device_info_plus: ^9.1.2
+  intl: ^0.19.0
   get: ^4.6.5
   provider: ^6.0.5
   share_plus: ^7.0.0
@@ -37,8 +37,8 @@ dependencies:
   sqflite: ^2.0.2
   path: ^1.8.0
   local_auth: ^2.1.6
-  showcaseview: ^2.0.3
-  web_socket_channel: ^2.4.0
+  showcaseview: ^3.0.0
+  web_socket_channel: ^3.0.1
   crypton: ^2.2.0
   aescryptojs: ^1.0.0
   
@@ -48,7 +48,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^2.0.1
+  flutter_lints: ^4.0.0
 
 
 

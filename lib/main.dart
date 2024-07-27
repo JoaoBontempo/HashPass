@@ -39,7 +39,7 @@ class HashPassApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: HashPassDesktopProvider.instance),
       ],
       child: ShowCaseWidget(
-        builder: Builder(
+        builder: (context) => Builder(
           builder: (context) => GetMaterialApp(
             debugShowCheckedModeBanner: false,
             supportedLocales: AppLocalizations.supportedLocales,

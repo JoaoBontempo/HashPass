@@ -103,7 +103,7 @@ class _AppWelcomePageState extends HashPassState<AppWelcomePage> {
                             GestureDetector(
                               child: HashPassLabel(
                                 text: language.privacyPolicy.toUpperCase(),
-                                color: Get.theme.toggleableActiveColor,
+                                color: Get.theme.indicatorColor,
                                 size: 12,
                               ),
                               onTap: () => launch(

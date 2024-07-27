@@ -133,7 +133,7 @@ class HashPassDrawerButton extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: Get.theme.textTheme.bodyText2?.color,
+        color: Get.theme.textTheme.bodyMedium?.color,
       ),
       title: Text(title),
       onTap: () => onTap(),

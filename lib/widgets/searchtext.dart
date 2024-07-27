@@ -56,7 +56,7 @@ class _AppSearchTextState extends State<AppSearchText> {
         style: TextStyle(
           fontSize: widget.fontSize,
           color:
-              widget.fontColor ?? Theme.of(context).textTheme.bodyText1?.color,
+              widget.fontColor ?? Theme.of(context).textTheme.bodySmall?.color,
         ),
         controller: widget.controller,
         obscureText: widget.obscureText,

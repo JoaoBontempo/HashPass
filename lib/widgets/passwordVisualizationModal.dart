@@ -66,7 +66,7 @@ class PasswordVisualizationModal extends HashPassStatelessWidget {
                                         LinearProgressIndicator(
                                       value: value,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        Get.theme.toggleableActiveColor,
+                                        Get.theme.indicatorColor,
                                       ),
                                       backgroundColor: AppColors.ACCENT_LIGHT
                                           .withOpacity(0.3),

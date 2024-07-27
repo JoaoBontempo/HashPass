@@ -50,7 +50,7 @@ class AboutPage extends HashPassStatelessWidget {
               children: [
                 Text(
                   "${language.developedBy}: João Vitor Bontempo",
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const Padding(
                   padding: EdgeInsets.all(10),
@@ -108,7 +108,7 @@ class SocialMediaButton extends StatelessWidget {
         icon: icon,
         label: Text(label),
         style: ElevatedButton.styleFrom(
-          primary: color,
+          backgroundColor: color,
           textStyle: TextStyle(
             color: textColor,
             fontWeight: FontWeight.bold,

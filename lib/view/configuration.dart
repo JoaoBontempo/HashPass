@@ -186,7 +186,7 @@ class _ConfigurationPageState extends HashPassState<ConfigurationPage> {
                                 ),
                                 child: Text(
                                   language.timerDurationConfigDescription,
-                                  style: Theme.of(context).textTheme.headline1,
+                                  style: Theme.of(context).textTheme.titleLarge,
                                   textAlign: TextAlign.start,
                                 ),
                               ),
