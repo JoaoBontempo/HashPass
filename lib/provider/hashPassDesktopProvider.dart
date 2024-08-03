@@ -15,35 +15,58 @@ class HashPassDesktopProvider extends ChangeNotifier {
   final String serverPort = "3000";
 
   bool isConnected;
+  bool connectionFailure;
   IOWebSocketChannel? socket;
   bool isLoading;
 
   static late HashPassDesktopProvider instance;
   late String serverIp;
+  late int currentRange = 0;
   late String serverGuid;
   late RSAKeypair appKeys;
   late RSAPublicKey serverPublicKey;
+  VoidCallback? onConnect;
 
   String get serverPath => '$serverIp:$serverPort';
 
   HashPassDesktopProvider({
     this.isConnected = false,
     this.isLoading = true,
+    this.connectionFailure = false,
   }) {
     HashPassDesktopProvider.instance = this;
   }
 
-  void connect({int ipRange = 0}) {
-    if (isConnected) return;
+  void cancel() {
+    connectionFailure = true;
+    notifyListeners();
+  }
 
-    if (ipRange == 255) {
+  void reconnect() {
+    isConnected = false;
+    connectionFailure = false;
+    connect();
+  }
+
+  void connect({int ipRange = 0}) {
+    if (isConnected || connectionFailure) {
+      return;
+    }
+
+    if (ipRange > 255) {
+      ipRange = 0;
       isConnected = false;
+      connectionFailure = true;
+      currentRange = 0;
       notifyListeners();
       return;
     }
 
+    isLoading = true;
     ipRange = ipRange + 1;
+    currentRange = ipRange;
     serverIp = '192.168.0.$ipRange';
+    notifyListeners();
     String socketPath = 'ws://$serverIp:$serverPort';
     socket = IOWebSocketChannel.connect(
       socketPath,
@@ -53,8 +76,6 @@ class HashPassDesktopProvider extends ChangeNotifier {
       (message) {
         print(message);
         if (message == '') {
-          isLoading = false;
-          isConnected = true;
           establishConnection();
           notifyListeners();
         } else {
@@ -104,6 +125,8 @@ class HashPassDesktopProvider extends ChangeNotifier {
       serialize: (guidJSON) => DesktopGuidDTO.fromMap(guidJSON),
     );
     serverGuid = guidDTO.data.guid;
+    onConnect?.call();
+    onConnect = null;
     isLoading = false;
     isConnected = true;
     notifyListeners();

@@ -87,14 +87,22 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
 
   void newPasswordScreen(UserPasswordsProvider provider) {
     Get.focusScope!.unfocus();
-    Get.to(MultiProvider(
-      providers: [
-        ChangeNotifierProvider<UserPasswordsProvider>.value(value: provider),
-        ChangeNotifierProvider<PasswordRegisterProvider>(
-            create: (context) => PasswordRegisterProvider(Password(), provider))
-      ],
-      builder: (context, _) => const NewPasswordPage(),
-    ));
+    Get.to(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<UserPasswordsProvider>.value(
+            value: provider,
+          ),
+          ChangeNotifierProvider<PasswordRegisterProvider>(
+            create: (context) => PasswordRegisterProvider(
+              Password(),
+              provider,
+            ),
+          )
+        ],
+        builder: (context, _) => const NewPasswordPage(),
+      ),
+    );
   }
 
   void onPasswordDelete(
@@ -122,6 +130,8 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
             key: floatingButtonKey,
             description: language.newPasswordShowCase,
             child: FloatingActionButton(
+              shape: const CircleBorder(),
+              mini: true,
               child: const Icon(Icons.add),
               onPressed: () => newPasswordScreen(userPasswordsProvider),
             ),

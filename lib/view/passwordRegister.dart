@@ -7,7 +7,6 @@ import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/security/hash.dart';
 import 'package:hashpass/util/validator.dart';
-import 'package:hashpass/view/configuration.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/widgets/animations/booleanHide.dart';
 import 'package:hashpass/widgets/data/button.dart';
@@ -143,7 +142,6 @@ class NewPasswordPage extends HashPassStatelessWidget {
                           )
                         ],
                       ),
-                      const HashPassConfigDivider(),
                       TooltippedCheckBox(
                         tooltip: language.useCredentialTooltip,
                         label: language.saveCredential,

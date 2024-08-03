@@ -201,5 +201,12 @@
   "everyDigitOnBlacklist" : "It is impossible to generate a password using only numbers if every number ([0-9]) are in the blacklist.",
 
   "useDesktopTitle" : "Desktop module",
-  "useDesktopDescription" : "Activate / deactivate the integration with HashPass Desktop version"
+  "useDesktopDescription" : "Activate / deactivate the integration with HashPass Desktop version",
+  "stablishingConnection" : "Stablishing desktop connection...",
+  "desktopConnection" : "Desktop Connection",
+  "cancel": "Cancel",
+  "simpleTryAgain" : "Try Again",
+  "connectionStablished": "Connection stablished successfully!",
+  "connectionFailure": "Couldn't stablish connection",
+  "restart": "Restart"
 }

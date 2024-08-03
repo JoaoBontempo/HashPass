@@ -27,9 +27,9 @@ class HashPasshSplashPageState extends HashPassState<HashPasshSplashPage> {
     if (!Configuration.instance.hasEntrance) {
       HashPassRouteManager.to(HashPassRoute.WELCOME, context);
     } else {
-      /*if (Configuration.instance.useDesktop) {
+      if (Configuration.instance.useDesktop) {
         HashPassDesktopProvider.instance.connect();
-      }*/
+      }
       authUser();
     }
   }

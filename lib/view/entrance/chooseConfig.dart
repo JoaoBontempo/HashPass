@@ -72,7 +72,7 @@ class _FirstConfigurationScreenState extends HashPassState<ChooseConfigScreen> {
                             color: Get.theme.hintColor,
                           ),
                           FaIcon(
-                            FontAwesomeIcons.checkCircle,
+                            FontAwesomeIcons.circleCheck,
                             size: Get.width * .5,
                             color: Colors.greenAccent,
                           ),

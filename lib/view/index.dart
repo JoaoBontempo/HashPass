@@ -5,6 +5,7 @@ import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/appContext.dart';
+import 'package:hashpass/view/desktopConnectionPage.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
 import 'package:hashpass/view/passwords.dart';
 import 'package:hashpass/widgets/drawer.dart';
@@ -66,27 +67,30 @@ class IndexPage extends HashPassStatelessWidget {
             drawer: const AppDrawer(),
             appBar: AppBar(
               title: const Text('HashPass'),
-              actions: Configuration.instance.showHelpTooltips &&
-                      passwordsProvider.getPasswords().isNotEmpty
-                  ? <Widget>[
-                      IconButton(
-                        icon: const Icon(
-                          Icons.help,
-                          color: Colors.white,
-                        ),
-                        onPressed: startHelpShowcase,
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.desktop_windows_outlined,
-                          color: desktop.isConnected
-                              ? Colors.green
-                              : Colors.redAccent,
-                        ),
-                        onPressed: desktop.connect,
-                      )
-                    ]
-                  : null,
+              actions: <Widget>[
+                if (Configuration.instance.showHelpTooltips &&
+                    passwordsProvider.getPasswords().isNotEmpty)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.help,
+                      color: Colors.white,
+                    ),
+                    onPressed: startHelpShowcase,
+                  ),
+                if (Configuration.instance.useDesktop)
+                  IconButton(
+                    icon: Icon(
+                      Icons.desktop_windows_outlined,
+                      color:
+                          desktop.isConnected ? Colors.green : Colors.redAccent,
+                    ),
+                    onPressed: () {
+                      desktop.onConnect = Get.back;
+                      if (!desktop.isLoading) desktop.connect();
+                      Get.to(const DesktopConnectionPage());
+                    },
+                  )
+              ],
             ),
             body: const PasswordsMenu(),
           ),
