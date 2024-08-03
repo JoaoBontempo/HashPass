@@ -7,7 +7,7 @@ class Serializable<DataType> {
   DataType? fromJson() => null;
 }
 
-class DesktopOperationDTO<DataType extends Serializable> {
+class DesktopOperationDTO<DataType extends Object> {
   String message;
   bool success;
   DesktopOperation operation;
@@ -23,7 +23,7 @@ class DesktopOperationDTO<DataType extends Serializable> {
     return <String, dynamic>{
       'message': message,
       'success': success,
-      'data': data.toJson(),
+      'data': data.toString(),
       'operation': operation.name
     };
   }
@@ -31,11 +31,16 @@ class DesktopOperationDTO<DataType extends Serializable> {
   factory DesktopOperationDTO.fromMap(
     Map<String, dynamic> map,
     DataType Function(Map<String, dynamic>)? serialize,
+    DataType Function(List<dynamic>)? serializeList,
   ) {
     return DesktopOperationDTO(
       message: (map['message'] ?? '') as String,
       success: (map['success'] ?? true) as bool,
-      data: serialize == null ? map['data'] : serialize(map['data']),
+      data: serialize == null
+          ? serializeList == null
+              ? map['data']
+              : serializeList(map["data"])
+          : serialize(map['data']),
       operation: DesktopOperation.values
           .firstWhere((operation) => operation.name == map['operation']),
     );
@@ -46,9 +51,8 @@ class DesktopOperationDTO<DataType extends Serializable> {
   factory DesktopOperationDTO.fromJson(
     String source, {
     DataType Function(Map<String, dynamic>)? serialize,
+    DataType Function(List<dynamic>)? serializeList,
   }) =>
-      DesktopOperationDTO.fromMap(
-        json.decode(source) as Map<String, dynamic>,
-        serialize,
-      );
+      DesktopOperationDTO.fromMap(json.decode(source) as Map<String, dynamic>,
+          serialize, serializeList);
 }

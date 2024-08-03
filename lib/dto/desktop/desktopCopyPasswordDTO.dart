@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
@@ -30,4 +31,7 @@ class DesktopCopyPasswordDTO extends Serializable {
   factory DesktopCopyPasswordDTO.fromJson(String source) =>
       DesktopCopyPasswordDTO.fromMap(
           json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() => toJson();
 }

@@ -1,14 +1,20 @@
 import 'dart:convert';
 import 'package:crypton/crypton.dart';
 import 'package:flutter/material.dart';
+import 'package:hashpass/dto/desktop/browserImportDTO.dart';
 import 'package:hashpass/dto/desktop/desktopAuthDTO.dart';
 import 'package:hashpass/dto/desktop/desktopGuidDTO.dart';
 import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
 import 'package:hashpass/dto/desktop/desktopPublicKeyDTO.dart';
+import 'package:hashpass/model/password.dart';
+import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/util/http.dart';
 import 'package:hashpass/util/security/aes.dart';
+import 'package:hashpass/util/security/cryptography.dart';
 import 'package:hashpass/util/security/hash.dart';
 import 'package:hashpass/util/security/rsa.dart';
+import 'package:hashpass/widgets/appKeyValidation.dart';
+import 'package:hashpass/widgets/interface/snackbar.dart';
 import 'package:web_socket_channel/io.dart';
 
 class HashPassDesktopProvider extends ChangeNotifier {
@@ -25,6 +31,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
   late String serverGuid;
   late RSAKeypair appKeys;
   late RSAPublicKey serverPublicKey;
+  late UserPasswordsProvider passwordsProvider;
   VoidCallback? onConnect;
 
   String get serverPath => '$serverIp:$serverPort';
@@ -136,22 +143,48 @@ class HashPassDesktopProvider extends ChangeNotifier {
     if (isConnected) {
       String encryptedData =
           AES.encryptServer(messageDto.toJson(), _getServerKey);
-      print('Data: ' + encryptedData);
       socket!.sink.add(encryptedData);
     }
   }
 
   void processMessage(String serverMessage) async {
-    String serverKey = _getServerKey;
-    print('KEY: ' + serverKey);
-    print('AES:' + serverMessage);
     String aesEncryptedMessage =
         AES.decryptServer(serverMessage, _getServerKey);
-    print('Decrypt AES:' + aesEncryptedMessage);
-    /*DesktopOperationDTO<List<dynamic>> operation =
-        DesktopOperationDTO<List<dynamic>>.fromJson(aesEncryptedMessage);
 
-    print('OPERATION DTO:' + operation.toJson());*/
+    DesktopOperationDTO<dynamic> operation =
+        DesktopOperationDTO.fromJson(aesEncryptedMessage);
+
+    switch (operation.operation) {
+      case DesktopOperation.BROWSER_FILE:
+        DesktopOperationDTO<List<BrowserImportDTO>> passwords =
+            DesktopOperationDTO.fromJson(
+          aesEncryptedMessage,
+          serializeList: (list) =>
+              list.map((el) => BrowserImportDTO.fromMap(el)).toList(),
+        );
+        _importBrowserFile(passwords.data);
+        break;
+    }
+  }
+
+  void _importBrowserFile(List<BrowserImportDTO> passwords) {
+    AuthAppKey.auth(
+      onValidate: (key) async {
+        for (BrowserImportDTO browserPassword in passwords) {
+          Password password = Password(
+            title: browserPassword.name,
+            leakCount: -1,
+            credential: browserPassword.username,
+          );
+          password.basePassword =
+              await HashCrypt.cipherString(browserPassword.password, key);
+
+          await password.save();
+          passwordsProvider.addPassword(password);
+        }
+        HashPassSnackBar.show(message: 'Senhas importadas com sucesso!');
+      },
+    );
   }
 
   String get _getServerKey =>
