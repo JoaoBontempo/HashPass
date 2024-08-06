@@ -10,8 +10,8 @@ abstract class IEntity {
   String primaryKeyColumn();
   String idName();
 
-  Future<int> save() async {
-    int lastId = await DBUtil.save(table(), toMap());
+  Future<int> save({bool closeOnFinish = true}) async {
+    int lastId = await DBUtil.save(table(), toMap(), closeOnFinish: closeOnFinish);
     setPrimaryKey(lastId);
     return lastId;
   }

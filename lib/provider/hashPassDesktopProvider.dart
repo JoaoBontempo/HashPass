@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:crypton/crypton.dart';
 import 'package:flutter/material.dart';
+import 'package:hashpass/database/database.dart';
 import 'package:hashpass/dto/desktop/browserImportDTO.dart';
 import 'package:hashpass/dto/desktop/desktopAuthDTO.dart';
 import 'package:hashpass/dto/desktop/desktopGuidDTO.dart';
@@ -26,7 +27,7 @@ class HashPassDesktopProvider extends ChangeNotifier {
   bool isLoading;
 
   static late HashPassDesktopProvider instance;
-  late String serverIp;
+  late String serverIp = '';
   late int currentRange = 0;
   late String serverGuid;
   late RSAKeypair appKeys;
@@ -179,9 +180,10 @@ class HashPassDesktopProvider extends ChangeNotifier {
           password.basePassword =
               await HashCrypt.cipherString(browserPassword.password, key);
 
-          await password.save();
+          await password.save(closeOnFinish: false);
           passwordsProvider.addPassword(password);
         }
+        DBUtil.close();
         HashPassSnackBar.show(message: 'Senhas importadas com sucesso!');
       },
     );

@@ -19,6 +19,7 @@ abstract class PasswordProvider extends HashPassProvider {
   bool enablePasswordDelete = true;
   bool isDeletingPassword = false;
   bool hidePassword = true;
+  bool _disposed = false;
   late PasswordLeakDTO leakInformation =
       PasswordLeakDTO(leakCount: password.leakCount);
   Password password;
@@ -26,6 +27,12 @@ abstract class PasswordProvider extends HashPassProvider {
   late bool passwordHasBeenVerified = password.leakCount != -1;
 
   PasswordProvider(this.password);
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
 
   @protected
   void verifyPasswordLeak({bool savePassword = false}) {
@@ -37,9 +44,14 @@ abstract class PasswordProvider extends HashPassProvider {
         isVerifiedPassword = response.leakCount == 0;
 
         if (savePassword) password.save();
-        notifyListeners();
+        _notify();
       },
     );
+  }
+
+  void _notify() {
+    if (_disposed) return;
+    notifyListeners();
   }
 
   void handlePasswordTextFieldChanges(String text) {
@@ -47,7 +59,7 @@ abstract class PasswordProvider extends HashPassProvider {
     if (!enablePasswordDelete || text.length < 4) {
       isDeletingPassword = true;
       passwordHasBeenVerified = false;
-      notifyListeners();
+      _notify();
       return;
     } else {
       isDeletingPassword = false;
@@ -58,22 +70,22 @@ abstract class PasswordProvider extends HashPassProvider {
 
   void setAlgorithm(HashAlgorithm algorithm) {
     password.hashAlgorithm = algorithm;
-    notifyListeners();
+    _notify();
   }
 
   void setAdvanced(bool isAdvanced) {
     password.isAdvanced = isAdvanced;
-    notifyListeners();
+    _notify();
   }
 
   void setUseCriptography(bool useCriptography) {
     password.useCriptography = useCriptography;
-    notifyListeners();
+    _notify();
   }
 
   void changePasswordVisibility() {
     hidePassword = !hidePassword;
-    notifyListeners();
+    _notify();
   }
 
   void deletePassword(UserPasswordsProvider userPasswordsProvider) {
@@ -105,7 +117,7 @@ abstract class PasswordProvider extends HashPassProvider {
       AuthAppKey.auth(
         onValidate: (key) async {
           await password.save();
-          notifyListeners();
+          _notify();
         },
       );
     }

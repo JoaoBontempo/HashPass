@@ -29,12 +29,13 @@ class PasswordsMenu extends StatefulWidget {
 }
 
 class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
-  final GlobalKey key = GlobalKey();
   final GlobalKey floatingButtonKey = GlobalKey();
-  final GlobalKey cardKey = GlobalKey();
-  final GlobalKey saveKey = GlobalKey();
-  final GlobalKey editKey = GlobalKey();
-  final GlobalKey removeKey = GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get mainKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get cardKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get saveKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get editKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get removeKey =>
+      () => GlobalKey();
   final filterController = TextEditingController();
   late final ScrollController scroller;
   bool showSearchField = true;
@@ -46,11 +47,11 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
     HashPassContext.scroller = scroller;
     HashPassContext.keys = [
       floatingButtonKey,
-      key,
-      cardKey,
-      editKey,
-      removeKey,
-      saveKey
+      mainKey(),
+      cardKey(),
+      editKey(),
+      removeKey(),
+      saveKey()
     ];
     super.initState();
 
@@ -150,7 +151,7 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
                             height: 60,
                             controller: scroller,
                             child: Showcase(
-                              key: key,
+                              key: mainKey(),
                               description: language.passwordFilterShowCase,
                               child: AppSearchText(
                                 placeholder: language.passwordFilterPlaceholder,
@@ -201,15 +202,15 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
                                                     CardStyle.DEFAULT
                                                 ? PasswordCard(
                                                     isExample: isExampleCard,
-                                                    cardKey: cardKey,
-                                                    editKey: editKey,
-                                                    removeKey: removeKey,
-                                                    saveKey: saveKey,
+                                                    cardKey: cardKey(),
+                                                    editKey: editKey(),
+                                                    removeKey: removeKey(),
+                                                    saveKey: saveKey(),
                                                   )
                                                 : SimpleCardPassword(
-                                                    cardKey: cardKey,
-                                                    editKey: editKey,
-                                                    removeKey: removeKey,
+                                                    cardKey: cardKey(),
+                                                    editKey: editKey(),
+                                                    removeKey: removeKey(),
                                                     isExample: isExampleCard,
                                                   ),
                                       );

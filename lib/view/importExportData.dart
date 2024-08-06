@@ -52,7 +52,7 @@ class _ImportExportDataPageState extends HashPassState<ImportExportDataPage> {
         String filePath = '${Directory.systemTemp.path}/hashpass.txt';
         final File file = File(filePath);
         await file.writeAsString(exportDTO.fileContent);
-        await Share.shareFiles([filePath]);
+        await Share.shareXFiles([XFile(filePath)]);
         HashPassMessage.show(
           body: Column(
             children: [
