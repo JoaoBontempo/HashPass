@@ -208,5 +208,10 @@
   "simpleTryAgain" : "Try Again",
   "connectionStablished": "Connection stablished successfully!",
   "connectionFailure": "Couldn't stablish connection",
-  "restart": "Restart"
+  "restart": "Restart",
+
+  "update2_0_0_title" : "HashPass version 2.0.0 has arrived with the open-source model! ",
+  "update2_0_0_description" : "The app is now on an open-source model! Also, there's a new feature arriving: The Desktop Module!",
+  "update2_0_0_note1" : "With the desktop module, you can securely copy your password on your phone and send it to your desktop computer.",
+  "update2_0_0_note2" : "Browser password data import coming soon."
 }

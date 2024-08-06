@@ -208,5 +208,10 @@
     "simpleTryAgain" : "Tentar novamente",
     "connectionStablished": "Conexão estabelecida com sucesso!",
     "connectionFailure": "Não foi possível estabelecer a conexão",
-    "restart": "Reiniciar"
+    "restart": "Reiniciar",
+
+    "update2_0_0_title" : "A versão 2.0.0 do HashPass chegou, no modelo open-source!",
+    "update2_0_0_description" : "O aplicativo agora está operando em modelo open-source. Além disso, há uma ferramenta disponível: O Módulo Desktop!",
+    "update2_0_0_note1" : "Com o módulo desktop, é possível copiar as senhas através deste dispositivo diretamente para um computador.",
+    "update2_0_0_note2" : "Em breve será possível importar as senhas salvas em navegadores."
 }

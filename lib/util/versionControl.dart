@@ -9,7 +9,7 @@ import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/interface/modalTitle.dart';
 
 class HashPassVersion with L10n {
-  static String currentVersion = '1.3.0';
+  static String currentVersion = '2.0.0';
   static Map<String, HashPassVersion> pathNotes = {
     '1.3.0': HashPassVersion(
       L10n.appLanguage.update1_3_0_title,
@@ -20,11 +20,11 @@ class HashPassVersion with L10n {
       ],
     ),
     '2.0.0': HashPassVersion(
-      L10n.appLanguage.update1_3_0_title,
-      L10n.appLanguage.update1_3_0_description,
+      L10n.appLanguage.update2_0_0_title,
+      L10n.appLanguage.update2_0_0_description,
       [
-        L10n.appLanguage.update1_3_0_note1,
-        L10n.appLanguage.update1_3_0_note2,
+        L10n.appLanguage.update2_0_0_note1,
+        L10n.appLanguage.update2_0_0_note2,
       ],
     ),
   };
