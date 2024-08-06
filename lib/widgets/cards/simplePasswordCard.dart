@@ -33,7 +33,7 @@ class SimpleCardPassword extends HashPassStatelessWidget {
               left: 20,
               top: 7,
               bottom: 7,
-              right: 20,
+              right: 17,
             ),
             child: ShowcaseHashPassCard(
               showcaseKey:

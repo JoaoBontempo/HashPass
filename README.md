@@ -1,16 +1,29 @@
-# hashpassfix
+# Welcome to HashPass! 🔒
 
-A new Flutter project.
+### Project purpose 📝
 
-## Getting Started
+I developed this project during my time at university with the primary goal of creating a simple, user-friendly, and secure password manager. With the increasing concern about trusting online password managers, the core principle of this project is to operate offline.
 
-This project is a starting point for a Flutter application.
+When considering secure passwords, several important guidelines come to mind:
 
-A few resources to get you started if this is your first Flutter project:
+- Never use the same password across different platforms;
+- Always create long and complex passwords that include letters, numbers, symbols, etc.;
+- Avoid storing your passwords on the internet;
+- Don’t use common words or phrases (No, your dog's name is not a secure password).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Following these "rules" can seem impossible for most people. Remembering multiple long and complex passwords for various apps is unrealistic. The most significant feature of this app is that you only need to remember a single strong password, which serves as the master key for the app.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### App Features 📱
+
+- Password Management
+- Password Leak Verification (via https://haveibeenpwned.com/)
+- Password Generation
+- Biometric/Manual Unlock
+- Desktop Module (https://github.com/JoaoBontempo/hashpass-desktop)
+- Dark and Light Theme
+- Avaliable in Portuguese (Brazil) and English (US)
+- App Data Export/Import
+
+### App Structure 🔧
+
+The app uses a local database to store passwords, ensuring they remain on the user's device. The stored data is encrypted with the master key using the AES algorithm. Each time a password needs to be viewed or stored, the master key is required to encrypt or decrypt it.

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
-import 'package:hashpass/util/cryptography.dart';
+import 'package:hashpass/util/security/cryptography.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
@@ -10,7 +10,6 @@ import 'package:hashpass/widgets/interface/label.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart';
-import 'package:local_auth_ios/local_auth_ios.dart';
 import 'package:hashpass/widgets/data/textfield.dart';
 
 class AuthAppKey extends StatefulWidget {
@@ -116,7 +115,9 @@ class _AuthAppKeyState extends HashPassState<AuthAppKey> {
           : AlertDialog(
               title: HashPassLabel(
                 text: language.authNeeded,
+                style: Get.theme.textTheme.bodyLarge,
                 fontWeight: FontWeight.bold,
+                textAlign: TextAlign.center,
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,

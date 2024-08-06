@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/dto/desktop/desktopCopyPasswordDTO.dart';
+import 'package:hashpass/dto/desktop/desktopOperationDTO.dart';
+import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/passwordProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/passwordVisualizationProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
-import 'package:hashpass/util/cryptography.dart';
+import 'package:hashpass/util/security/cryptography.dart';
 import 'package:hashpass/view/passwordRegister.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
@@ -31,13 +35,25 @@ class PasswordCardProvider extends PasswordProvider {
 
   void copyPassword() {
     getBasePassword(
-      (basePassword) => {
+      (basePassword) {
+        if (Configuration.instance.useDesktop) {
+          HashPassDesktopProvider.instance.sendMessage(
+            DesktopOperationDTO<DesktopCopyPasswordDTO>(
+              message: 'Password copy',
+              success: true,
+              data: DesktopCopyPasswordDTO(
+                  title: password.title, password: basePassword),
+              operation: DesktopOperation.COPY,
+            ),
+          );
+        }
+
         Clipboard.setData(ClipboardData(text: basePassword)).then(
           (_) => HashPassSnackBar.show(
             message: language.passwordCopied,
             duration: const Duration(milliseconds: 2500),
           ),
-        ),
+        );
       },
     );
   }
@@ -138,4 +154,8 @@ class PasswordCardProvider extends PasswordProvider {
       savePassword(context);
     }
   }
+
+  bool get showSecurityUpdateIcon =>
+      Configuration.instance.updatePassVerify &&
+      passwordController.text.trim().length > 4;
 }

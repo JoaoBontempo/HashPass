@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:hashpass/model/password.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 
 class UserPasswordsProvider extends ChangeNotifier {
   List<Password> _userPasswords = <Password>[];
@@ -13,6 +14,7 @@ class UserPasswordsProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     });
+    HashPassDesktopProvider.instance.passwordsProvider = this;
   }
 
   List<Password> getPasswords() => _userPasswords;

@@ -33,7 +33,7 @@ class DBUtil {
         join(await getDatabasesPath(), 'hashpass_db'),
         version: DBUtil.dbVersion,
         onCreate: (db, version) async {
-          return _executeSQL(
+          return await _executeSQL(
             db,
             await _getSQLVersion(
               version,
@@ -64,13 +64,17 @@ class DBUtil {
     DBTable table,
     Map<String, dynamic> data, {
     ConflictAlgorithm onCoflict = ConflictAlgorithm.replace,
+    bool closeOnFinish = true,
   }) async {
-    await _checkConnection();
-    int lastId = await _dbConnection!
-        .insert(table.name, data, conflictAlgorithm: onCoflict);
-    await _dbConnection!.close();
-
-    return lastId > 0 ? lastId : -1;
+    try {
+      await _checkConnection();
+      int lastId = await _dbConnection!
+          .insert(table.name, data, conflictAlgorithm: onCoflict);
+      if (closeOnFinish) await close();
+      return lastId > 0 ? lastId : -1;
+    } on DatabaseException catch (_) {
+      return save(table, data);
+    }
   }
 
   static Future<bool> remove(
@@ -79,14 +83,22 @@ class DBUtil {
     String id, {
     DBOperation operation = DBOperation.equal,
   }) async {
-    await _checkConnection();
-    int rowsAffected = await _dbConnection!.delete(
-      table.name,
-      where: '$primaryKeyColumn ${operation.toString()} ?',
-      whereArgs: [id],
-    );
+    try {
+      await _checkConnection();
+      int rowsAffected = await _dbConnection!.delete(
+        table.name,
+        where: '$primaryKeyColumn ${operation.toString()} ?',
+        whereArgs: [id],
+      );
+      await close();
+      return rowsAffected > 0;
+    } on DatabaseException catch (_) {
+      return remove(table, primaryKeyColumn, id);
+    }
+  }
+
+  static Future<void> close() async {
     await _dbConnection!.close();
-    return rowsAffected > 0;
   }
 
   static Future<List<Map<String, dynamic>>> getDbData(DBTable table,
@@ -94,7 +106,7 @@ class DBUtil {
     await _checkConnection();
     List<Map<String, dynamic>> data =
         await _dbConnection!.query(table.name, where: where);
-    await _dbConnection!.close();
+    await close();
     return data;
   }
 

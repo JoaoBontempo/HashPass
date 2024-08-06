@@ -69,7 +69,7 @@ class BooleanConfigWidget extends StatelessWidget {
                 paddingLeft: 50,
                 paddingRight: 10,
                 text: description,
-                style: Get.textTheme.headline1,
+                style: Get.textTheme.titleLarge,
                 fontWeight: FontWeight.bold,
               ),
             ],

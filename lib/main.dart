@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
 import 'package:hashpass/themes/dark.dart';
 import 'package:hashpass/themes/light.dart';
@@ -20,8 +20,8 @@ import 'provider/configurationProvider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await MobileAds.instance.initialize();
   await Configuration.getHashPassConfiguration();
+  HashPassDesktopProvider.instance = HashPassDesktopProvider();
   runApp(const HashPassApp());
 }
 
@@ -34,9 +34,10 @@ class HashPassApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => UserPasswordsProvider()),
         ChangeNotifierProvider.value(value: Configuration.instance),
+        ChangeNotifierProvider.value(value: HashPassDesktopProvider.instance),
       ],
       child: ShowCaseWidget(
-        builder: Builder(
+        builder: (context) => Builder(
           builder: (context) => GetMaterialApp(
             debugShowCheckedModeBanner: false,
             supportedLocales: AppLocalizations.supportedLocales,

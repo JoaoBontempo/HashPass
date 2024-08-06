@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
-import 'package:hashpass/util/ads.dart';
-import 'package:hashpass/util/cryptography.dart';
+import 'package:hashpass/util/security/cryptography.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PasswordVisualizationProvider extends ChangeNotifier {
@@ -14,62 +12,22 @@ class PasswordVisualizationProvider extends ChangeNotifier {
   final BuildContext context;
 
   late bool existsCredential = password.credential.isNotEmpty;
-  bool isBannerLoaded = false;
-  bool isVideoLoaded = false;
-  bool isAdLoaded = false;
-  bool hasAd = false;
   String realPassword = '';
   double currentTimeProgress = 0;
   double totalShowTime = Configuration.instance.showPasswordTime;
   double timeCount = Configuration.instance.showPasswordTime;
 
   late Timer time;
-  late BannerAd bannerAd;
-  late InterstitialAd videoAd;
 
   PasswordVisualizationProvider({
     required this.password,
     required this.appKey,
     required this.context,
   }) {
-    AdsHelper.getAdType().then((adType) {
-      switch (adType) {
-        case ADType.BANNER:
-          bannerAd = BannerAd(
-            size: AdSize.mediumRectangle,
-            adUnitId: ADType.BANNER.id,
-            listener: BannerAdListener(onAdLoaded: (ad) {
-              isBannerLoaded = true;
-            }, onAdFailedToLoad: (ad, error) {
-              isBannerLoaded = false;
-              ad.dispose();
-            }),
-            request: const AdRequest(),
-          )..load().then((value) {
-              _initPasswordDialog();
-            });
-          break;
-        case ADType.VIDEO:
-          InterstitialAd.load(
-            adUnitId: ADType.VIDEO.id,
-            request: const AdRequest(),
-            adLoadCallback: InterstitialAdLoadCallback(
-              onAdLoaded: videoAdLoaded,
-              onAdFailedToLoad: (error) {},
-            ),
-          );
-          break;
-        case ADType.NONE:
-          _initPasswordDialog();
-          break;
-        default:
-          break;
-      }
-    });
+    _initPasswordDialog();
   }
 
   void _initPasswordDialog() {
-    isAdLoaded = true;
     notifyListeners();
     if (password.useCriptography) {
       HashCrypt.applyAlgorithms(
@@ -111,20 +69,6 @@ class PasswordVisualizationProvider extends ChangeNotifier {
         },
       );
     }
-  }
-
-  void videoAdLoaded(InterstitialAd ad) {
-    ad.show();
-    ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (ad) {
-        ad.dispose();
-        _initPasswordDialog();
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        ad.dispose();
-        _initPasswordDialog();
-      },
-    );
   }
 
   void closeModal() {

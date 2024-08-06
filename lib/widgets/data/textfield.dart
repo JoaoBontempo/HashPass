@@ -65,7 +65,7 @@ class AppTextField extends StatelessWidget {
         textAlign: textAlign,
         style: TextStyle(
           fontSize: fontSize,
-          color: fontColor ?? Get.theme.textTheme.bodyText1?.color,
+          color: fontColor ?? Get.theme.textTheme.bodySmall?.color,
         ),
         onSaved: (value) => onSave?.call(value ?? ''),
         controller: controller,

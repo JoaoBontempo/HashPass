@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:hashpass/database/database.dart';
 import 'package:hashpass/database/entity.dart';
 import 'package:hashpass/database/enums.dart';
-import 'package:hashpass/util/cryptography.dart';
+import 'package:hashpass/util/security/hash.dart';
 
 class Password extends IEntity {
   int? id;

@@ -50,7 +50,7 @@ class HashPassRadioConfig<T> extends StatelessWidget {
                 Visibility(
                   visible: description.isNotEmpty,
                   child: HashPassLabel(
-                    style: Get.textTheme.headline1,
+                    style: Get.textTheme.titleLarge,
                     text: description,
                     paddingLeft: 50,
                     paddingRight: 20,

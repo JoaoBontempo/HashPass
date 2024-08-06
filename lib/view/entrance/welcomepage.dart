@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hashpass/themes/theme.dart';
-import 'package:hashpass/util/cryptography.dart';
+import 'package:hashpass/util/security/cryptography.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
@@ -86,8 +86,7 @@ class _AppWelcomePageState extends HashPassState<AppWelcomePage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                        left: 20,
-                        right: 20,
+                        left: 12,
                       ),
                       child: HashPassCheckBox(
                         onChange: (checked) => setState(() {
@@ -103,11 +102,15 @@ class _AppWelcomePageState extends HashPassState<AppWelcomePage> {
                             GestureDetector(
                               child: HashPassLabel(
                                 text: language.privacyPolicy.toUpperCase(),
-                                color: Get.theme.toggleableActiveColor,
+                                color: Get.theme.indicatorColor,
                                 size: 12,
                               ),
-                              onTap: () => launch(
-                                  "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/"),
+                              onTap: () => launchUrl(
+                                Uri(
+                                  path:
+                                      "https://joaobontempo.github.io/HashPassWebsite/hashpass-website/",
+                                ),
+                              ),
                             )
                           ],
                         ),

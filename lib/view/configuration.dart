@@ -87,6 +87,7 @@ class _ConfigurationPageState extends HashPassState<ConfigurationPage> {
                       icon: Icons.language_outlined,
                       values: HashPassLanguage.values,
                     ),
+                    const HashPassConfigDivider(),
                     BooleanConfigWidget(
                       useState: false,
                       isVisible: hasBiometricValidation,
@@ -102,6 +103,15 @@ class _ConfigurationPageState extends HashPassState<ConfigurationPage> {
                       label: language.biometricConfigTitle,
                       icon: Icons.fingerprint,
                       value: isBiometric,
+                    ),
+                    const HashPassConfigDivider(),
+                    BooleanConfigWidget(
+                      onChange: (checked) =>
+                          configuration.setConfigs(useDesktop: checked),
+                      description: language.useDesktopDescription,
+                      label: language.useDesktopTitle,
+                      icon: Icons.desktop_windows_outlined,
+                      value: configuration.useDesktop,
                     ),
                     const HashPassConfigDivider(),
                     HashPassRadioConfig<HashPassTheme>(
@@ -176,7 +186,7 @@ class _ConfigurationPageState extends HashPassState<ConfigurationPage> {
                                 ),
                                 child: Text(
                                   language.timerDurationConfigDescription,
-                                  style: Theme.of(context).textTheme.headline1,
+                                  style: Theme.of(context).textTheme.titleLarge,
                                   textAlign: TextAlign.start,
                                 ),
                               ),

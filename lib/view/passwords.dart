@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
+import 'package:hashpass/provider/hashPassDesktopProvider.dart';
 import 'package:hashpass/provider/passwordCardProvider.dart';
 import 'package:hashpass/provider/passwordRegisterProvider.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
-import 'package:hashpass/util/ads.dart';
 import 'package:hashpass/util/appContext.dart';
 import 'package:hashpass/util/versionControl.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
@@ -30,15 +29,15 @@ class PasswordsMenu extends StatefulWidget {
 }
 
 class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
-  final GlobalKey key = GlobalKey();
   final GlobalKey floatingButtonKey = GlobalKey();
-  final GlobalKey cardKey = GlobalKey();
-  final GlobalKey saveKey = GlobalKey();
-  final GlobalKey editKey = GlobalKey();
-  final GlobalKey removeKey = GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get mainKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get cardKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get saveKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get editKey => () => GlobalKey();
+  GlobalKey<State<StatefulWidget>> Function() get removeKey =>
+      () => GlobalKey();
   final filterController = TextEditingController();
   late final ScrollController scroller;
-  late BannerAd bannerAd;
   bool showSearchField = true;
 
   @override
@@ -48,24 +47,13 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
     HashPassContext.scroller = scroller;
     HashPassContext.keys = [
       floatingButtonKey,
-      key,
-      cardKey,
-      editKey,
-      removeKey,
-      saveKey
+      mainKey(),
+      cardKey(),
+      editKey(),
+      removeKey(),
+      saveKey()
     ];
     super.initState();
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: ADType.BANNER.id,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {},
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        },
-      ),
-      request: const AdRequest(),
-    )..load();
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => HashPassVersion.checkPath(Configuration.instance),
@@ -100,14 +88,22 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
 
   void newPasswordScreen(UserPasswordsProvider provider) {
     Get.focusScope!.unfocus();
-    Get.to(MultiProvider(
-      providers: [
-        ChangeNotifierProvider<UserPasswordsProvider>.value(value: provider),
-        ChangeNotifierProvider<PasswordRegisterProvider>(
-            create: (context) => PasswordRegisterProvider(Password(), provider))
-      ],
-      builder: (context, _) => const NewPasswordPage(),
-    ));
+    Get.to(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<UserPasswordsProvider>.value(
+            value: provider,
+          ),
+          ChangeNotifierProvider<PasswordRegisterProvider>(
+            create: (context) => PasswordRegisterProvider(
+              Password(),
+              provider,
+            ),
+          )
+        ],
+        builder: (context, _) => const NewPasswordPage(),
+      ),
+    );
   }
 
   void onPasswordDelete(
@@ -128,17 +124,17 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
 
   @override
   Widget localeBuild(context, language) =>
-      Consumer2<UserPasswordsProvider, Configuration>(
-        builder: (context, userPasswordsProvider, configuration, _) => Scaffold(
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(bottom: 50),
-            child: Showcase(
-              key: floatingButtonKey,
-              description: language.newPasswordShowCase,
-              child: FloatingActionButton(
-                child: const Icon(Icons.add),
-                onPressed: () => newPasswordScreen(userPasswordsProvider),
-              ),
+      Consumer3<UserPasswordsProvider, Configuration, HashPassDesktopProvider>(
+        builder: (context, userPasswordsProvider, configuration, desktop, _) =>
+            Scaffold(
+          floatingActionButton: Showcase(
+            key: floatingButtonKey,
+            description: language.newPasswordShowCase,
+            child: FloatingActionButton(
+              shape: const CircleBorder(),
+              mini: true,
+              child: const Icon(Icons.add),
+              onPressed: () => newPasswordScreen(userPasswordsProvider),
             ),
           ),
           body: userPasswordsProvider.isLoading
@@ -155,7 +151,7 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
                             height: 60,
                             controller: scroller,
                             child: Showcase(
-                              key: key,
+                              key: mainKey(),
                               description: language.passwordFilterShowCase,
                               child: AppSearchText(
                                 placeholder: language.passwordFilterPlaceholder,
@@ -206,15 +202,15 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
                                                     CardStyle.DEFAULT
                                                 ? PasswordCard(
                                                     isExample: isExampleCard,
-                                                    cardKey: cardKey,
-                                                    editKey: editKey,
-                                                    removeKey: removeKey,
-                                                    saveKey: saveKey,
+                                                    cardKey: cardKey(),
+                                                    editKey: editKey(),
+                                                    removeKey: removeKey(),
+                                                    saveKey: saveKey(),
                                                   )
                                                 : SimpleCardPassword(
-                                                    cardKey: cardKey,
-                                                    editKey: editKey,
-                                                    removeKey: removeKey,
+                                                    cardKey: cardKey(),
+                                                    editKey: editKey(),
+                                                    removeKey: removeKey(),
                                                     isExample: isExampleCard,
                                                   ),
                                       );
@@ -242,14 +238,6 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
                         ],
                       ),
                     ),
-          bottomSheet: Container(
-            width: Get.width,
-            height: bannerAd.size.height.toDouble(),
-            color: Colors.transparent,
-            child: Center(
-              child: AdWidget(ad: bannerAd),
-            ),
-          ),
         ),
       );
 }

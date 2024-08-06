@@ -32,16 +32,20 @@ class _HashPassSwitchState extends State<HashPassSwitch> {
           size: widget.labelSize,
           fontWeight: widget.labelWeight,
         ),
-        Switch(
-          value: widget.value,
-          onChanged: (checked) {
-            if (widget.useState) {
-              setState(() {
-                widget.value = checked;
-              });
-            }
-            widget.onChange(checked);
-          },
+        Transform.scale(
+          scaleX: 0.7,
+          scaleY: 0.63,
+          child: Switch(
+            value: widget.value,
+            onChanged: (checked) {
+              if (widget.useState) {
+                setState(() {
+                  widget.value = checked;
+                });
+              }
+              widget.onChange(checked);
+            },
+          ),
         ),
       ],
     );

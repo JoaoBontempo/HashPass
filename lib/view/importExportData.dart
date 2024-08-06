@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:hashpass/dto/dataExportDTO.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/userPasswordsProvider.dart';
-import 'package:hashpass/util/cryptography.dart';
+import 'package:hashpass/util/security/cryptography.dart';
 import 'package:hashpass/util/util.dart';
 import 'package:hashpass/util/validator.dart';
 import 'package:hashpass/view/hashPassWidgets.dart';
@@ -52,7 +52,7 @@ class _ImportExportDataPageState extends HashPassState<ImportExportDataPage> {
         String filePath = '${Directory.systemTemp.path}/hashpass.txt';
         final File file = File(filePath);
         await file.writeAsString(exportDTO.fileContent);
-        await Share.shareFiles([filePath]);
+        await Share.shareXFiles([XFile(filePath)]);
         HashPassMessage.show(
           body: Column(
             children: [
@@ -194,7 +194,7 @@ class _ImportExportDataPageState extends HashPassState<ImportExportDataPage> {
                               HashPassLabel(
                                 paddingTop: 20,
                                 text: language.dataExportExplanation,
-                                style: Get.theme.textTheme.headline1,
+                                style: Get.theme.textTheme.titleLarge,
                               ),
                               HashPassLabel(
                                 paddingTop: 15,
@@ -236,7 +236,7 @@ class _ImportExportDataPageState extends HashPassState<ImportExportDataPage> {
                             padding: const EdgeInsets.only(top: 10),
                             child: Text(
                               language.dataImportExplanation,
-                              style: Theme.of(context).textTheme.headline1,
+                              style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
                           Padding(
