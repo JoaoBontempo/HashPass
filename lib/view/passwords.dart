@@ -30,6 +30,8 @@ class PasswordsMenu extends StatefulWidget {
 
 class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
   final GlobalKey floatingButtonKey = GlobalKey();
+  final GlobalKey searchInputGlobalKey = GlobalKey();
+
   GlobalKey<State<StatefulWidget>> Function() get mainKey => () => GlobalKey();
   GlobalKey<State<StatefulWidget>> Function() get cardKey => () => GlobalKey();
   GlobalKey<State<StatefulWidget>> Function() get saveKey => () => GlobalKey();
@@ -154,6 +156,7 @@ class _PasswordsMenuState extends HashPassState<PasswordsMenu> {
                               key: mainKey(),
                               description: language.passwordFilterShowCase,
                               child: AppSearchText(
+                                key: searchInputGlobalKey,
                                 placeholder: language.passwordFilterPlaceholder,
                                 controller: filterController,
                                 onChange: userPasswordsProvider.filterPasswords,
