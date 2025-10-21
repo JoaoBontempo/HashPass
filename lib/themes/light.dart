@@ -23,7 +23,7 @@ class LightAppTheme {
           color: Colors.grey.shade400,
           circularTrackColor: AppColors.SECONDARY_LIGHT,
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           color: Colors.white,
         ),
         textSelectionTheme: TextSelectionThemeData(

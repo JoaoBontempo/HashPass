@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hashpass/l10n/app_localizations.dart';
 import 'package:hashpass/widgets/configuration/cardStyle.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hashpass/themes/theme.dart';
 import 'package:hashpass/util/security/cryptography.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum ConfigurationKeys {
   PASSWORD_CARD_STYLE('cardStyle'),

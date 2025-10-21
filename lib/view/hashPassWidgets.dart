@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hashpass/l10n/app_localizations.dart';
 import 'package:get/get.dart';
 
 class HashPassStatelessWidget extends StatelessWidget {

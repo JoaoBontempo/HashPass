@@ -14,7 +14,7 @@ import 'package:hashpass/view/splashpage.dart';
 import 'package:hashpass/view/entrance/welcomepage.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hashpass/l10n/app_localizations.dart';
 import 'provider/configurationProvider.dart';
 
 void main() async {

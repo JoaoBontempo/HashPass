@@ -6,7 +6,7 @@ import 'package:hashpass/util/security/cryptography.dart';
 import 'package:hashpass/util/route.dart';
 import 'package:hashpass/widgets/appKeyValidation.dart';
 import 'package:hashpass/widgets/interface/snackbar.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hashpass/l10n/app_localizations.dart';
 
 class PasswordRegisterProvider extends PasswordProvider {
   final titleController = TextEditingController();

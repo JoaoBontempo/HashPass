@@ -20,7 +20,7 @@ class DarkAppTheme {
           circularTrackColor: Colors.grey,
           color: Colors.black,
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           color: Colors.black,
         ),
         textSelectionTheme: const TextSelectionThemeData(
@@ -45,7 +45,7 @@ class DarkAppTheme {
         ),
         unselectedWidgetColor: Colors.grey,
         indicatorColor: AppColors.ACCENT_DARK_2,
-        dialogTheme: const DialogTheme(
+        dialogTheme: const DialogThemeData(
           backgroundColor: Color(0xFF202029),
           titleTextStyle: TextStyle(
             color: Colors.grey,

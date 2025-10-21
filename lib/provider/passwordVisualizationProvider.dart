@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:hashpass/model/password.dart';
 import 'package:hashpass/provider/configurationProvider.dart';
 import 'package:hashpass/util/security/cryptography.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hashpass/l10n/app_localizations.dart';
 
 class PasswordVisualizationProvider extends ChangeNotifier {
   final Password password;
