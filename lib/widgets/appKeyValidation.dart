@@ -56,15 +56,10 @@ class _AuthAppKeyState extends HashPassState<AuthAppKey> {
         auth.authenticate(
           authMessages: [
             AndroidAuthMessages(
-              biometricHint: appLanguage.verifyIdentity,
               signInTitle: appLanguage.authNeeded,
             ),
           ],
           localizedReason: appLanguage.unlockNeeded,
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-            useErrorDialogs: true,
-          ),
         ).then(
           (isValidBiometric) {
             Get.back();
