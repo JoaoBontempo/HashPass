@@ -1,13 +1,20 @@
+import 'dart:convert';
+import 'package:encrypt/encrypt.dart';
 import 'package:aescryptojs/aescryptojs.dart';
-import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 
-class AES {
+class AESHashPass {
   static Future<String> encrypt(String message, String key) async {
-    return (await FlutterAesEcbPkcs5.encryptString(message, key))!;
+    final encrypter =
+        Encrypter(AES(Key.fromUtf8(key), mode: AESMode.ecb, padding: 'PKCS7'));
+    final encrypted = encrypter.encrypt(message);
+    return base64.encode(encrypted.bytes);
   }
 
   static Future<String> decrypt(String message, String key) async {
-    return (await FlutterAesEcbPkcs5.decryptString(message, key))!;
+    final encrypter =
+        Encrypter(AES(Key.fromUtf8(key), mode: AESMode.ecb, padding: 'PKCS7'));
+    final decrypted = encrypter.decrypt(Encrypted(base64.decode(message)));
+    return decrypted;
   }
 
   static String encryptServer(String message, String key) {

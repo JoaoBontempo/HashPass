@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart' as hashs;
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter_aes_ecb_pkcs5/flutter_aes_ecb_pkcs5.dart';
 import 'package:hashpass/dto/dataExportDTO.dart';
 import 'package:hashpass/dto/leakPassDTO.dart';
 import 'package:hashpass/model/password.dart';
@@ -174,8 +173,8 @@ class HashCrypt {
     String truePassword = Hash.applyHashPass(algorithm, decipheredPassword!);
     if (isAdvanced) {
       try {
-        truePassword =
-            (await AES.encrypt(truePassword, truePassword.substring(0, 32)));
+        truePassword = (await AESHashPass.encrypt(
+            truePassword, truePassword.substring(0, 32)));
         truePassword = base64Encode(truePassword.codeUnits);
         int length = truePassword.length;
         int numCaracteres = (length / 3) ~/ 10;
@@ -252,7 +251,7 @@ class HashCrypt {
       String ciphered, String? generalKey) async {
     try {
       String? key = await getGeneralKey(generalKey);
-      return await FlutterAesEcbPkcs5.decryptString(ciphered, key!);
+      return await AESHashPass.decrypt(ciphered, key!);
     } catch (error) {
       return error.toString();
     }
@@ -260,7 +259,7 @@ class HashCrypt {
 
   static Future<String> cipherString(String senha, String? chaveGeral) async {
     String? key = await getGeneralKey(chaveGeral);
-    return (await AES.encrypt(senha, key!));
+    return (await AESHashPass.encrypt(senha, key!));
   }
 
   static String getGeneralKeyBase() {

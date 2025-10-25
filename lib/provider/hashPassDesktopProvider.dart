@@ -143,14 +143,14 @@ class HashPassDesktopProvider extends ChangeNotifier {
   void sendMessage(DesktopOperationDTO messageDto) {
     if (isConnected) {
       String encryptedData =
-          AES.encryptServer(messageDto.toJson(), _getServerKey);
+          AESHashPass.encryptServer(messageDto.toJson(), _getServerKey);
       socket!.sink.add(encryptedData);
     }
   }
 
   void processMessage(String serverMessage) async {
     String aesEncryptedMessage =
-        AES.decryptServer(serverMessage, _getServerKey);
+        AESHashPass.decryptServer(serverMessage, _getServerKey);
 
     DesktopOperationDTO<dynamic> operation =
         DesktopOperationDTO.fromJson(aesEncryptedMessage);
