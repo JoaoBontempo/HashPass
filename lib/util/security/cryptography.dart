@@ -134,7 +134,15 @@ class HashCrypt {
     String appKey,
   ) async {
     fileContent = await decipherString(
-            fromBase64(await decipherString(fileContent, appKey) ?? ""), key) ??
+          fromBase64(
+            await decipherString(
+                  fileContent,
+                  appKey,
+                ) ??
+                "",
+          ),
+          key,
+        ) ??
         "";
     List<String> values = fileContent.split(';');
     String? passwordsJson =
@@ -258,6 +266,10 @@ class HashCrypt {
   }
 
   static Future<String> cipherString(String senha, String? chaveGeral) async {
+    if (senha.isEmpty) {
+      return '';
+    }
+
     String? key = await getGeneralKey(chaveGeral);
     return (await AESHashPass.encrypt(senha, key!));
   }
